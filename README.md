@@ -1,20 +1,20 @@
 # A GUI web application for the reveal.js presentation framework
 
-# What is reveal.js?
+## What is reveal.js?
 blah blah blah
 
-# Usage
+## Usage
 blah blah blah
 
-# Contributors
-## Backend
+## Contributors
+### Backend
 - @rhusiev
 - @katjakovalchuk
 
-## Frontend
+### Frontend
 - @pmozil
 - @ayrinnnx
 - @moisamidi
 
-# License
+## License
 GNU General Public License v3.0
