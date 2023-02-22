@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "reveal-gui"
+version = "0.1.0"
+description = "A GUI web application written in python for reveal.js"
+authors = ["radomyr <h.radomyr@proton.me>"]
+license = "GPLv3"
+readme = "README.md"
+packages = [{include = "reveal_gui"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
