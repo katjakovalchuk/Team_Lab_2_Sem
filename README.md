@@ -8,13 +8,13 @@ blah blah blah
 
 # Contributors
 ## Backend
-@rhusiev
-@katjakovalchuk
+- @rhusiev
+- @katjakovalchuk
 
 ## Frontend
-@pmozil
-@ayrinnnx
-@moisamidi
+- @pmozil
+- @ayrinnnx
+- @moisamidi
 
 # License
 GNU General Public License v3.0
