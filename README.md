@@ -10,10 +10,10 @@ blah blah blah
 ### Backend
 - @rhusiev
 - @katjakovalchuk
+- @ayrinnnx
 
 ### Frontend
 - @pmozil
-- @ayrinnnx
 - @moisamidi
 
 ## License
