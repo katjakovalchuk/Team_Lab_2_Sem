@@ -9,6 +9,8 @@ packages = [{include = "reveal_gui"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+fastapi = "^0.92.0"
+fastapi-restful = "^0.4.3"
 
 
 [build-system]
