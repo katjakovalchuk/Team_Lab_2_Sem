@@ -1,0 +1,25 @@
+.main {
+    position: relative;
+    margin-top: 3.2em;
+    display: flex;
+    min-height: 100vh;
+    min-width: 100vw;
+    overflow-x: hidden;
+    background-color: var(--background-color);
+}
+
+.main .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-width: 100%;
+}
+.main .info h1 {
+    font-size: 2.4rem;
+}
+
+.main .info span {
+    font-size: 1.2rem;
+    margin-top: 1.2rem;
+}
