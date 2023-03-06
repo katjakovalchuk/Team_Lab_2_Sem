@@ -1,4 +1,4 @@
-import { FaHome, FaPen, FaBook } from "react-icons/fa";
+import { FaHome, FaPen, FaBook, FaEnvelopeOpenText } from "react-icons/fa";
 import styles from "../scss/bar.module.scss";
 
 export default function NavBar() {
@@ -14,6 +14,9 @@ export default function NavBar() {
                     </a>
                     <a href="/projects" className={styles.icon}>
                         <FaBook />
+                    </a>
+                    <a href="/login" className={styles.icon}>
+                        <FaEnvelopeOpenText />
                     </a>
                 </div>
             </nav>

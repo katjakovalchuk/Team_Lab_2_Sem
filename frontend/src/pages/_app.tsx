@@ -1,6 +1,22 @@
+import React from 'react';
 import "../scss/globals.scss"
+import NavBar from "../components/bar";
 
-// This default export is required in a new `pages/_app.js` file.
+function SafeHydrate({ children }) {
+    return (
+        <div suppressHydrationWarning>
+            {typeof window === 'undefined' ? null : children}
+        </div>
+    )
+}
+
 export default function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+    return (
+        <>
+            <NavBar />
+            <div className="app">
+                <Component {...pageProps} />
+            </div>
+        </>
+    )
 }
