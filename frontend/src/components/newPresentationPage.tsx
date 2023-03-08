@@ -1,4 +1,5 @@
 import styles from "../scss/editor.module.scss";
+import TextInput from "./textInput";
 
 export default function NewPersentationPage() {
     return (
@@ -8,8 +9,8 @@ export default function NewPersentationPage() {
                     Create New Presentation
                 </h1>
                 <form className={styles.inputBox} action="/api/new/">
-                    <input type="input" className={styles.textInput} placeholder="Presentation Name" name="presName" id="presName" required />
-                    <label htmlFor="presName" className={styles.label}>Presentation Name</label>
+                    <TextInput placeholder="Presentation Name" is="presName" name="presName" />
+                    <input type="submit" style={{ display: "none" }} />
                 </form>
             </div>
         </>
