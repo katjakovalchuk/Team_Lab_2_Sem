@@ -1,16 +1,9 @@
 import React from 'react';
-import "../scss/globals.scss"
+import "../scss/globals.scss";
 import NavBar from "../components/bar";
+import { AppProps } from 'next/app';
 
-function SafeHydrate({ children }) {
-    return (
-        <div suppressHydrationWarning>
-            {typeof window === 'undefined' ? null : children}
-        </div>
-    )
-}
-
-export default function MyApp({ Component, pageProps }) {
+export default function MyApp({ Component, pageProps }: AppProps) {
     return (
         <>
             <NavBar />

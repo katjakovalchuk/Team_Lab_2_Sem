@@ -9,7 +9,7 @@ export default function NewPersentationPage() {
                     Create New Presentation
                 </h1>
                 <form className={styles.inputBox} action="/api/new/">
-                    <TextInput placeholder="Presentation Name" is="presName" name="presName" />
+                    <TextInput placeholder="Presentation Name" id="presName" name="presName" required={true} />
                     <input type="submit" style={{ display: "none" }} />
                 </form>
             </div>
