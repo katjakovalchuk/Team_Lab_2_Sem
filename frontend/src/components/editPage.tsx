@@ -9,7 +9,10 @@ export default function Editor(props) {
                 <div className={styles.editorBox}>
 
                 </div>
-                <div>
+
+                <div className="reveal">
+                    <div className="slides">
+                    </div>
                 </div>
             </div>
         </>
