@@ -1,7 +1,9 @@
 import { FaHome, FaPen, FaBook, FaEnvelopeOpenText } from "react-icons/fa";
+import Overlay from "./overlayMenu";
+import NewPersentationPage from "./newPresentationPage";
 import styles from "../scss/bar.module.scss";
 
-export default function NavBar() {
+export default function NavBar(props) {
     return (
         <>
             <nav className={styles.navbar}>
@@ -9,9 +11,7 @@ export default function NavBar() {
                     <FaHome />
                 </a>
                 <div className={styles.utils}>
-                    <a href="/new" className={styles.icon}>
-                        <FaPen />
-                    </a>
+                    <FaPen className={styles.icon} onClick={() => { props.setNewDisplay(true) }} />
                     <a href="/projects" className={styles.icon}>
                         <FaBook />
                     </a>
