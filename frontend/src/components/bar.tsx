@@ -1,6 +1,5 @@
 import { FaHome, FaPen, FaBook, FaEnvelopeOpenText } from "react-icons/fa";
 import Overlay from "./overlayMenu";
-import NewPersentationPage from "./newPresentationPage";
 import styles from "../scss/bar.module.scss";
 
 export default function NavBar(props) {

@@ -1,7 +1,8 @@
 import styles from "../scss/editor.module.scss";
 import TextInput from "./textInput";
+import useScript from "./useScript";
 
-export default function NewPersentationPage() {
+export default function Editor() {
     return (
         <>
             <div className={styles.editorBox}>

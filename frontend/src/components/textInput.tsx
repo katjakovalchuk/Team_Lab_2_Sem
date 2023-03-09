@@ -1,4 +1,4 @@
-import styles from "../scss/editor.module.scss";
+import styles from "../scss/newPres.module.scss";
 
 interface InputProps {
     placeholder: string;
