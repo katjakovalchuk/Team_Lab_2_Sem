@@ -40,12 +40,27 @@ class Presentation:
         self.unused_id_max += 1
         return self.unused_id_max - 1
 
-    def add_slide(self) -> None:
+    def add_slide(self) -> int:
         """
         Add a slide to the presentation
+
+        Returns:
+            slide_id (int): id of the new slide
         """
         new_id = self.get_new_id()
         self.slides[new_id] = Slide(new_id)
+        return new_id
+
+    def get_slide(self, slide_id: int) -> "Slide":
+        """
+        Get the slide with the given id
+
+        Parameters:
+            slide_id (int): id of the slide
+        """
+        if slide_id not in self.slides:
+            raise ValueError(f"Slide with id {slide_id} does not exist")
+        return self.slides[slide_id]
 
     def add_subslide(self, slide_id: int) -> None:
         """
