@@ -1,20 +1,8 @@
 import styles from "../scss/editor.module.scss";
 import TextInput from "./textInput";
-import Reveal from "reveal.js";
-import Markdown from "plugin/markdown/markdown.esm.js"
 import { useEffect, useState } from "react";
 
-interface EditorProps {
-    presentationId: string;
-
-};
-
-interface JSONSlide {
-    type: string;
-    content: string;
-}
-
-function ToSection(obj: JSONSlide) {
+function ToSection(obj) {
     switch (obj.type) {
         case "other":
         case "text":
@@ -39,22 +27,20 @@ function ToSection(obj: JSONSlide) {
     return "# Empty slide"
 }
 
-export default function Editor(props: EditorProps) {
-    useEffect(() => {
-        setTimeout(() => { Reveal.sync() }, 3000);
-    }, []);
-
+export default function Editor(props) {
     const [slides, setSlides] = useState(
         [
             {
-                content: [
-                    {
-                        type: "text",
-                        content: "# Hiya there! Meesa an empty slide!",
-                        data_transition: "",
-                        bg: "#1f2a31"
-                    }
-                ],
+                content: {
+                    page_one: [
+                        {
+                            type: "text",
+                            content: "# Hiya there! Meesa an empty slide!",
+                            data_transition: "",
+                            bg: "#1f2a31"
+                        }
+                    ]
+                },
                 dataTransition: "",
                 isMarkdown: true,
                 bg: "1f2a31"
@@ -64,15 +50,22 @@ export default function Editor(props: EditorProps) {
     const [slideIdx, setSlideIdx] = useState(0);
 
     useEffect(() => {
-        const headers = { "Content-type": "application/json" };
-        fetch(`/api/presentations/${props.presentationId}`, { headers })
-            .then(resp => resp.json())
-            .then(data => setSlides(data["slides"]))
-    }, [])
+        // const headers = { "Content-type": "application/json" };
+        // fetch(`/api/presentations/${props.presentationId}`, { headers })
+        //     .then(resp => resp.json())
+        //     .then(data => setSlides(data["slides"]))
 
-    Reveal.initialize({
-        plugins: [Markdown]
-    });
+        const clientSideInitialization = async () => {
+            // load modules in browser
+            const Reveal = await (await import("reveal.js")).default
+            const Markdown = await (await import("reveal.js/plugin/markdown/markdown.esm")).default
+            const deck = new Reveal({
+                plugins: [Markdown]
+            })
+            deck.initialize()
+        }
+        clientSideInitialization()
+    }, [])
 
     return (
         <>
@@ -86,10 +79,10 @@ export default function Editor(props: EditorProps) {
                         {
                             slides[slideIdx].isMarkdown ?
                                 (<section data-markdown data-background-color={slides[slideIdx].bg} data-transition={slides[slideIdx].dataTransition}>
-                                    {slides[slideIdx].content.map(ToSection)}
+                                    {Object.entries(slides[slideIdx].content).map(v => { return ToSection(v[1]) })}
                                 </section>) :
                                 (<section data-background-color={slides[slideIdx].bg} data-transition={slides[slideIdx].dataTransition}>
-                                    {slides[slideIdx].content.map(ToSection)}
+                                    {Object.entries(slides[slideIdx].content).map(v => { return ToSection(v[1]) })}
                                 </section>)
                         }
                     </div>

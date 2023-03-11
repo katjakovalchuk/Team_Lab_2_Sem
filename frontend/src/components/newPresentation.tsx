@@ -1,4 +1,4 @@
-import styles from "../scss/newPres.module.scss";
+import styles from "../scss/editor.module.scss";
 import TextInput from "./textInput";
 
 export default function NewPresentation() {
