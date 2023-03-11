@@ -79,9 +79,12 @@ class PresentationAPI:
         # TODO
 
     @router.post("/{username}/{presentation_name}/add_slide")
-    def add_slide(self) -> None:
+    def add_slide(self) -> int:
         """
         Add a new slide to the presentation
+
+        Returns:
+            int: The id of the new slide
         """
         # TODO: add a new slide to the presentation with the given name
 
