@@ -1,6 +1,7 @@
 import styles from "../scss/editor.module.scss";
 import TextInput from "./textInput";
-import useScript from "./useScript";
+import Reveal from "reveal.js";
+import Markdown from "plugin/markdown/markdown.esm.js"
 import { useEffect, useState } from "react";
 
 interface EditorProps {
@@ -13,17 +14,54 @@ interface JSONSlide {
     content: string;
 }
 
-function ToComponent(obj: JSONSlide) {
-    // switch(obj.type) {
-    //     case "markdown":
-    //     case "text":
-    // }
-    return <></>
+function ToSection(obj: JSONSlide) {
+    switch (obj.type) {
+        case "other":
+        case "text":
+            return obj.content
+
+        case "code":
+            return (
+                <pre data-id="code">
+                    <code>
+                        {obj.content}
+                    </code>
+                </pre>
+            )
+
+        case "img":
+            return <img src={obj.content} />
+
+        case "iframe":
+            return <iframe allowFullScreen src={obj.content} />
+
+    }
+    return "# Empty slide"
 }
 
 export default function Editor(props: EditorProps) {
-    const [slides, setSlides] = useState([]);
-    const [sideIdx, setSlideIdx] = useState([0]);
+    useEffect(() => {
+        setTimeout(() => { Reveal.sync() }, 3000);
+    }, []);
+
+    const [slides, setSlides] = useState(
+        [
+            {
+                content: [
+                    {
+                        type: "text",
+                        content: "# Hiya there! Meesa an empty slide!",
+                        data_transition: "",
+                        bg: "#1f2a31"
+                    }
+                ],
+                dataTransition: "",
+                isMarkdown: true,
+                bg: "1f2a31"
+            }
+        ]
+    );
+    const [slideIdx, setSlideIdx] = useState(0);
 
     useEffect(() => {
         const headers = { "Content-type": "application/json" };
@@ -31,6 +69,10 @@ export default function Editor(props: EditorProps) {
             .then(resp => resp.json())
             .then(data => setSlides(data["slides"]))
     }, [])
+
+    Reveal.initialize({
+        plugins: [Markdown]
+    });
 
     return (
         <>
@@ -41,6 +83,15 @@ export default function Editor(props: EditorProps) {
 
                 <div className="reveal">
                     <div className="slides">
+                        {
+                            slides[slideIdx].isMarkdown ?
+                                (<section data-markdown data-background-color={slides[slideIdx].bg} data-transition={slides[slideIdx].dataTransition}>
+                                    {slides[slideIdx].content.map(ToSection)}
+                                </section>) :
+                                (<section data-background-color={slides[slideIdx].bg} data-transition={slides[slideIdx].dataTransition}>
+                                    {slides[slideIdx].content.map(ToSection)}
+                                </section>)
+                        }
                     </div>
                 </div>
             </div>
