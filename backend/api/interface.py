@@ -171,3 +171,6 @@ class PresentationAPI:
         # TODO
 
     # TODO: All the other necessary methods
+
+
+app.include_router(router)
