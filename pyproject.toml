@@ -5,7 +5,7 @@ description = "A GUI web application written in python for reveal.js"
 authors = ["radomyr <h.radomyr@proton.me>"]
 license = "GPLv3"
 readme = "README.md"
-packages = [{include = "reveal_gui"}]
+packages = [{include = "api", from = "backend"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
