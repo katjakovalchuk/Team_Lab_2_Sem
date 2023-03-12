@@ -12,6 +12,7 @@
      align-items: center;
      min-width: 100%;
      height: 100%;
+     margin-bottom: 1em;
  
      h1 {
          font-size: 2.4rem;
@@ -94,5 +95,78 @@
      .textInput{
        &:required,&:invalid { box-shadow:none; }
      }
- }
 
+     .textBox {
+         outline: none;
+         border-radius: 0.4em;
+         font-family: inherit;
+         width: 100%;
+         border: 1px solid var(--border-color) !important;
+         color: var(--fg-color);
+         padding: 1em;
+         background: transparent;
+         transition: border-color 200ms;
+     
+         &::placeholder {
+             color: transparent;
+         }
+     
+         .label {
+             font-size: 1.3rem;
+             cursor: text;
+             top: 20px;
+         }
+     }
+
+     .textBox:focus {
+       ~ .label {
+         position: absolute;
+         top: -0.3em;
+         display: block;
+         transition: 0.2s;
+         font-size: 0.9rem;
+         color: var(--highlight-color);
+         font-weight:700;    
+       }
+       border-color: var(--highlight-color);
+     }
+ 
+     .textBox:not(:invalid):not(:focus) {
+       ~ .label {
+         position: absolute;
+         top: -0.3em !important;
+         display: block;
+         transition: 0.2s;
+         font-size: 0.9rem;
+         color: var(--fg-color);
+         font-weight:700;    
+       }
+     }
+ 
+    .accordion {
+      margin: 1rem auto;
+    }
+    
+    .accordionTitle {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      cursor: pointer;
+      background-color: var(--background-color);
+      border-bottom: 1px solid var(--fg-color);
+    }
+    
+    .accordionTitle:hover * {
+      color: var(--highlight-color);
+    }
+    
+    .accordionTitle,
+    .accordion-content {
+      padding: 0.5rem;
+    }
+    
+    .accordionContent {
+      background-color: var(--nav-color);
+    
+     }
+}

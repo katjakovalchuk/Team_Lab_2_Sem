@@ -1,4 +1,5 @@
 import styles from "../scss/editor.module.scss";
+import ElementEditor from "./editElement";
 import { useEffect, useState } from "react";
 
 export default function Editor(props) {
@@ -9,11 +10,12 @@ export default function Editor(props) {
                     page_one: {
                         type: "img",
                         content: "https://picsum.photos/200/300",
+                    },
+                    page_two: {
+                        type: "img",
+                        content: "https://picsum.photos/200/300",
                     }
                 },
-                dataTransition: "",
-                isMarkdown: true,
-                bg: "#fff"
             }
         ]
     );
@@ -30,7 +32,12 @@ export default function Editor(props) {
     return (
         <>
             <div className={styles.editorBox}>
-
+                {Object.entries(slides[slideIdx].content).map(
+                    v => {
+                        return <ElementEditor key={v[0]} id={v[0]} name={v[0]} required={true} type={v[1].type} value={v[1].content} />;
+                    }
+                )
+                }
             </div>
         </>
     )
