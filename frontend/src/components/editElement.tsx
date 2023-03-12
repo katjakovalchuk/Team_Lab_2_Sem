@@ -1,14 +1,21 @@
 import styles from "../scss/editor.module.scss";
 import { useState } from "react";
 import { TextInput, TextArea } from "./textInput";
+import { FaTrash } from "react-icons/fa";
 
 export default function ElementEditor(props) {
     const [collapsed, setCollapsed] = useState(true);
     let textAreaPlaceholder = (props.type == "img" || props.type == "iframe") ? "src" : props.type;
     return (
         <div className={styles.editorBox}>
-            <div className={styles.accordionTitle} onClick={() => setCollapsed(!collapsed)}>
-                <span><h3>{props.id + (collapsed ? "  +" : "  -")}</h3></span>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <div className={styles.accordionTitle} onClick={() => setCollapsed(!collapsed)}>
+                    <span><h3>{props.id + (collapsed ? "  +" : "  -")}</h3></span>
+                </div>
+                <FaTrash
+                    className={styles.deleteIcon}
+                    onClick={props.removeElement}
+                />
             </div>
             <div className={styles.accordionContent}>
                 {

@@ -44,7 +44,7 @@ export default function Editor(props) {
         let curSlides = slides;
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].content = val;
-            setSlides(curSlides);
+            setSlides([...curSlides]);
         }
         return updateFn;
     }
@@ -53,7 +53,7 @@ export default function Editor(props) {
         let curSlides = slides;
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].type = val;
-            setSlides(curSlides);
+            setSlides([...curSlides]);
         }
         return updateFn;
     }
@@ -62,7 +62,16 @@ export default function Editor(props) {
         let curSlides = slides;
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].name = val;
-            setSlides(curSlides);
+            setSlides([...curSlides]);
+        }
+        return updateFn;
+    }
+
+    const removeComponent = (index) => {
+        let curSlides = slides;
+        const updateFn = (val) => {
+            delete curSlides[slideIdx].content[index];
+            setSlides([...curSlides]);
         }
         return updateFn;
     }
@@ -124,7 +133,7 @@ export default function Editor(props) {
                 <h2>{slides[slideIdx].name}</h2>
                 {
                     Object.entries(slides[slideIdx].content).map(
-                        v => <ElementEditor key={`${v[1].name}_${v[0]}`} type={v[1].type} id={v[1].name} name={v[1].name} required={true} value={v[1].content} updateContent={updateElementContent(v[0])} updateName={updateElementName(v[0])} updateType={updateElementType(v[0])} />
+                        v => <ElementEditor key={`${v[1].name}_${v[0]}`} type={v[1].type} id={v[1].name} name={v[1].name} required={true} value={v[1].content} updateContent={updateElementContent(v[0])} updateName={updateElementName(v[0])} updateType={updateElementType(v[0])} removeElement={removeComponent(v[0])} />
                     )
                 }
             </div>

@@ -216,9 +216,21 @@
     
     .accordionContent {
         background-color: var(--background-color);
+        max-width: calc(50% - 4em);
      }
 
     .accordionContent * {
         margin-top: 1em;
+    }
+
+    .deleteIcon {
+        margin-left: 0.5em;
+        font-size: 2em;
+        transition: 200ms all;
+        position: relative;
+    }
+
+    .deleteIcon:hover {
+        color: var(--highlight-color);
     }
 }
