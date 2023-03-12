@@ -6,6 +6,7 @@ export default function Editor(props) {
     const [slides, setSlides] = useState(
         [
             {
+                name: "slide_1",
                 content: [
                     {
                         name: "page_one",
