@@ -1,9 +1,37 @@
 .vertical {
     margin-top: 2em;
     height: auto;
-    width: calc(50% - 4em);
-    padding-left: 2em;
+    width: calc(50%);
+    padding-left: 1em;
     padding-right: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+     .arrows {
+         font-size: 2em;
+         margin: 0.3em 0;
+
+         * {
+            transition: all 200ms;
+            margin: 0 0.2em;
+         }
+
+         *:hover {
+             color: var(--highlight-color);
+         }
+     }
+     
 }
 
  .editorBox {
@@ -25,7 +53,7 @@
          margin-top: 0.8em;
          width: 16em;
      }
-     
+
      .textInput {
          outline: none;
          font-family: inherit;
@@ -147,10 +175,12 @@
     }
     
     .accordionTitle {
+        font-size: 0.9rem;
+        min-width: 15em;
         border-radius: 1em 0 1em 0;
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: center;
         cursor: pointer;
         background-color: var(--nav-color);
         border-bottom: 1px solid var(--fg-color);
