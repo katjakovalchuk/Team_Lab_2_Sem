@@ -1,6 +1,7 @@
-.horizontal {
+.vertical {
+    margin-top: 2em;
     height: auto;
-    width: calc(100% - 4em);
+    width: calc(50% - 4em);
     padding-left: 2em;
     padding-right: 2em;
 }
@@ -97,6 +98,15 @@
      }
 
      .textBox {
+        ~ .label {
+            position: absolute;
+            top: -0.3em !important;
+            display: block;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            color: var(--fg-color);
+            font-weight:700;    
+        }
          outline: none;
          border-radius: 0.4em;
          font-family: inherit;
@@ -131,20 +141,8 @@
        border-color: var(--highlight-color);
      }
  
-     .textBox:not(:invalid):not(:focus) {
-       ~ .label {
-         position: absolute;
-         top: -0.3em !important;
-         display: block;
-         transition: 0.2s;
-         font-size: 0.9rem;
-         color: var(--fg-color);
-         font-weight:700;    
-       }
-     }
- 
     .accordion {
-      margin: 1rem auto;
+      margin: 2.4rem auto;
     }
     
     .accordionTitle {
@@ -152,14 +150,24 @@
       flex-direction: row;
       justify-content: space-between;
       cursor: pointer;
-      background-color: var(--background-color);
+      background-color: var(--nav-color);
       border-bottom: 1px solid var(--fg-color);
+      transition: all 200ms;
+    }
+
+    .accordionTitle * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
     
-    .accordionTitle:hover * {
+    .accordionTitle:hover {
       color: var(--highlight-color);
     }
-    
+
     .accordionTitle,
     .accordion-content {
       padding: 0.5rem;
