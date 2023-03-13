@@ -25,6 +25,7 @@ export function TextInput(props: InputProps) {
         </>
     )
 }
+
 export function TextArea(props: InputProps) {
     const updateVal = () => {
         let elem: any = document.getElementById(props.id);

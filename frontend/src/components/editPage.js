@@ -1,7 +1,7 @@
 import styles from "../scss/editor.module.scss";
 import ElementEditor from "./editElement";
 import { useEffect, useState } from "react";
-import { FaArrowRight, FaArrowLeft, FaPlus } from "react-icons/fa"
+import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus } from "react-icons/fa"
 
 export default function Editor(props) {
     const [slides, setSlides] = useState(
@@ -69,11 +69,21 @@ export default function Editor(props) {
 
     const removeComponent = (index) => {
         let curSlides = slides;
-        const updateFn = (val) => {
+        const updateFn = (_) => {
             delete curSlides[slideIdx].content[index];
             setSlides([...curSlides]);
         }
         return updateFn;
+    }
+
+    const removeSlide = () => {
+        let curSlides = slides;
+        if (curSlides.length > 1) {
+            curSlides.splice(slideIdx, 1);
+            if (slideIdx + 1 > curSlides.length)
+                setSlideIdx(slideIdx - 1);
+        }
+        setSlides([...curSlides]);
     }
 
     useEffect(() => {
@@ -129,6 +139,7 @@ export default function Editor(props) {
                         setSlides([...curSlides]);
                         setSlideIdx(slideIdx);
                     }} />
+                    <FaMinus onClick={removeSlide} />
                 </div>
                 <h2>{slides[slideIdx].name}</h2>
                 {
