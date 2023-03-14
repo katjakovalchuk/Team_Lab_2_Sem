@@ -205,7 +205,12 @@ class Slide:
         Parameters:
             obj_id (int): id of the object
         """
-        # TODO
+        ind = 0
+        for key, objects in enumerate(self.content):
+            if objects.object_id == obj_id:
+                ind = key
+                break
+        del self.content[ind]
 
     def to_dict(self) -> dict:
         """
@@ -239,6 +244,7 @@ class Object:
         self.obj_type = obj_type
         self.attributes = []
         self.value = value
+        self.object_id = object_id
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """
