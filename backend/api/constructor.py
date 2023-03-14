@@ -149,7 +149,7 @@ class Slide:
     def __init__(self, slide_id: int, background_color: str = "111111") -> None:
         self.content = []
         self.attributes = []
-        self.background_color = background_color
+        self.background = background_color
         self.slide_id = slide_id
         self.max_id = 0
 
@@ -172,9 +172,9 @@ class Slide:
             path (str): path to the background(image or video or iframe)
         """
         if bg_type == 'color':
-            self.background_color = bg_color
+            self.background = bg_color
         else:
-            self.background_color = path
+            self.background = path
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """
@@ -223,7 +223,7 @@ class Slide:
         slide_dict = {}
         slide_dict['content'] = self.content
         slide_dict['attributes'] = self.attributes
-        slide_dict['background_color'] = self.background_color
+        slide_dict['background'] = self.background
         slide_dict['slide_id'] = self.slide_id
         slide_dict['max_id'] = self.max_id
         return slide_dict
