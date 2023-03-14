@@ -171,9 +171,10 @@ class Slide:
             bg_color (str): color of the background
             path (str): path to the background(image or video or iframe)
         """
-        # TODO: set the background of the slide based on the type
-        # For color - set the background color using the bg_color
-        # For image - set the background image from the path etc
+        if bg_type == 'color':
+            self.background_color = bg_color
+        else:
+            self.background_color = path
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """
@@ -219,7 +220,13 @@ class Slide:
         Returns:
             dict: a dict representation of the slide
         """
-        # TODO
+        slide_dict = {}
+        slide_dict['content'] = self.content
+        slide_dict['attributes'] = self.attributes
+        slide_dict['background_color'] = self.background_color
+        slide_dict['slide_id'] = self.slide_id
+        slide_dict['max_id'] = self.max_id
+        return slide_dict
 
 
 class Object:
@@ -285,4 +292,9 @@ class Object:
         Returns:
             dict: a dict representation of the object
         """
-        # TODO
+        object_dict = {}
+        object_dict['obj_type'] = self.obj_type
+        object_dict['object_id'] = self.object_id
+        object_dict['attributes'] = self.attributes
+        object_dict['value'] = self.value
+        return object_dict
