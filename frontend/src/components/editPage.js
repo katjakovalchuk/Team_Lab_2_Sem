@@ -1,15 +1,16 @@
 import styles from "../scss/editor.module.scss";
 import ElementEditor from "./editElement";
-import { TextInput } from "./textInput";
+import { TextInput, } from "./textInput";
 import { useEffect, useState } from "react";
 import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaSave } from "react-icons/fa"
 
 export default function Editor(props) {
-    const [presentationName, setPresentationName] = useState("Presentation");
+    const [presentationName, updatePresentationName] = useState("Presentation");
     const [slides, setSlides] = useState(
         [
             {
                 name: "slide_1",
+                background: "",
                 content: [
                     {
                         name: "page_one",
@@ -24,7 +25,8 @@ export default function Editor(props) {
                 ],
             },
             {
-                name: "slide_2",
+                name: "Slide 2",
+                background: "",
                 content: [
                     {
                         name: "page_one_2",
@@ -88,6 +90,12 @@ export default function Editor(props) {
         setSlides([...curSlides]);
     }
 
+    const updateColor = (val) => {
+        let curSlides = slides;
+        curSlides[slideIdx].background = val;
+        setSlides([...curSlides])
+    }
+
     const savePresentation = async () => {
         let presentationObject = {
             "name": presentationName,
@@ -117,9 +125,6 @@ export default function Editor(props) {
     return (
         <>
             <div className={styles.vertical}>
-                <div className={styles.editorBox}>
-                    <TextInput id={`presentation_name`} placeholder={"Presentation Name"} required={false} value={presentationName} name={presentationName} updateval={setPresentationName} />
-                </div>
                 <div className={styles.arrows}>
                     <FaArrowLeft onClick={() => {
                         if (slideIdx - 1 >= 0)
@@ -132,6 +137,7 @@ export default function Editor(props) {
                             curSlides.push(
                                 {
                                     name: `Slide ${curSlides.length + 1}`,
+                                    background: "",
                                     content: [
                                         {
                                             name: `page_one_${curSlides.length + 1}`,
@@ -165,6 +171,10 @@ export default function Editor(props) {
                     }} />
                     <FaMinus onClick={removeSlide} />
                     <FaSave onClick={savePresentation} />
+                </div>
+                <div className={styles.editorBox}>
+                    <TextInput id={`presentation_name`} placeholder={"Presentation Name"} required={false} value={presentationName} name={presentationName} updateval={updatePresentationName} />
+                    <TextInput id={`background_color`} placeholder={"Slide Background"} required={false} value={slides[slideIdx].background} name={`${presentationName}_color`} updateval={updateColor} />
                 </div>
                 <h2>{slides[slideIdx].name}</h2>
                 {
