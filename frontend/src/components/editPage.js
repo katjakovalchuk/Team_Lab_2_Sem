@@ -1,9 +1,11 @@
 import styles from "../scss/editor.module.scss";
 import ElementEditor from "./editElement";
+import { TextInput } from "./textInput";
 import { useEffect, useState } from "react";
-import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus } from "react-icons/fa"
+import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaSave } from "react-icons/fa"
 
 export default function Editor(props) {
+    const [presentationName, setPresentationName] = useState("Presentation");
     const [slides, setSlides] = useState(
         [
             {
@@ -86,6 +88,25 @@ export default function Editor(props) {
         setSlides([...curSlides]);
     }
 
+    const savePresentation = async () => {
+        let presentationObject = {
+            "name": presentationName,
+            "slides": slides
+        };
+        const response = await fetch(`/presentations/${presentationName}/save`,
+            {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(presentationObject)
+            }
+        );
+        const content = await response.json();
+        console.log(content);
+    }
+
     useEffect(() => {
         // const headers = { "Content-type": "application/json" };
         // fetch(`/api/presentations/${props.presentationId}`, { headers })
@@ -96,6 +117,9 @@ export default function Editor(props) {
     return (
         <>
             <div className={styles.vertical}>
+                <div className={styles.editorBox}>
+                    <TextInput id={`presentation_name`} placeholder={"Presentation Name"} required={false} value={presentationName} name={presentationName} updateval={setPresentationName} />
+                </div>
                 <div className={styles.arrows}>
                     <FaArrowLeft onClick={() => {
                         if (slideIdx - 1 >= 0)
@@ -140,6 +164,7 @@ export default function Editor(props) {
                         setSlideIdx(slideIdx);
                     }} />
                     <FaMinus onClick={removeSlide} />
+                    <FaSave onClick={savePresentation} />
                 </div>
                 <h2>{slides[slideIdx].name}</h2>
                 {

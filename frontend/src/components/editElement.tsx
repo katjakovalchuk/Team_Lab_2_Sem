@@ -1,6 +1,6 @@
 import styles from "../scss/editor.module.scss";
 import { useState } from "react";
-import { TextInput, TextArea } from "./textInput";
+import { TextInput, TextArea, Select } from "./textInput";
 import { FaTrash } from "react-icons/fa";
 
 export default function ElementEditor(props) {
@@ -22,7 +22,7 @@ export default function ElementEditor(props) {
                     !collapsed && (
                         <>
                             <TextInput id={`${props.id}_name`} placeholder={"Name"} required={props.required} value={props.name} name={props.name} updateval={props.updateName} />
-                            <TextInput id={`${props.id}_type`} placeholder={"Type"} required={props.required} value={props.type} name={props.type} updateval={props.updateType} />
+                            <Select id={`${props.id}_type`} placeholder={"Type"} required={props.required} value={props.type} name={props.type} updateval={props.updateType} />
                             <TextArea id={`${props.id}_content`} placeholder={textAreaPlaceholder} required={props.required} value={props.value} name={props.name} updateval={props.updateContent} />
                         </>
                     )

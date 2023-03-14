@@ -159,15 +159,53 @@
 
      .textBox:focus {
         ~ .label {
+            color: var(--highlight-color);
+        }
+        border-color: var(--highlight-color);
+     }
+ 
+
+     .selectInput {
+        ~ .label {
             position: absolute;
-            top: -0.3em;
+            top: -0.3em !important;
             display: block;
             transition: 0.2s;
             font-size: 0.9rem;
-            color: var(--highlight-color);
+            color: var(--fg-color);
             font-weight:700;    
         }
+         outline: none;
+         border-radius: 0.4em;
+         font-family: inherit;
+         max-width: 50vw;
+         width: 100%;
+         padding: 0.8em;
+         border: 1px solid var(--border-color) !important;
+         color: var(--fg-color);
+         background: transparent;
+         transition: border-color 200ms;
+     
+         &::placeholder {
+             color: transparent;
+         }
+     
+         .label {
+             font-size: 1.3rem;
+             cursor: text;
+             top: 20px;
+         }
+     }
+
+     .selectInput:focus {
+        ~ .label {
+            color: var(--highlight-color);
+        }
         border-color: var(--highlight-color);
+     }
+
+     .selectInput::-ms-expand {
+         display: none;
      }
  
     .accordion {
