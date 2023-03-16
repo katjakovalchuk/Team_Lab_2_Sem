@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaSave } from "react-icons/fa"
 import 'reveal.js/dist/reset.css';
 import 'reveal.js/dist/reveal.css';
-import "reveal.js/dist/theme/moon.css";
+// import "reveal.js/dist/theme/moon.css";
 
 function ToSection(obj) {
     switch (obj.type) {
@@ -14,8 +14,8 @@ function ToSection(obj) {
 
         case "code":
             return (
-                <pre key={obj.name} data-id="code">
-                    <code data-line-numbers>
+                <pre key={obj.name}>
+                    <code data-line-numbers data-trim data-noescape>
                         {obj.content}
                     </code>
                 </pre>
@@ -29,6 +29,9 @@ function ToSection(obj) {
 
         case "markdown":
             return <textarea data-template>{obj.content}</textarea>
+
+        case "slides":
+            return ToPresentation(obj.content)
 
     }
     return "Empty slide"
@@ -53,31 +56,21 @@ export default function Editor(props) {
         [
             {
                 name: "Slide 1",
-                background: "",
+                background: "#190e21",
                 content: [
                     {
-                        name: "page_one",
-                        type: "img",
-                        content: "https://picsum.photos/200/300",
+                        name: "example_text",
+                        type: "text",
+                        content: "This is an example slide",
                     },
-                    {
-                        name: "page_two",
-                        type: "img",
-                        content: "https://picsum.photos/200/300",
-                    }
                 ],
             },
             {
                 name: "Slide 2",
-                background: "",
+                background: "#190e21",
                 content: [
                     {
-                        name: "page_one_2",
-                        type: "img",
-                        content: "https://picsum.photos/200/300",
-                    },
-                    {
-                        name: "page_two_2",
+                        name: "image",
                         type: "img",
                         content: "https://picsum.photos/200/300",
                     }
@@ -173,13 +166,17 @@ export default function Editor(props) {
             // load modules in browser
             const Reveal = await (await import("reveal.js")).default
             const Markdown = await (await import("reveal.js/plugin/markdown/markdown")).default
+            const Highlight = await (await import("reveal.js/plugin/highlight/highlight")).default
             const deck = new Reveal({
-                plugins: [Markdown],
+                plugins: [Markdown, Highlight],
                 embedded: true,
                 hash: true
             })
             deck.initialize()
-            setInterval(deck.sync, 3000)
+            setInterval(() => {
+                deck.sync()
+            }
+                , 1000)
         }
         clientSideInitialization();
     }, [])
@@ -199,18 +196,13 @@ export default function Editor(props) {
                             curSlides.push(
                                 {
                                     name: `Slide ${curSlides.length + 1}`,
-                                    background: "",
+                                    background: "#190e21",
                                     content: [
                                         {
-                                            name: `page_one_${curSlides.length + 1}`,
-                                            type: "img",
-                                            content: "https://picsum.photos/200/300",
+                                            name: `example_text${curSlides.length + 1}`,
+                                            type: "text",
+                                            content: "This is an example slide",
                                         },
-                                        {
-                                            name: "page_two_2",
-                                            type: "img",
-                                            content: "https://picsum.photos/200/300",
-                                        }
                                     ],
                                 }
                             )

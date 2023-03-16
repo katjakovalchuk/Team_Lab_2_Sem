@@ -33,6 +33,8 @@
      }
      
      .presentation {
+         margin-top: 2em;
+         border-top: 0.1em solid var(--border-color);
          height: 100vh;
          width: 100%;
          font-size: 1em;
@@ -40,6 +42,14 @@
          section {
              // background-color: var(--bg-color);
              color: var(--fg-color);
+             display: flex !important;
+             flex-direction: column !important;
+             align-items: center !important;
+             justify-content: center !important;
+
+              * {
+                  margin: 0.8em 0 !important;
+              }
          }
      }
 }
