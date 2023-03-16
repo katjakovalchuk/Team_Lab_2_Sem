@@ -1,7 +1,7 @@
 .vertical {
     margin-top: 2em;
     height: auto;
-    width: calc(50%);
+    width: calc(100% - 4em);
     padding-left: 1em;
     padding-right: 2em;
     display: flex;
@@ -20,11 +20,11 @@
 
      .arrows {
          font-size: 2em;
-         margin: 0.3em 0;
+         margin: 0.8em 0;
 
          * {
             transition: all 200ms;
-            margin: 0 0.2em;
+            margin: 0 0.6em;
          }
 
          *:hover {
@@ -213,7 +213,7 @@
     }
     
     .accordionTitle {
-        font-size: 0.9rem;
+        font-size: 0.9em;
         min-width: 15em;
         border-radius: 1em 0 1em 0;
         display: flex;

@@ -9,7 +9,7 @@ export default function Editor(props) {
     const [slides, setSlides] = useState(
         [
             {
-                name: "slide_1",
+                name: "Slide 1",
                 background: "",
                 content: [
                     {
@@ -111,8 +111,12 @@ export default function Editor(props) {
                 body: JSON.stringify(presentationObject)
             }
         );
-        const content = await response.json();
-        console.log(content);
+        // const result = await response.json();
+        if (response.status === 404) {
+            alert("Sorry, something went wrong.\nWe could not save your presentation.")
+            return;
+        }
+        console.log(response);
     }
 
     useEffect(() => {
