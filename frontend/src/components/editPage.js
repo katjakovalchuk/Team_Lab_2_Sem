@@ -3,6 +3,49 @@ import ElementEditor from "./editElement";
 import { TextInput, } from "./textInput";
 import { useEffect, useState } from "react";
 import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaSave } from "react-icons/fa"
+import 'reveal.js/dist/reset.css';
+import 'reveal.js/dist/reveal.css';
+import "reveal.js/dist/theme/moon.css";
+
+function ToSection(obj) {
+    switch (obj.type) {
+        case "text":
+            return <span key={obj.name}>{obj.content}</span>
+
+        case "code":
+            return (
+                <pre key={obj.name} data-id="code">
+                    <code data-line-numbers>
+                        {obj.content}
+                    </code>
+                </pre>
+            )
+
+        case "img":
+            return <img key={obj.name} src={obj.content} />
+
+        case "iframe":
+            return <iframe key={obj.name} allowFullScreen src={obj.content} />
+
+        case "markdown":
+            return <textarea data-template>{obj.content}</textarea>
+
+    }
+    return "Empty slide"
+}
+
+function ToPresentation(obj) {
+    return obj.map((slide) => {
+        if (slide.content.some((x) => x.type === "markdown")) {
+            return <section data-markdown key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
+                {slide.content.map(ToSection)}
+            </section>
+        }
+        return <section key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
+            {slide.content.map(ToSection)}
+        </section>
+    })
+}
 
 export default function Editor(props) {
     const [presentationName, updatePresentationName] = useState("Presentation");
@@ -113,7 +156,7 @@ export default function Editor(props) {
         );
         // const result = await response.json();
         if (response.status === 404) {
-            alert("Sorry, something went wrong.\nWe could not save your presentation.")
+            alert("Sorry, something went wrong.\nCould not save your presentation.")
             return;
         }
         console.log(response);
@@ -121,9 +164,24 @@ export default function Editor(props) {
 
     useEffect(() => {
         // const headers = { "Content-type": "application/json" };
-        // fetch(`/api/presentations/${props.presentationId}`, { headers })
+        // fetch(`${window.location.origin}:8132/api/presentations/${props.presentationId}`, { headers })
         //     .then(resp => resp.json())
         //     .then(data => setSlides(data["slides"]))
+        //             const clientSideInitialization = async () => {
+        // load modules in browser
+        const clientSideInitialization = async () => {
+            // load modules in browser
+            const Reveal = await (await import("reveal.js")).default
+            const Markdown = await (await import("reveal.js/plugin/markdown/markdown")).default
+            const deck = new Reveal({
+                plugins: [Markdown],
+                embedded: true,
+                hash: true
+            })
+            deck.initialize()
+            setInterval(deck.sync, 3000)
+        }
+        clientSideInitialization();
     }, [])
 
     return (
@@ -186,6 +244,13 @@ export default function Editor(props) {
                         v => <ElementEditor key={`${v[1].name}_${v[0]}`} type={v[1].type} id={v[1].name} name={v[1].name} required={true} value={v[1].content} updateContent={updateElementContent(v[0])} updateName={updateElementName(v[0])} updateType={updateElementType(v[0])} removeElement={removeComponent(v[0])} />
                     )
                 }
+                <div className={["reveal", styles.presentation].join(" ")}>
+                    <div className="slides">
+                        {
+                            ToPresentation(slides)
+                        }
+                    </div>
+                </div>
             </div>
         </>
     )
