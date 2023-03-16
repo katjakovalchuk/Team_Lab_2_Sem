@@ -55,9 +55,9 @@ export function Select(props: InputProps) {
                     <option value="img">Image</option>
                     <option value="iframe">Iframe</option>
                     <option value="text">Plain Text</option>
-                    <option value="markdown">Markdown</option>
                     <option value="code">Code</option>
-                    <option value="slides">vertical Slides</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="other">HTML</option>
                 </select>
                 <label htmlFor={props.id} className={styles.label}>{props.placeholder}</label>
             </div>

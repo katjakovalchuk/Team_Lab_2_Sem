@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaSave } from "react-icons/fa"
 import 'reveal.js/dist/reset.css';
 import 'reveal.js/dist/reveal.css';
-// import "reveal.js/dist/theme/moon.css";
+import "reveal.js/dist/theme/moon.css";
+import "reveal.js/plugin/highlight/monokai.css";
 
 function ToSection(obj) {
     switch (obj.type) {
@@ -15,7 +16,7 @@ function ToSection(obj) {
         case "code":
             return (
                 <pre key={obj.name}>
-                    <code data-line-numbers data-trim data-noescape>
+                    <code data-line-numbers="" data-trim="" data-noescape="">
                         {obj.content}
                     </code>
                 </pre>
@@ -26,24 +27,23 @@ function ToSection(obj) {
 
         case "iframe":
             return <iframe key={obj.name} allowFullScreen src={obj.content} />
-
-        case "markdown":
-            return <textarea data-template>{obj.content}</textarea>
-
-        case "slides":
-            return ToPresentation(obj.content)
-
     }
-    return "Empty slide"
+    return "";
 }
 
 function ToPresentation(obj) {
     return obj.map((slide) => {
+        // This is not pretty. Too bad!
         if (slide.content.some((x) => x.type === "markdown")) {
-            return <section data-markdown key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
-                {slide.content.map(ToSection)}
+            return <section data-markdown="" key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
+                {slide.content[0].content}
             </section>
         }
+
+        if (slide.content.some((x) => x.type === "other")) {
+            return <section data-markdown="" key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"} dangerouslySetInnerHTML={{ __html: slide.content[0].content }} />
+        }
+
         return <section key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
             {slide.content.map(ToSection)}
         </section>
@@ -80,11 +80,24 @@ export default function Editor(props) {
     );
     const [slideIdx, setSlideIdx] = useState(0);
 
+    const SanitizeSlides = () => {
+        let curSlides = slides;
+        curSlides.forEach((slide, idx) => {
+            slide.content.forEach((slideItem, slideItemIdx) => {
+                if (slideItem.type === "markdown" || slideItem.type === "other") {
+                    curSlides[idx].content = [curSlides[idx].content[slideItemIdx]];
+                }
+            })
+        })
+        setSlides([...curSlides]);
+    }
+
     const updateElementContent = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].content = val;
             setSlides([...curSlides]);
+            SanitizeSlides();
         }
         return updateFn;
     }
@@ -94,6 +107,7 @@ export default function Editor(props) {
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].type = val;
             setSlides([...curSlides]);
+            SanitizeSlides();
         }
         return updateFn;
     }
@@ -103,6 +117,7 @@ export default function Editor(props) {
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].name = val;
             setSlides([...curSlides]);
+            SanitizeSlides();
         }
         return updateFn;
     }
@@ -112,6 +127,7 @@ export default function Editor(props) {
         const updateFn = (_) => {
             delete curSlides[slideIdx].content[index];
             setSlides([...curSlides]);
+            SanitizeSlides();
         }
         return updateFn;
     }
@@ -124,12 +140,14 @@ export default function Editor(props) {
                 setSlideIdx(slideIdx - 1);
         }
         setSlides([...curSlides]);
+        SanitizeSlides();
     }
 
     const updateColor = (val) => {
         let curSlides = slides;
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
+        SanitizeSlides();
     }
 
     const savePresentation = async () => {
@@ -164,9 +182,9 @@ export default function Editor(props) {
         // load modules in browser
         const clientSideInitialization = async () => {
             // load modules in browser
-            const Reveal = await (await import("reveal.js")).default
-            const Markdown = await (await import("reveal.js/plugin/markdown/markdown")).default
-            const Highlight = await (await import("reveal.js/plugin/highlight/highlight")).default
+            const Reveal = (await import("reveal.js")).default;
+            const Markdown = (await import("reveal.js/plugin/markdown/markdown.esm")).default;
+            const Highlight = (await import("reveal.js/plugin/highlight/highlight.esm")).default;
             const deck = new Reveal({
                 plugins: [Markdown, Highlight],
                 embedded: true,
