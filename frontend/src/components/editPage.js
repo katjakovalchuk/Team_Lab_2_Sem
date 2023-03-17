@@ -56,7 +56,7 @@ export default function Editor(props) {
         [
             {
                 name: "Slide 1",
-                background: "#190e21",
+                background: "#2e3440",
                 content: [
                     {
                         name: "example_text",
@@ -67,7 +67,7 @@ export default function Editor(props) {
             },
             {
                 name: "Slide 2",
-                background: "#190e21",
+                background: "#2e3440",
                 content: [
                     {
                         name: "image",
@@ -214,7 +214,7 @@ export default function Editor(props) {
                             curSlides.push(
                                 {
                                     name: `Slide ${curSlides.length + 1}`,
-                                    background: "#190e21",
+                                    background: "#2e3440",
                                     content: [
                                         {
                                             name: `example_text${curSlides.length + 1}`,
