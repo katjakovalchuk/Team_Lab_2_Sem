@@ -182,9 +182,9 @@ export default function Editor(props) {
         // load modules in browser
         const clientSideInitialization = async () => {
             // load modules in browser
-            const Reveal = (await import("reveal.js")).default;
-            const Markdown = (await import("reveal.js/plugin/markdown/markdown.esm")).default;
-            const Highlight = (await import("reveal.js/plugin/highlight/highlight.esm")).default;
+            const Reveal = await (await import("reveal.js")).default;
+            const Markdown = await (await import("reveal.js/plugin/markdown/markdown.esm")).default;
+            const Highlight = await (await import("reveal.js/plugin/highlight/highlight.esm")).default;
             const deck = new Reveal({
                 plugins: [Markdown, Highlight],
                 embedded: true,
@@ -194,7 +194,7 @@ export default function Editor(props) {
             setInterval(() => {
                 deck.sync()
             }
-                , 1000)
+                , 200)
         }
         clientSideInitialization();
     }, [])
@@ -240,6 +240,7 @@ export default function Editor(props) {
                         )
                         setSlides([...curSlides]);
                         setSlideIdx(slideIdx);
+                        SanitizeSlides();
                     }} />
                     <FaMinus onClick={removeSlide} />
                     <FaSave onClick={savePresentation} />
