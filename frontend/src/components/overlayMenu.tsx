@@ -1,7 +1,13 @@
 import { ImCross } from "react-icons/im";
 import styles from "../scss/popup.module.scss";
 
-export default function Overlay(props) {
+interface OverlayProps {
+    id: string;
+    setDisplayState: (val: boolean) => void;
+    children: any;
+}
+
+export default function Overlay(props: OverlayProps) {
     return (
         <div className={styles.container} id={props.id}>
             <div className={styles.background} onClick={() => { props.setDisplayState(false) }}> </div>

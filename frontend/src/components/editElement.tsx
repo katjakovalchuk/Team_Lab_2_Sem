@@ -3,7 +3,7 @@ import { useState } from "react";
 import { TextInput, TextArea, Select } from "./textInput";
 import { FaTrash } from "react-icons/fa";
 
-export default function ElementEditor(props) {
+export default function ElementEditor(props: any) {
     const [collapsed, setCollapsed] = useState(true);
     let textAreaPlaceholder = (props.type == "img" || props.type == "iframe") ? "src" : props.type;
     return (

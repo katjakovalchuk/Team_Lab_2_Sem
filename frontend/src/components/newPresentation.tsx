@@ -1,7 +1,7 @@
 import styles from "../scss/editor.module.scss";
 import { useState } from "react";
 
-function TextInput(props) {
+function TextInput(props: any) {
     const updateVal = () => {
         let elem: any = document.getElementById(props.id);
         if (elem !== null)
@@ -21,7 +21,7 @@ function TextInput(props) {
 export default function NewPresentation() {
     const [name, setName] = useState("");
 
-    const handleSubmit = (event) => {
+    const handleSubmit = (event: any) => {
         event.preventDefault();
         window.location.href = `/presentations/${name}/edit`;
     }

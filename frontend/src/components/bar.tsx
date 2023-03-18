@@ -2,7 +2,11 @@ import { FaHome, FaPen, FaBook, FaEnvelopeOpenText } from "react-icons/fa";
 import Overlay from "./overlayMenu";
 import styles from "../scss/bar.module.scss";
 
-export default function NavBar(props) {
+interface BarProps {
+    setNewDisplay: (val: boolean) => void;
+}
+
+export default function NavBar(props: BarProps) {
     return (
         <>
             <nav className={styles.navbar}>
