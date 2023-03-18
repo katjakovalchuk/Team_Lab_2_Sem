@@ -5,18 +5,18 @@ import { useEffect, useState } from "react";
 import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaSave } from "react-icons/fa"
 import 'reveal.js/dist/reset.css';
 import 'reveal.js/dist/reveal.css';
-import "reveal.js/dist/theme/moon.css";
 import "reveal.js/plugin/highlight/monokai.css";
 
 function ToSection(obj) {
     switch (obj.type) {
+        case "markdown":
         case "text":
             return <span key={obj.name}>{obj.content}</span>
 
         case "code":
             return (
                 <pre key={obj.name}>
-                    <code data-line-numbers="" data-trim="" data-noescape="">
+                    <code data-line-numbers="1" data-trim data-noescape>
                         {obj.content}
                     </code>
                 </pre>
@@ -34,14 +34,8 @@ function ToSection(obj) {
 function ToPresentation(obj) {
     return obj.map((slide) => {
         // This is not pretty. Too bad!
-        if (slide.content.some((x) => x.type === "markdown")) {
-            return <section data-markdown="" key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
-                {slide.content[0].content}
-            </section>
-        }
-
         if (slide.content.some((x) => x.type === "other")) {
-            return <section data-markdown="" key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"} dangerouslySetInnerHTML={{ __html: slide.content[0].content }} />
+            return <section key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"} dangerouslySetInnerHTML={{ __html: slide.content[0].content }} />
         }
 
         return <section key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
@@ -60,8 +54,8 @@ export default function Editor(props) {
                 content: [
                     {
                         name: "example_text",
-                        type: "text",
-                        content: "This is an example slide",
+                        type: "markdown",
+                        content: "# This is an example slide",
                     },
                 ],
             },
@@ -183,18 +177,18 @@ export default function Editor(props) {
         const clientSideInitialization = async () => {
             // load modules in browser
             const Reveal = await (await import("reveal.js")).default;
-            const Markdown = await (await import("reveal.js/plugin/markdown/markdown.esm")).default;
-            const Highlight = await (await import("reveal.js/plugin/highlight/highlight.esm")).default;
-            const deck = new Reveal({
+            const Markdown = await (await import("reveal.js/plugin/markdown/markdown.esm.js")).default;
+            const Highlight = await (await import("reveal.js/plugin/highlight/highlight.esm.js")).default;
+            let deck = new Reveal({
                 plugins: [Markdown, Highlight],
                 embedded: true,
                 hash: true
             })
             deck.initialize()
             setInterval(() => {
-                deck.sync()
-            }
-                , 200)
+                deck.sync();
+                deck.layout();
+            }, 500)
         }
         clientSideInitialization();
     }, [])

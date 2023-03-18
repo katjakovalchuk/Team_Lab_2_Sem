@@ -1,5 +1,6 @@
 import React from 'react';
 import "../scss/globals.scss";
+import "../scss/revealTheme.css"
 import NavBar from "../components/bar";
 import Overlay from "../components/overlayMenu";
 import NewPresentation from "../components/newPresentation";
