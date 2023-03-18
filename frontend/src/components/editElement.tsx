@@ -5,7 +5,9 @@ import { FaTrash } from "react-icons/fa";
 
 export default function ElementEditor(props: any) {
     const [collapsed, setCollapsed] = useState(true);
-    let textAreaPlaceholder = (props.type == "img" || props.type == "iframe") ? "src" : props.type;
+    let textAreaPlaceholder = (props.type == "img" || props.type == "iframe") ?
+        "src" :
+        props.type;
     return (
         <div className={styles.editorBox}>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
@@ -21,9 +23,34 @@ export default function ElementEditor(props: any) {
                 {
                     !collapsed && (
                         <>
-                            <TextInput id={`${props.id}_name`} placeholder={"Name"} required={props.required} value={props.name} name={props.name} updateval={props.updateName} />
-                            <Select id={`${props.id}_type`} placeholder={"Type"} required={props.required} value={props.type} name={props.type} updateval={props.updateType} />
-                            <TextArea id={`${props.id}_content`} placeholder={textAreaPlaceholder} required={props.required} value={props.value} name={props.name} updateval={props.updateContent} />
+                            <TextInput
+                                id={`${props.id}_name`}
+                                placeholder={"Name"}
+                                required={props.required}
+                                value={props.name}
+                                name={props.name}
+                                updateval={props.updateName} />
+                            <TextInput
+                                id={`${props.id}_attrs`}
+                                placeholder={"Additional Attributes"}
+                                required={props.required}
+                                value=""
+                                name={props.attrs}
+                                updateval={props.updateAttrs} />
+                            <Select
+                                id={`${props.id}_type`}
+                                placeholder={"Type"}
+                                required={props.required}
+                                value={props.type}
+                                name={props.type}
+                                updateval={props.updateType} />
+                            <TextArea
+                                id={`${props.id}_content`}
+                                placeholder={textAreaPlaceholder}
+                                required={props.required}
+                                value={props.value}
+                                name={props.name}
+                                updateval={props.updateContent} />
                         </>
                     )
                 }

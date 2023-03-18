@@ -11,22 +11,33 @@ function ToSection(obj) {
     switch (obj.type) {
         case "markdown":
         case "text":
-            return <span key={obj.name}>{obj.content}</span>
+            return `<span key=${obj.name} ${obj.attributes}>${obj.content}</span>`
 
         case "code":
             return (
-                <pre key={obj.name}>
-                    <code data-line-numbers="1" data-trim data-noescape>
-                        {obj.content}
+                `<pre key=${obj.name}>
+                    <code
+                        data-line-numbers="1"
+                        data-trim
+                        ${obj.attributes}
+                        data-noescape>
+                        ${obj.content}
                     </code>
-                </pre>
+                </pre>`
             )
 
         case "img":
-            return <img key={obj.name} src={obj.content} />
+            return `<img
+                ${obj.attributes}
+                key=${obj.name}
+                src=${obj.content} />`
 
         case "iframe":
-            return <iframe key={obj.name} allowFullScreen src={obj.content} />
+            return `<iframe
+                ${obj.attributes}
+                key=${obj.name}
+                allowFullScreen
+                src=${obj.content} />`
     }
     return "";
 }
@@ -35,12 +46,17 @@ function ToPresentation(obj) {
     return obj.map((slide) => {
         // This is not pretty. Too bad!
         if (slide.content.some((x) => x.type === "other")) {
-            return <section key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"} dangerouslySetInnerHTML={{ __html: slide.content[0].content }} />
+            return <section
+                key={slide.name}
+                data-background-color={
+                    slide.background ?
+                        slide.background :
+                        "var(--nav-color)"
+                }
+                dangerouslySetInnerHTML={{ __html: slide.content[0].content }} />
         }
 
-        return <section key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"}>
-            {slide.content.map(ToSection)}
-        </section>
+        return <section key={slide.name} data-background-color={slide.background ? slide.background : "var(--nav-color)"} dangerouslySetInnerHTML={{ __html: slide.content.map(ToSection).join("") }} />
     })
 }
 
@@ -55,6 +71,7 @@ export default function Editor(props) {
                     {
                         name: "example_text",
                         type: "markdown",
+                        attributes: "",
                         content: "# This is an example slide",
                     },
                 ],
@@ -66,6 +83,7 @@ export default function Editor(props) {
                     {
                         name: "image",
                         type: "img",
+                        attributes: "",
                         content: "https://picsum.photos/200/300",
                     }
                 ],
@@ -110,6 +128,16 @@ export default function Editor(props) {
         let curSlides = slides;
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].name = val;
+            setSlides([...curSlides]);
+            SanitizeSlides();
+        }
+        return updateFn;
+    }
+
+    const updateElementAttributes = (element) => {
+        let curSlides = slides;
+        const updateFn = (val) => {
+            curSlides[slideIdx].content[element].attributes = val;
             setSlides([...curSlides]);
             SanitizeSlides();
         }
@@ -187,7 +215,6 @@ export default function Editor(props) {
             deck.initialize()
             setInterval(() => {
                 deck.sync();
-                deck.layout();
             }, 500)
         }
         clientSideInitialization();
@@ -213,6 +240,7 @@ export default function Editor(props) {
                                         {
                                             name: `example_text${curSlides.length + 1}`,
                                             type: "text",
+                                            attributes: "",
                                             content: "This is an example slide",
                                         },
                                     ],
@@ -240,13 +268,37 @@ export default function Editor(props) {
                     <FaSave onClick={savePresentation} />
                 </div>
                 <div className={styles.editorBox}>
-                    <TextInput id={`presentation_name`} placeholder={"Presentation Name"} required={false} value={presentationName} name={presentationName} updateval={updatePresentationName} />
-                    <TextInput id={`background_color`} placeholder={"Slide Background"} required={false} value={slides[slideIdx].background} name={`${presentationName}_color`} updateval={updateColor} />
+                    <TextInput
+                        id={`presentation_name`}
+                        placeholder={"Presentation Name"}
+                        required={false}
+                        value={presentationName}
+                        name={presentationName}
+                        updateval={updatePresentationName} />
+                    <TextInput
+                        id={`background_color`}
+                        placeholder={"Slide Background"}
+                        required={false}
+                        value={slides[slideIdx].background}
+                        name={`${presentationName}_color`}
+                        updateval={updateColor} />
                 </div>
                 <h2>{slides[slideIdx].name}</h2>
                 {
                     Object.entries(slides[slideIdx].content).map(
-                        v => <ElementEditor key={`${v[1].name}_${v[0]}`} type={v[1].type} id={v[1].name} name={v[1].name} required={true} value={v[1].content} updateContent={updateElementContent(v[0])} updateName={updateElementName(v[0])} updateType={updateElementType(v[0])} removeElement={removeComponent(v[0])} />
+                        v => <ElementEditor
+                            key={`${v[1].name}_${v[0]}`}
+                            type={v[1].type}
+                            id={v[1].name}
+                            name={v[1].name}
+                            required={true}
+                            value={v[1].content}
+                            attrs={`${v[1].name}_attrs`}
+                            updateContent={updateElementContent(v[0])}
+                            updateName={updateElementName(v[0])}
+                            updateType={updateElementType(v[0])}
+                            removeElement={removeComponent(v[0])}
+                            updateAttrs={updateElementAttributes(v[0])} />
                     )
                 }
                 <div className={["reveal", styles.presentation].join(" ")}>
