@@ -1,8 +1,8 @@
 """
 And API interface for the constructor of presentations
 """
-from api.constructor import Presentation, Slide
-from api.users import User
+from constructor import Presentation, Slide
+from users import User
 from fastapi import Depends, FastAPI
 from fastapi_restful.cbv import cbv
 from fastapi_restful.inferring_router import InferringRouter
@@ -54,6 +54,15 @@ def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Sli
     return presentation.get_slide(slide_id)
 
 
+@router.post("/{username}/{presentation_name}")
+def create_presentation(username: str, presentation_name: str) -> None:
+    """
+    Create a new presentation
+    """
+    presentation = Presentation(presentation_name)
+    USERS[username].add_presentation(presentation)
+
+
 @cbv(router)
 class PresentationAPI:
     """
@@ -71,7 +80,9 @@ class PresentationAPI:
         """
         Check if the presentation with the given name exists
         """
-        # TODO
+        if self.get_presentation(self.presentation.name):
+            return True
+        return "Presentation with provuded name doesn't exist."
 
     @router.get("/{username}/{presentation_name}")
     def get_presentation(self) -> dict[str, str]:
@@ -79,13 +90,6 @@ class PresentationAPI:
         Get the presentation with the given id
         """
         return {"style": self.presentation.style, "name": self.presentation.name}
-
-    @router.post("/{username}/{presentation_name}")
-    def create_presentation(self) -> None:
-        """
-        Create a new presentation
-        """
-        # TODO: create a new presentation with the given name, using the constructor.py
 
     @router.post("/{username}/{presentation_name}/add_slide")
     def add_slide(self) -> int:
@@ -95,7 +99,7 @@ class PresentationAPI:
         Returns:
             int: The id of the new slide
         """
-        # TODO: add a new slide to the presentation with the given name
+        return self.presentation.add_slide()
 
     # TODO: All the other necessary methods
 

@@ -1,7 +1,7 @@
 """
 Classes for users
 """
-from api.constructor import Presentation
+from constructor import Presentation
 
 
 class User:

@@ -9,7 +9,7 @@ class Presentation:
 
     Attributes:
         name (str): name of the presentation
-        slides (list): list of slides
+        slides (dict): dict of slides
         style (str): style of the presentation
         plugins (set): set of plugins
         unused_id_max (int): the maximum id that has not been used
@@ -171,7 +171,7 @@ class Slide:
             bg_color (str): color of the background
             path (str): path to the background(image or video or iframe)
         """
-        if bg_type == 'color':
+        if bg_type == "color":
             self.background = bg_color
         else:
             self.background = path
@@ -221,11 +221,11 @@ class Slide:
             dict: a dict representation of the slide
         """
         slide_dict = {}
-        slide_dict['content'] = self.content
-        slide_dict['attributes'] = self.attributes
-        slide_dict['background'] = self.background
-        slide_dict['slide_id'] = self.slide_id
-        slide_dict['max_id'] = self.max_id
+        slide_dict["content"] = self.content
+        slide_dict["attributes"] = self.attributes
+        slide_dict["background"] = self.background
+        slide_dict["slide_id"] = self.slide_id
+        slide_dict["max_id"] = self.max_id
         return slide_dict
 
 
@@ -293,8 +293,8 @@ class Object:
             dict: a dict representation of the object
         """
         object_dict = {}
-        object_dict['obj_type'] = self.obj_type
-        object_dict['object_id'] = self.object_id
-        object_dict['attributes'] = self.attributes
-        object_dict['value'] = self.value
+        object_dict["obj_type"] = self.obj_type
+        object_dict["object_id"] = self.object_id
+        object_dict["attributes"] = self.attributes
+        object_dict["value"] = self.value
         return object_dict
