@@ -1,8 +1,8 @@
 """
 And API interface for the constructor of presentations
 """
-from api.constructor import Presentation, Slide
-from api.users import User
+from constructor import Presentation, Slide
+from users import User
 from fastapi import Depends, FastAPI
 from fastapi_restful.cbv import cbv
 from fastapi_restful.inferring_router import InferringRouter
