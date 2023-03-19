@@ -1,19 +1,22 @@
-[tool.poetry]
+[tool]
+[tool.pdm]
+
+[project]
 name = "reveal-gui"
 version = "0.1.0"
 description = "A GUI web application written in python for reveal.js"
-authors = ["radomyr <h.radomyr@proton.me>"]
-license = "GPLv3"
+authors = [
+    {name = "radomyr", email = "h.radomyr@proton.me"},
+]
+dependencies = [
+    "fastapi>=0.95.0",
+    "fastapi-restful>=0.4.3",
+    "uvicorn>=0.21.1",
+]
+requires-python = ">=3.10"
 readme = "README.md"
-packages = [{include = "api", from = "backend"}]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-fastapi = "^0.92.0"
-fastapi-restful = "^0.4.3"
-uvicorn = "^0.21.0"
-
+license = {text = "GPLv3"}
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-pep517>=1.0"]
+build-backend = "pdm.pep517.api"
