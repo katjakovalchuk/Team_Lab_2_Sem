@@ -61,6 +61,7 @@ function ToPresentation(obj) {
 }
 
 export default function Editor(props) {
+    const port = process.env.NEXT_PUBLIC_API_PORT || "80";
     const [presentationName, updatePresentationName] = useState("Presentation");
     const [slides, setSlides] = useState(
         [
@@ -84,7 +85,7 @@ export default function Editor(props) {
                         name: "image",
                         type: "img",
                         attributes: "",
-                        content: "https://picsum.photos/200/300",
+                        content: "https://picsum.photos/1920/1080",
                     }
                 ],
             }
@@ -177,7 +178,7 @@ export default function Editor(props) {
             "name": presentationName,
             "slides": slides
         };
-        const response = await fetch(`/presentations/${presentationName}/save`,
+        const response = await fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/${presentationName}/save`,
             {
                 method: "POST",
                 headers: {
@@ -187,17 +188,18 @@ export default function Editor(props) {
                 body: JSON.stringify(presentationObject)
             }
         );
-        // const result = await response.json();
+
         if (response.status === 404) {
             alert("Sorry, something went wrong.\nCould not save your presentation.")
             return;
         }
+
         console.log(response);
     }
 
     useEffect(() => {
         // const headers = { "Content-type": "application/json" };
-        // fetch(`${window.location.origin}:8132/api/presentations/${props.presentationId}`, { headers })
+        // fetch(`${window.location.port}//${window.location.host.split(":")[0]}:${port}/api/presentations/${props.presentationId}`, { headers })
         //     .then(resp => resp.json())
         //     .then(data => setSlides(data["slides"]))
         //             const clientSideInitialization = async () => {
@@ -257,7 +259,7 @@ export default function Editor(props) {
                             {
                                 name: `New component`,
                                 type: "img",
-                                content: "https://picsum.photos/200/300",
+                                content: "https://picsum.photos/1920/1080",
                             }
                         )
                         setSlides([...curSlides]);

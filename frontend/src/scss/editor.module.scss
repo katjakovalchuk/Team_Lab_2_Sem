@@ -8,6 +8,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    padding-bottom: 2em;
 
     * {
         -webkit-touch-callout: none;
@@ -56,6 +57,31 @@
                   font-size: 1em;
               }
          }
+     }
+
+     .presentationLink {
+         border-radius: 0.4em;
+         width: 6em;
+         margin: 0.2em;
+         background-color: var(--nav-color);
+         display: flex;
+         align-items: flex-start;
+         font-size: 2em;
+         padding: 0.1em 1em;
+
+         * {
+            transition: 200ms all;
+            margin: 0 0.16em;
+         }
+
+         span {
+             font-size:0.8em;
+             top: 0;
+         }
+     }
+
+     .presentationLink:hover * {
+         color: var(--highlight-color);
      }
 }
 
