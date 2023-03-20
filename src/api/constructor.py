@@ -73,6 +73,8 @@ class Presentation:
         if slide_id not in self.slides:
             raise ValueError(f"Slide with id {slide_id} does not exist")
         new_id=self.get_new_id()
+        if slide_id not in self.subslides:
+            self.subslides[slide_id] = {}
         self.subslides[slide_id][new_id]=Slide(new_id)
 
     def swap_slides(self, slide1: int, slide2: int) -> None:
