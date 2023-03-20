@@ -29,6 +29,7 @@ class Presentation:
     def __init__(self, name: str, style: str = "moon", plugins: set = set()) -> None:
         self.name = name
         self.slides = {}
+        self.subslides = {}
         self.style = style
         self.plugins = plugins
         self.unused_id_max = 0
@@ -69,7 +70,10 @@ class Presentation:
         Parameters:
             slide (int): id of the slide
         """
-        # TODO
+        if slide_id not in self.slides:
+            raise ValueError(f"Slide with id {slide_id} does not exist")
+        new_id=self.get_new_id()
+        self.subslides[slide_id][new_id]=Slide(new_id)
 
     def swap_slides(self, slide1: int, slide2: int) -> None:
         """
@@ -78,8 +82,11 @@ class Presentation:
         Parameters:
             slide1 (int): id of the first slide
             slide2 (int): id of the second slide
-        """
-        # TODO
+        """        
+        if slide1 not in self.slides:
+            raise ValueError(f"Slide with id {slide1} does not exist")
+        if slide2 not in self.slides:
+            raise ValueError(f"Slide with id {slide2} does not exist")
 
     def delete_slide(self, slide_id: int) -> None:
         """
@@ -88,7 +95,10 @@ class Presentation:
         Parameters:
             slide_id (int): id of the slide
         """
-        # TODO
+        if slide_id in self.slides:
+            del self.slides[slide_id]
+        else:
+            raise ValueError(f"Slide with id {slide_id} does not exist")
 
     def save(self) -> None:
         """
@@ -112,7 +122,7 @@ class Presentation:
         Parameters:
             plugin (str): name of the plugin
         """
-        # TODO
+        self.plugins.discard(plugin)
 
     def set_style(self, style: str) -> None:
         """
