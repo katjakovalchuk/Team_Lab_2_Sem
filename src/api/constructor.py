@@ -156,7 +156,7 @@ class Slide:
     background_type = "color"
 
     def __init__(
-        self, slide_id: int, background_color: str = "#111111"
+        self, slide_id: int, background_color: str = "#2e3440"
     ) -> None:
         self.content = []
         self.attributes = ""
@@ -324,7 +324,7 @@ class Object:
             dict: a dict representation of the object
         """
         return {
-            "obj_type": self.obj_type,
+            "type": self.obj_type,
             "object_id": self.object_id,
             "attributes": self.attributes,
             "value": self.value,
