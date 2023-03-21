@@ -1,12 +1,10 @@
 import Editor from "../../../components/editPage";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export default function EditPresentation() {
-    const router = useRouter();
-    const { id } = router.query;
-
     return (
-        <Editor presentationId={id} />
+        <Editor />
     )
 }
 

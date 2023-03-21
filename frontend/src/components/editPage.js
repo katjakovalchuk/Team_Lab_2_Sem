@@ -79,6 +79,7 @@ export default function Editor() {
     const [slideIdx, setSlideIdx] = useState(0);
 
     const updateSlide = () => {
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         try {
             fetch(`${baseURL}/${presentationName}/update_slide`,
                 {
@@ -90,7 +91,7 @@ export default function Editor() {
                         "Accept": "application/json",
                         "Content-type": "application/json"
                     },
-                    body: { slide_id: `${slideIdx}`, ...slides[slideIdx] }
+                    body: JSON.stringify({ slide_id: `${slideIdx}`, ...slides[slideIdx] })
                 }
             )
                 .then(response => {
@@ -119,7 +120,6 @@ export default function Editor() {
     const updateElementContent = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
             curSlides[slideIdx].content[element].content = val;
             setSlides([...curSlides]);
             SanitizeSlides();
@@ -131,7 +131,6 @@ export default function Editor() {
     const updateElementType = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
             curSlides[slideIdx].content[element].type = val;
             setSlides([...curSlides]);
             SanitizeSlides();
@@ -143,7 +142,6 @@ export default function Editor() {
     const updateElementAttributes = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
             curSlides[slideIdx].content[element].attributes = val;
             setSlides([...curSlides]);
             SanitizeSlides();
@@ -170,7 +168,7 @@ export default function Editor() {
                             "Accept": "application/json",
                             "Content-type": "application/json"
                         },
-                        body: { name: val }
+                        body: JSON.stringify({ name: val })
                     }
                 )
                     .then(response => {
@@ -209,7 +207,7 @@ export default function Editor() {
                         "Accept": "application/json",
                         "Content-type": "application/json"
                     },
-                    body: { slide_id: slideIdx }
+                    body: JSON.stringify({ slide_id: slideIdx })
                 }
             )
                 .then(response => {
@@ -224,7 +222,6 @@ export default function Editor() {
     }
 
     const updateColor = (val) => {
-        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         let curSlides = slides;
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
@@ -265,6 +262,18 @@ export default function Editor() {
     }
 
     useEffect(() => {
+        setSlides([
+            {
+                slide_id: slideIdx + 1,
+                background: "#2e3440",
+                content: [{
+                    name: "example_text",
+                    type: "text",
+                    attributes: "",
+                    content: "This is an example slide"
+                }]
+            }
+        ]);
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
         updatePresentationName(pname);
@@ -341,6 +350,16 @@ export default function Editor() {
                             setSlides(curSlides);
                         }
                         setSlideIdx((slideIdx + 1) % slides.length)
+                        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+                        try {
+                            const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
+                            fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors' })
+                                .catch(
+                                    () => alert("Sorry, could not fetch the presentation data")
+                                );
+                        } catch {
+                            alert("Could not add slide. Sorry")
+                        }
                     }
                     } />
                     <FaPlus onClick={async () => {
@@ -356,28 +375,7 @@ export default function Editor() {
                         setSlides([...curSlides]);
                         setSlideIdx(slideIdx);
                         SanitizeSlides();
-                        try {
-                            const response = await fetch(`${baseURL}/${presentationName}`,
-                                {
-                                    mode: "cors",
-                                    cache: "default",
-                                    method: "POST",
-                                    headers: {
-                                        'Access-Control-Allow-Origin': '*',
-                                        "Accept": "application/json",
-                                        "Content-type": "application/json"
-                                    },
-                                }
-                            );
-
-                            if (response.status !== 200) {
-                                alert("Sorry, something went wrong.\nCould not save your presentation.")
-                                return;
-                            }
-                        } catch {
-                            alert("Sorry, something went wrong.\nCould not save your presentation.")
-
-                        }
+                        updateSlide();
                     }} />
                     <FaMinus onClick={removeSlide} />
                     <FaSave onClick={savePresentation} />
@@ -391,13 +389,12 @@ export default function Editor() {
                         name={`${presentationName}_color`}
                         updateval={updateColor} />
                 </div>
-                <h2>{slides[slideIdx].type}</h2>
                 {
                     slides.length > 0 && Object.entries(slides[slideIdx].content).map(
                         v => <ElementEditor
                             key={`slide_component_${v[0]}`}
                             type={v[1].type}
-                            id={v[1].slide_id}
+                            id={v[1].type}
                             name={v[1].slide_id}
                             required={true}
                             value={v[1].content}
