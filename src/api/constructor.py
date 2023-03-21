@@ -1,6 +1,7 @@
 """
 A constructor of presentations
 """
+from __future__ import annotations
 
 
 class Presentation:
@@ -52,15 +53,19 @@ class Presentation:
         self.slides[new_id] = Slide(new_id)
         return new_id
 
-    def get_slide(self, slide_id: int) -> "Slide":
+    def get_slide(self, slide_id: int) -> Slide | None:
         """
         Get the slide with the given id
 
         Parameters:
             slide_id (int): id of the slide
+
+        Returns:
+            Slide: the slide with the given id
+            None: if the slide does not exist
         """
         if slide_id not in self.slides:
-            raise ValueError(f"Slide with id {slide_id} does not exist")
+            return None
         return self.slides[slide_id]
 
     def add_subslide(self, slide_id: int) -> None:
@@ -135,6 +140,20 @@ class Presentation:
         """
         self.style = style
 
+    def to_dict(self) -> dict:
+        """
+        Convert the presentation to a dict
+
+        Returns:
+            dict: the presentation as a dict
+        """
+        return {
+            "name": self.name,
+            "slides": {k: v.to_dict() for k, v in self.slides.items()},
+            "style": self.style,
+            "plugins": list(self.plugins),
+        }
+
 
 class Slide:
     """
@@ -199,7 +218,7 @@ class Slide:
             self.attributes.append(attribute)
         self.attributes.append((attribute, value))
 
-    def add_object(self, obj_type: str, value: str | None = None) -> None:
+    def add_object(self, obj_type: str, value: str | None = None) -> int:
         """
         Add an object to the slide
 
@@ -207,9 +226,26 @@ class Slide:
             obj_type (str): type of the object(text, image, video, iframe)
             value (str): value of the object
                 (for text - text, for image, video, iframe - path)
+
+        Returns:
+            int: id of the new object
         """
         new_id = self.get_new_id()
         self.content.append(Object(new_id, obj_type, value))
+        return new_id
+
+    def update_object(self, updated_values: dict) -> None:
+        """
+        Update an object
+
+        Parameters:
+            updated_values (dict): dict with the updated values
+        """
+        obj_id = updated_values["object_id"]
+        for obj in self.content:
+            if obj.object_id == obj_id:
+                obj.update(updated_values)
+                break
 
     def remove_object(self, obj_id: int) -> None:
         """
@@ -310,3 +346,20 @@ class Object:
         object_dict["attributes"] = self.attributes
         object_dict["value"] = self.value
         return object_dict
+
+    def update(self, updated_values: dict) -> None:
+        """
+        Update the object
+
+        Parameters:
+            updated_values (dict): dict with the updated values
+        """
+        for key, value in updated_values.items():
+            if key == "object_id":
+                continue
+            if key == "obj_type":
+                self.obj_type = value
+            elif key == "attributes":
+                self.attributes = value
+            elif key == "value":
+                self.value = value

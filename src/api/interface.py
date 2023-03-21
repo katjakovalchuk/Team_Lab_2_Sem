@@ -1,11 +1,10 @@
-"""
-And API interface for the constructor of presentations
-"""
-from api.constructor import Presentation, Slide
-from api.users import User
-from fastapi import Depends, FastAPI
+"""And API interface for the constructor of presentations."""
+from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi_restful.cbv import cbv
 from fastapi_restful.inferring_router import InferringRouter
+
+from api.constructor import Presentation, Slide
+from api.users import User
 
 app = FastAPI()
 router = InferringRouter()
@@ -18,57 +17,83 @@ USERS = {
     ),
     "user2": User(username="user2", password_hash="password2"),
 }
-U1P1S1_ID = USERS["user1"].get_presentation("presentation1").add_slide()
-print(f"{U1P1S1_ID = }")
+presentation = USERS["user1"].get_presentation("presentation1")
+if presentation is not None:
+    U1P1S1_ID = presentation.add_slide()
+    print(f"{U1P1S1_ID = }")
 
 
-def get_presentation_by_name(username: str, presentation_name: str) -> Presentation:
-    """
-    Get the presentation with the given name
+def get_presentation_by_name(
+    username: str, presentation_name: str
+) -> Presentation | HTTPException:
+    """Get the presentation with the given name.
 
-    Parameters:
+    Args:
         username (str): The username of a user
         presentation_name (str): The name of the presentation
 
     Returns:
         Presentation: The presentation with the given name
+        HTTPException: If the presentation does not exist
     """
+    if username not in USERS:
+        return HTTPException(status_code=404, detail="User not found")
     user = USERS[username]
-    return user.get_presentation(presentation_name)
+    presentation = user.get_presentation(presentation_name)
+    if presentation is None:
+        return HTTPException(status_code=404, detail="Presentation not found")
+    return presentation
 
 
-def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Slide:
-    """
-    Get the slide with the given id
+def get_slide_by_id(
+    username: str, presentation_name: str, slide_id: int
+) -> Slide | HTTPException:
+    """Get the slide with the given id.
 
-    Parameters:
+    Args:
         username (str): The username of a user
         presentation_name (str): The name of the presentation
         slide_id (int): The id of the slide
 
     Returns:
         Slide: The slide with the given id
+        HTTPException: If the slide does not exist
     """
-    user = USERS[username]
-    presentation = user.get_presentation(presentation_name)
-    return presentation.get_slide(slide_id)
+    presentation = get_presentation_by_name(username, presentation_name)
+    if isinstance(presentation, HTTPException):
+        return presentation
+    slide = presentation.get_slide(slide_id)
+    if slide is None:
+        return HTTPException(status_code=404, detail="Slide not found")
+    return slide
 
 
 @router.post("/{username}/{presentation_name}")
-def create_presentation(username: str, presentation_name: str) -> None:
+def create_presentation(
+    username: str, presentation_name: str
+) -> HTTPException | Response:
+    """Create a new presentation.
+
+    Args:
+        username (str): The username of a user
+        presentation_name (str): The name of the presentation
+
+    Returns:
+        Response: If the presentation was created successfully
+        HTTPException: If the presentation already exists
     """
-    Create a new presentation
-    """
+    if username not in USERS:
+        return HTTPException(status_code=404, detail="User not found")
     presentation = Presentation(presentation_name)
     USERS[username].add_presentation(presentation)
+    return Response(status_code=status.HTTP_201_CREATED)
 
 
 @cbv(router)
 class PresentationAPI:
-    """
-    An API for the constructor of presentations
+    """An API for the constructor of presentations.
 
-    Parameters for all methods:
+    Args for all methods:
         username (str): The username of a user
         presentation_name (str): The name of the presentation
     """
@@ -76,40 +101,76 @@ class PresentationAPI:
     presentation: Presentation = Depends(get_presentation_by_name)
 
     @router.get("/{username}/exists/{presentation_name}")
-    def presentation_exists(self) -> None:
-        """
-        Check if the presentation with the given name exists
-        """
-        if self.get_presentation(self.presentation.name):
-            return True
-        return "Presentation with provuded name doesn't exist."
-
-    @router.get("/{username}/{presentation_name}")
-    def get_presentation(self) -> dict[str, str]:
-        """
-        Get the presentation with the given id
-        """
-        return {"style": self.presentation.style, "name": self.presentation.name}
-
-    @router.post("/{username}/{presentation_name}/add_slide")
-    def add_slide(self) -> int:
-        """
-        Add a new slide to the presentation
+    def presentation_exists(self) -> dict[str, bool]:
+        """Check if the presentation with the given name exists.
 
         Returns:
-            int: The id of the new slide
+            dict[str, bool]: A dictionary with the key "exists" and the value
         """
-        return self.presentation.add_slide()
+        return {"exists": not isinstance(self.presentation, HTTPException)}
 
-    # TODO: All the other necessary methods
+    @router.get("/{username}/{presentation_name}")
+    def get_presentation(self) -> dict[str, str] | HTTPException:
+        """Get the presentation with the given id.
+
+        Returns:
+            dict[str, str]: The presentation in json format
+        """
+        if isinstance(self.presentation, HTTPException):
+            return self.presentation
+        return self.presentation.to_dict()
+
+    @router.post("/{username}/{presentation_name}/add_slide")
+    def add_slide(self) -> dict[str, int] | HTTPException:
+        """Add a new slide to the presentation.
+
+        Returns:
+            dict[str, int]: A dictionary with the key "slide_id" and the value
+            HTTPException: If the presentation does not exist
+        """
+        if isinstance(self.presentation, HTTPException):
+            return self.presentation
+        slide_id = self.presentation.add_slide()
+        return {"slide_id": slide_id}
+
+    @router.post("/{username}/{presentation_name}/add_subslide")
+    def add_subslide(self, slide_id: int) -> HTTPException | Response:
+        """Add a new subslide to the slide with the given id.
+
+        Args:
+            slide_id (int): The id of the slide, beneath which the subslide is added
+
+        Returns:
+            Response: If the subslide was added successfully
+            HTTPException: If the slide does not exist
+        """
+        if isinstance(self.presentation, HTTPException):
+            return self.presentation
+        self.presentation.add_subslide(slide_id)
+        return Response(status_code=status.HTTP_201_CREATED)
+
+    @router.delete("/{username}/{presentation_name}/remove_slide")
+    def remove_slide(self, slide_id: int) -> HTTPException | Response:
+        """Remove the slide with the given id.
+
+        Args:
+            slide_id (int): The id of the slide
+
+        Returns:
+            Response: If the slide was removed successfully
+            HTTPException: If the slide does not exist
+        """
+        if isinstance(self.presentation, HTTPException):
+            return self.presentation
+        self.presentation.delete_slide(slide_id)
+        return Response(status_code=status.HTTP_200_OK)
 
 
 @cbv(router)
 class SlideAPI:
-    """
-    An API for the constructor of slides
+    """An API for the constructor of slides.
 
-    Parameters for all methods:
+    Args for all methods:
         username (str): The username of a user
         presentation_name (str): The name of the presentation
         slide_id (int): The id of the slide
@@ -118,82 +179,76 @@ class SlideAPI:
     slide: Slide = Depends(get_slide_by_id)
 
     @router.post("/{username}/{presentation_name}/slide_exists")
-    def slide_exists(self) -> None:
-        """
-        Check if the slide with the given id exists
-        """
-        # TODO
+    def slide_exists(self) -> dict[str, bool]:
+        """Check if the slide with the given id exists.
 
-    @router.post("/{username}/{presentation_name}/add_subslide")
-    def add_subslide(self) -> None:
+        Returns:
+            dict[str, bool]: A dictionary with the key "exists" and the value
         """
-        Add a new subslide to the presentation
-        """
-        # TODO
+        return {"exists": not isinstance(self.slide, HTTPException)}
 
     @router.get("/{username}/{presentation_name}/{slide_id}")
-    def get_slide(self) -> dict[str, str]:
-        """
-        Get the slide with the given id in json format
-        """
-        # TODO: get the json of the slide with the given id
+    def get_slide(self) -> dict[str, str] | HTTPException:
+        """Get the slide with the given id in json format.
 
-    @router.delete("/{username}/{presentation_name}/remove_slide")
-    def remove_slide(self) -> None:
+        Returns:
+            dict[str, str]: The slide with the given id in json format
+            HTTPException: If the slide does not exist
         """
-        Remove the slide with the given id
-        """
-        # TODO
+        if isinstance(self.slide, HTTPException):
+            return self.slide
+        return self.slide.to_dict()
 
-    @router.post("/{username}/{presentation_name}/{slide_id}/add_text")
-    def add_text(self, text: str) -> None:
-        """
-        Add text to the slide with the given id
+    @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
+    def add_object(
+        self, object_type: str, value: str | None = None
+    ) -> dict[str, int] | HTTPException:
+        """Add a new object to the slide with the given id.
 
-        Parameters:
-            text (str), Query: The text to add
-        """
-        # TODO
+        Args:
+            object_type (str): The type of the object
+            value (str, optional): The value of the object. Defaults to None.
 
-    @router.post("/{username}/{presentation_name}/{slide_id}/add_code")
-    def add_code(self, code: str) -> None:
+        Returns:
+            dict[str, int]: A dictionary with the key "object_id" and the value
+            HTTPException: If the slide does not exist
         """
-        Add code to the slide with the given id
+        if isinstance(self.slide, HTTPException):
+            return self.slide
+        object_id = self.slide.add_object(object_type, value)
+        return {"object_id": object_id}
 
-        Parameters:
-            code (str), Query: The code to add
-        """
-        # TODO
+    @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
+    def remove_object(self, object_id: int) -> HTTPException | Response:
+        """Remove the object with the given id.
 
-    @router.post("/{username}/{presentation_name}/{slide_id}/add_image")
-    def add_image(self, path: str) -> None:
-        """
-        Add an image to the slide with the given id
+        Args:
+            object_id (int): The id of the object
 
-        Parameters:
-            path (str), Query: The path to the image
+        Returns:
+            Response: If the object was removed successfully
+            HTTPException: If the object does not exist
         """
-        # TODO
+        if isinstance(self.slide, HTTPException):
+            return self.slide
+        self.slide.remove_object(object_id)
+        return Response(status_code=status.HTTP_200_OK)
 
-    @router.post("/{username}/{presentation_name}/{slide_id}/add_video")
-    def add_video(self, path: str) -> None:
-        """
-        Add a video to the slide with the given id
+    @router.put("/{username}/{presentation_name}/{slide_id}/update_object")
+    def update_object(self, updated_values: dict) -> HTTPException | Response:
+        """Update the object with the given id.
 
-        Parameters:
-            path (str), Query: The path to the video
-        """
-        # TODO
+        Args:
+            updated_values (dict): A dictionary with the updated values
 
-    @router.delete("/{username}/{presentation_name}/{slide_id}/remove_element")
-    def remove_element(self, element_id: int) -> None:
+        Returns:
+            Response: If the object was updated successfully
+            HTTPException: If the object does not exist
         """
-        Remove the element with the given id from the slide with the given id
-
-        Parameters:
-            element_id (int), Query: The id of the element
-        """
-        # TODO
+        if isinstance(self.slide, HTTPException):
+            return self.slide
+        self.slide.update_object(updated_values)
+        return Response(status_code=status.HTTP_200_OK)
 
 
 app.include_router(router)

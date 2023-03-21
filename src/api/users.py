@@ -39,7 +39,7 @@ class User:
         """
         self.presentations.append(presentation)
 
-    def get_presentation(self, presentation_name: str) -> Presentation:
+    def get_presentation(self, presentation_name: str) -> Presentation | None:
         """
         Get the presentation with the given name
 
@@ -48,8 +48,9 @@ class User:
 
         Returns:
             Presentation: The presentation with the given name
+            None: If the presentation does not exist
         """
         for presentation in self.presentations:
             if presentation.name == presentation_name:
                 return presentation
-        raise ValueError(f"Presentation with name {presentation_name} not found")
+        return None
