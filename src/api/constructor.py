@@ -173,7 +173,7 @@ class Slide:
     Attributes:
         content (list): list of elements
         attributes (list): list of slid attributes
-        background_color (str): background color of the slide
+        background (str): background color or path of the slide
         slide_id (int): id of the slide
         max_id (int): the maximum element id that has not been used
 
@@ -218,6 +218,22 @@ class Slide:
             self.background = bg_color
         else:
             self.background = path
+
+    def update_slide(self, slide: dict) -> None:
+        """Update the slide, using the given dict with values
+
+        Args:
+            slide (dict): a dictionary with slide attributes
+        """
+        for key, value in slide.items():
+            if key == "background_type":
+                self.background_type = value
+            elif key == "background":
+                self.background = value
+            elif key == "attributes":
+                self.attributes = value
+            elif key == "content":
+                self.content = value
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """Add an attribute to the slide.

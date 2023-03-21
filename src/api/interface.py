@@ -80,7 +80,20 @@ def create_presentation(username: str, presentation_name: str) -> None:
         return HTTPException(status_code=404, detail="User not found")
     presentation = Presentation(presentation_name)
     USERS[username].add_presentation(presentation)
-    return Response(status_code=status.HTTP_201_CREATED)
+    return Response(status_code=status.HTTP_200_OK)
+
+@router.get("/{username}/presentations")
+def get_presentations(username: str) -> list[str]:
+    """Get presentation names of a user.
+
+    Args:
+        username (str): The username of a user
+
+    Return:
+        list[str]: a list of presentation names
+    """
+    user = USERS[username]
+    return [i.name for i in user.presentations]
 
 
 @cbv(router)
@@ -104,11 +117,11 @@ class PresentationAPI:
         return {"exists": not isinstance(self.presentation, HTTPException)}
 
     @router.get("/{username}/{presentation_name}")
-    def get_presentation(self) -> dict[str, str]:
+    def get_presentation(self) -> dict:
         """Get the presentation with the given id.
 
         Returns:
-            dict[str, str]: The presentation in json format
+            dict: The presentation in json format
         """
         if isinstance(self.presentation, HTTPException):
             return self.presentation
@@ -141,7 +154,7 @@ class PresentationAPI:
         if isinstance(self.presentation, HTTPException):
             return self.presentation
         self.presentation.add_subslide(slide_id)
-        return Response(status_code=status.HTTP_201_CREATED)
+        return Response(status_code=status.HTTP_200_OK)
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
     def remove_slide(self, slide_id: int):
@@ -157,6 +170,26 @@ class PresentationAPI:
         if isinstance(self.presentation, HTTPException):
             return self.presentation
         self.presentation.delete_slide(slide_id)
+        return Response(status_code=status.HTTP_200_OK)
+
+    @router.put("/{username}/{presentation_name}/update_slide")
+    def update_slide(self, slide: dict):
+        """Update the slide with the given id.
+
+        Args:
+            slide (dict): The new slide
+
+        Returns:
+            Response: If the slide was updated successfully
+            HTTPException: If the slide does not exist
+        """
+        if isinstance(self.presentation, HTTPException):
+            return self.presentation
+        slide_id = slide["slide_id"]
+        slide_obj = self.presentation.get_slide(slide_id)
+        if slide_obj is None:
+            return HTTPException(status_code=404, detail="Slide not found")
+        slide_obj.update_slide(slide)
         return Response(status_code=status.HTTP_200_OK)
 
 
