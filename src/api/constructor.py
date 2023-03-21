@@ -277,7 +277,7 @@ class Object:
         to_dict: convert the object to a dict
     """
 
-    def __init__(self, object_id: int, obj_type: str, value: str | None = None) -> None:
+    def __init__(self, object_id: int, obj_type: str, value: str = "") -> None:
         self.obj_type = obj_type
         self.attributes = []
         self.value = value
