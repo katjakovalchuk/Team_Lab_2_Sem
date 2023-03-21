@@ -199,7 +199,7 @@ class SlideAPI:
         return {"exists": not isinstance(self.slide, HTTPException)}
 
     @router.get("/{username}/{presentation_name}/{slide_id}")
-    def get_slide(self) -> dict[str, str]:
+    def get_slide(self) -> dict:
         """Get the slide with the given id in json format.
 
         Returns:
