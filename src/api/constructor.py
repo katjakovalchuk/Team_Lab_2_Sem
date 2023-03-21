@@ -138,7 +138,7 @@ class Slide:
     """A class for slides construction.
 
     Attributes:
-        content (list): list of elements
+        content (dict): list of elements
         attributes (str): str of slide attributes
         background (str): background color or path of the slide
         slide_id (int): id of the slide
