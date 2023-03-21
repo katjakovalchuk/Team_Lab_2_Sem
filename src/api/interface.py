@@ -23,7 +23,7 @@ if presentation is not None:
     print(f"{U1P1S1_ID = }")
 
 
-def get_presentation_by_name(username: str, presentation_name: str) -> Presentation:
+def get_presentation_by_name(username: str, presentation_name: str):
     """Get the presentation with the given name.
 
     Args:
@@ -43,7 +43,7 @@ def get_presentation_by_name(username: str, presentation_name: str) -> Presentat
     return presentation
 
 
-def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Slide:
+def get_slide_by_id(username: str, presentation_name: str, slide_id: int):
     """Get the slide with the given id.
 
     Args:
@@ -65,7 +65,7 @@ def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Sli
 
 
 @router.post("/{username}/{presentation_name}")
-def create_presentation(username: str, presentation_name: str) -> None:
+def create_presentation(username: str, presentation_name: str):
     """Create a new presentation.
 
     Args:
@@ -83,7 +83,7 @@ def create_presentation(username: str, presentation_name: str) -> None:
     return Response(status_code=status.HTTP_200_OK)
 
 @router.get("/{username}/presentations")
-def get_presentations(username: str) -> list[str]:
+def get_presentations(username: str):
     """Get presentation names of a user.
 
     Args:
@@ -108,7 +108,7 @@ class PresentationAPI:
     presentation: Presentation = Depends(get_presentation_by_name)
 
     @router.get("/{username}/exists/{presentation_name}")
-    def presentation_exists(self) -> dict[str, bool]:
+    def presentation_exists(self):
         """Check if the presentation with the given name exists.
 
         Returns:
@@ -117,7 +117,7 @@ class PresentationAPI:
         return {"exists": not isinstance(self.presentation, HTTPException)}
 
     @router.get("/{username}/{presentation_name}")
-    def get_presentation(self) -> dict:
+    def get_presentation(self):
         """Get the presentation with the given id.
 
         Returns:
@@ -128,7 +128,7 @@ class PresentationAPI:
         return self.presentation.to_dict()
 
     @router.post("/{username}/{presentation_name}/add_slide")
-    def add_slide(self) -> dict[str, int]:
+    def add_slide(self):
         """Add a new slide to the presentation.
 
         Returns:
@@ -190,7 +190,7 @@ class SlideAPI:
     slide: Slide = Depends(get_slide_by_id)
 
     @router.post("/{username}/{presentation_name}/slide_exists")
-    def slide_exists(self) -> dict[str, bool]:
+    def slide_exists(self):
         """Check if the slide with the given id exists.
 
         Returns:
@@ -199,7 +199,7 @@ class SlideAPI:
         return {"exists": not isinstance(self.slide, HTTPException)}
 
     @router.get("/{username}/{presentation_name}/{slide_id}")
-    def get_slide(self) -> dict:
+    def get_slide(self):
         """Get the slide with the given id in json format.
 
         Returns:
@@ -211,7 +211,7 @@ class SlideAPI:
         return self.slide.to_dict()
 
     @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
-    def add_object(self, object_type: str, value: str | None = None) -> dict[str, int]:
+    def add_object(self, object_type: str, value: str | None = None):
         """Add a new object to the slide with the given id.
 
         Args:
