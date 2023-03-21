@@ -82,6 +82,7 @@ def create_presentation(username: str, presentation_name: str):
     USERS[username].add_presentation(presentation)
     return Response(status_code=status.HTTP_200_OK)
 
+
 @router.get("/{username}/presentations")
 def get_presentations(username: str):
     """Get presentation names of a user.
