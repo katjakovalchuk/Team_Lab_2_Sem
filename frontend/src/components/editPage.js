@@ -68,14 +68,12 @@ export default function Editor(props) {
             {
                 name: "Slide 1",
                 background: "#2e3440",
-                content: [
-                    {
-                        name: "example_text",
-                        type: "markdown",
-                        attributes: "",
-                        content: "# This is an example slide",
-                    },
-                ],
+                content: [{
+                    name: "example_text",
+                    type: "text",
+                    attributes: "",
+                    content: "This is an example slide"
+                }]
             },
             {
                 name: "Slide 2",
@@ -105,57 +103,168 @@ export default function Editor(props) {
         setSlides([...curSlides]);
     }
 
-    const updateElementContent = (element) => {
+    const updateElementContent = async (element) => {
         let curSlides = slides;
-        const updateFn = (val) => {
+        const updateFn = async (val) => {
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
             curSlides[slideIdx].content[element].content = val;
             setSlides([...curSlides]);
             SanitizeSlides();
+            try {
+                const response = await fetch(`${baseURL}/${presentationName}/${element}/update_content`,
+                    {
+                        mode: "cors",
+                        cache: "default",
+                        method: "PUT",
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            "Accept": "application/json",
+                            "Content-type": "application/json"
+                        },
+                        body: { content: val }
+                    }
+                );
+
+                if (response.status !== 200) {
+                    alert("Sorry, something went wrong.\nCould not save your presentation.")
+                }
+            } catch {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+            }
+
         }
         return updateFn;
     }
 
-    const updateElementType = (element) => {
+    const updateElementType = async (element) => {
         let curSlides = slides;
-        const updateFn = (val) => {
+        const updateFn = async (val) => {
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
             curSlides[slideIdx].content[element].type = val;
             setSlides([...curSlides]);
             SanitizeSlides();
+            try {
+                const response = await fetch(`${baseURL}/${presentationName}/${slideIdx}/${element}/update_type`,
+                    {
+                        mode: "cors",
+                        cache: "default",
+                        method: "PUT",
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            "Accept": "application/json",
+                            "Content-type": "application/json"
+                        },
+                        body: { type: val }
+                    }
+                );
+
+                if (response.status !== 200) {
+                    alert("Sorry, something went wrong.\nCould not save your presentation.")
+                }
+            } catch {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+
+            }
         }
         return updateFn;
     }
 
-    const updateElementName = (element) => {
+    const updateElementName = async (element) => {
         let curSlides = slides;
-        const updateFn = (val) => {
+        const updateFn = async (val) => {
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
             curSlides[slideIdx].content[element].name = val;
             setSlides([...curSlides]);
             SanitizeSlides();
+            const response = await fetch(`${baseURL}/${presentationName}/${slideIdx}/${element}/update_name`,
+                {
+                    mode: "cors",
+                    cache: "default",
+                    method: "PUT",
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        "Accept": "application/json",
+                        "Content-type": "application/json"
+                    },
+                    body: { name: val }
+                }
+            );
+
+            if (response.status !== 200) {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+            }
         }
         return updateFn;
     }
 
-    const updateElementAttributes = (element) => {
+    const updateElementAttributes = async (element) => {
         let curSlides = slides;
-        const updateFn = (val) => {
+        const updateFn = async (val) => {
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
             curSlides[slideIdx].content[element].attributes = val;
             setSlides([...curSlides]);
             SanitizeSlides();
+            try {
+                const response = await fetch(`${baseURL}/${presentationName}/${slideIdx}/${element}/update_attributes`,
+                    {
+                        mode: "cors",
+                        cache: "default",
+                        method: "PUT",
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            "Accept": "application/json",
+                            "Content-type": "application/json"
+                        },
+                        body: { name: val }
+                    }
+                );
+
+                if (response.status !== 200) {
+                    alert("Sorry, something went wrong.\nCould not save your presentation.")
+                }
+            } catch {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+
+            }
         }
         return updateFn;
     }
 
     const removeComponent = (index) => {
         let curSlides = slides;
-        const updateFn = (_) => {
+        const updateFn = async (_) => {
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
             delete curSlides[slideIdx].content[index];
             setSlides([...curSlides]);
             SanitizeSlides();
+            try {
+                const response = await fetch(`${baseURL}/${presentationName}/${slideIdx}/${index}/remove`,
+                    {
+                        mode: "cors",
+                        cache: "default",
+                        method: "PUT",
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            "Accept": "application/json",
+                            "Content-type": "application/json"
+                        },
+                        body: { name: val }
+                    }
+                );
+
+                if (response.status !== 200) {
+                    alert("Sorry, something went wrong.\nCould not save your presentation.")
+                }
+            } catch {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+
+            }
         }
         return updateFn;
     }
 
-    const removeSlide = () => {
+    const removeSlide = async () => {
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
         let curSlides = slides;
         if (curSlides.length > 1) {
             curSlides.splice(slideIdx, 1);
@@ -164,45 +273,98 @@ export default function Editor(props) {
         }
         setSlides([...curSlides]);
         SanitizeSlides();
+        try {
+            const response = await fetch(`${baseURL}/${presentationName}/${slideIdx}/remove`,
+                {
+                    mode: "cors",
+                    cache: "default",
+                    method: "PUT",
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        "Accept": "application/json",
+                        "Content-type": "application/json"
+                    },
+                }
+            );
+
+            if (response.status !== 200) {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+            }
+        } catch {
+            alert("Sorry, something went wrong.\nCould not save your presentation.")
+        }
     }
 
-    const updateColor = (val) => {
+    const updateColor = async (val) => {
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
         let curSlides = slides;
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
         SanitizeSlides();
+        try {
+            const response = await fetch(`${baseURL}/${presentationName}/${slideIdx}/set_color`,
+                {
+                    mode: "cors",
+                    cache: "default",
+                    method: "PUT",
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        "Accept": "application/json",
+                        "Content-type": "application/json"
+                    },
+                    body: { color: val }
+                }
+            );
+
+            if (response.status !== 200) {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+            }
+        } catch {
+            alert("Sorry, something went wrong.\nCould not save your presentation.")
+
+        }
     }
 
     const savePresentation = async () => {
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
         let presentationObject = {
             "name": presentationName,
             "slides": slides
         };
-        const response = await fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/${presentationName}/save`,
-            {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify(presentationObject)
+        try {
+            const response = await fetch(`${baseURL}/${presentationName}/save`,
+                {
+                    mode: "cors",
+                    cache: "default",
+                    method: "POST",
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        "Accept": "application/json",
+                        "Content-type": "application/json"
+                    },
+                    body: JSON.stringify(presentationObject)
+                }
+            );
+
+            if (response.status !== 200) {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
+                return;
             }
-        );
-
-        if (response.status === 404) {
+        } catch {
             alert("Sorry, something went wrong.\nCould not save your presentation.")
-            return;
-        }
 
-        console.log(response);
+        }
     }
 
     useEffect(() => {
-        // const headers = { "Content-type": "application/json" };
-        // fetch(`${window.location.port}//${window.location.host.split(":")[0]}:${port}/api/presentations/${props.presentationId}`, { headers })
-        //     .then(resp => resp.json())
-        //     .then(data => setSlides(data["slides"]))
-        //             const clientSideInitialization = async () => {
+        try {
+            const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
+            fetch(`${baseURL}/${props.presentationId}`, { headers: headers, mode: 'cors' })
+                .then(resp => resp.json())
+                .then(data => setSlides(data["slides"]))
+        } catch {
+            alert("Sorry, could not fetch the presentation data")
+        }
         // load modules in browser
         const clientSideInitialization = async () => {
             // load modules in browser
@@ -253,7 +415,8 @@ export default function Editor(props) {
                         setSlideIdx((slideIdx + 1) % slides.length)
                     }
                     } />
-                    <FaPlus onClick={() => {
+                    <FaPlus onClick={async () => {
+                        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
                         let curSlides = slides;
                         curSlides[slideIdx].content.push(
                             {
@@ -265,6 +428,28 @@ export default function Editor(props) {
                         setSlides([...curSlides]);
                         setSlideIdx(slideIdx);
                         SanitizeSlides();
+                        try {
+                            const response = await fetch(`${baseURL}/${presentationName}`,
+                                {
+                                    mode: "cors",
+                                    cache: "default",
+                                    method: "POST",
+                                    headers: {
+                                        'Access-Control-Allow-Origin': '*',
+                                        "Accept": "application/json",
+                                        "Content-type": "application/json"
+                                    },
+                                }
+                            );
+
+                            if (response.status !== 200) {
+                                alert("Sorry, something went wrong.\nCould not save your presentation.")
+                                return;
+                            }
+                        } catch {
+                            alert("Sorry, something went wrong.\nCould not save your presentation.")
+
+                        }
                     }} />
                     <FaMinus onClick={removeSlide} />
                     <FaSave onClick={savePresentation} />

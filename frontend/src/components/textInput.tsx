@@ -7,7 +7,7 @@ interface InputProps {
     name: string;
     required: boolean;
     value: string;
-    updateval: (val: string) => void;
+    updateval: any;
 };
 
 export function TextInput(props: InputProps) {
