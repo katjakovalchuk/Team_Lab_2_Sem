@@ -139,7 +139,7 @@ class Slide:
 
     Attributes:
         content (list): list of elements
-        attributes (list): list of slid attributes
+        attributes (str): str of slide attributes
         background (str): background color or path of the slide
         slide_id (int): id of the slide
         max_id (int): the maximum element id that has not been used
@@ -155,9 +155,9 @@ class Slide:
 
     background_type = "color"
 
-    def __init__(self, slide_id: int, background_color: str = "111111") -> None:
+    def __init__(self, slide_id: int, background_color: str = "#111111") -> None:
         self.content = {}
-        self.attributes = []
+        self.attributes = ""
         self.background = background_color
         self.slide_id = slide_id
         self.max_id = 0
@@ -210,8 +210,9 @@ class Slide:
             value (str): value of the attribute
         """
         if value is None:
-            self.attributes.append(attribute)
-        self.attributes.append((attribute, value))
+            self.attributes += f" {attribute}"
+        else:
+            self.attributes += f' {attribute}="{value}"'
 
     def add_object(self, obj_type: str, value: str | None = None) -> int:
         """Add an object to the slide.
@@ -266,7 +267,7 @@ class Object:
     Attributes:
         object_id (int): id of the object
         obj_type (str): type of the object(text, code, image, video, iframe)
-        attributes (list): list of attributes
+        attributes (str): str of attributes
         value (str): value of the object
             (for text, code - text, for image, video, iframe - path)
 
@@ -279,7 +280,7 @@ class Object:
 
     def __init__(self, object_id: int, obj_type: str, value: str = "") -> None:
         self.obj_type = obj_type
-        self.attributes = []
+        self.attributes = ""
         self.value = value
         self.object_id = object_id
 
@@ -291,8 +292,9 @@ class Object:
             value (str): value of the attribute
         """
         if value is None:
-            self.attributes.append(attribute)
-        self.attributes.append((attribute, value))
+            self.attributes += f" {attribute}"
+        else:
+            self.attributes += f' {attribute}="{value}"'
 
     def set_value(self, value: str) -> None:
         """Set the value of the object.
