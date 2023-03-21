@@ -1,12 +1,9 @@
-"""
-A constructor of presentations
-"""
+"""A constructor of presentations."""
 from __future__ import annotations
 
 
 class Presentation:
-    """
-    A class for presentations construction
+    """A class for presentations construction.
 
     Attributes:
         name (str): name of the presentation
@@ -27,24 +24,29 @@ class Presentation:
         set_style: set the style of the presentation
     """
 
-    def __init__(self, name: str, style: str = "moon", plugins: set = set()) -> None:
+    def __init__(
+        self, name: str, style: str = "moon", plugins: set | None = None
+    ) -> None:
         self.name = name
         self.slides = {}
         self.subslides = {}
         self.style = style
+        if plugins is None:
+            plugins = set()
         self.plugins = plugins
         self.unused_id_max = 0
 
     def get_new_id(self) -> int:
-        """
-        Get a new id for a slide
+        """Get a new id for a slide.
+
+        Returns:
+            id (int): the new id
         """
         self.unused_id_max += 1
         return self.unused_id_max - 1
 
     def add_slide(self) -> int:
-        """
-        Add a slide to the presentation
+        """Add a slide to the presentation.
 
         Returns:
             slide_id (int): id of the new slide
@@ -54,10 +56,9 @@ class Presentation:
         return new_id
 
     def get_slide(self, slide_id: int) -> Slide | None:
-        """
-        Get the slide with the given id
+        """Get the slide with the given id.
 
-        Parameters:
+        Args:
             slide_id (int): id of the slide
 
         Returns:
@@ -69,80 +70,91 @@ class Presentation:
         return self.slides[slide_id]
 
     def add_subslide(self, slide_id: int) -> None:
-        """
-        Add a subslide beneath a slide
+        """Add a subslide beneath a slide.
 
-        Parameters:
-            slide (int): id of the slide
+        Args:
+            slide_id (int): id of the slide
+
+        Returns:
+            None: if the slide does not exist
         """
         if slide_id not in self.slides:
-            raise ValueError(f"Slide with id {slide_id} does not exist")
-        new_id=self.get_new_id()
+            return
+        new_id = self.get_new_id()
         if slide_id not in self.subslides:
             self.subslides[slide_id] = {}
-        self.subslides[slide_id][new_id]=Slide(new_id)
+        self.subslides[slide_id][new_id] = Slide(new_id)
+        self.slides[new_id] = self.subslides[slide_id][new_id]
 
     def swap_slides(self, slide1: int, slide2: int) -> None:
-        """
-        Swap two slides
+        """Swap two slides.
 
-        Parameters:
+        Args:
             slide1 (int): id of the first slide
             slide2 (int): id of the second slide
-        """        
+        """
         if slide1 not in self.slides:
-            raise ValueError(f"Slide with id {slide1} does not exist")
+            return
         if slide2 not in self.slides:
-            raise ValueError(f"Slide with id {slide2} does not exist")
+            return
+        self.slides[slide1], self.slides[slide2] = (
+            self.slides[slide2],
+            self.slides[slide1],
+        )
+        subslide1 = None
+        subslide2 = None
+        for i, subslide in enumerate(self.subslides[slide1].values()):
+            if subslide.slide_id == slide2:
+                subslide1 = i
+            if subslide.slide_id == slide1:
+                subslide2 = i
+        if subslide1 is not None:
+            self.subslides[slide1][subslide1] = self.slides[slide1]
+        if subslide2 is not None:
+            self.subslides[slide1][subslide2] = self.slides[slide2]
 
     def delete_slide(self, slide_id: int) -> None:
-        """
-        Delete a slide
+        """Delete a slide.
 
-        Parameters:
+        Args:
             slide_id (int): id of the slide
         """
         if slide_id in self.slides:
             del self.slides[slide_id]
-        else:
-            raise ValueError(f"Slide with id {slide_id} does not exist")
+        for subslide in self.subslides.values():
+            if slide_id in subslide:
+                del subslide[slide_id]
 
     def save(self) -> None:
-        """
-        Save the presentation to a html file
-        """
+        """Save the presentation to a html file."""
         # TODO: for now just use the generic style(copy from the existing presentation)
 
     def add_plugin(self, plugin: str) -> None:
-        """
-        Add a plugin to the presentation
+        """Add a plugin to the presentation.
 
-        Parameters:
+        Args:
             plugin (str): name of the plugin
         """
         self.plugins.add(plugin)
 
     def remove_plugin(self, plugin: str) -> None:
-        """
-        Remove a plugin from the presentation
+        """Remove a plugin from the presentation.
 
-        Parameters:
+        Args:
             plugin (str): name of the plugin
         """
         self.plugins.discard(plugin)
 
     def set_style(self, style: str) -> None:
-        """
-        Set the style of the presentation
+        """Set the style of the presentation.
 
-        Parameters:
+        Args:
             style (str): name of the style
         """
         self.style = style
 
     def to_dict(self) -> dict:
-        """
-        Convert the presentation to a dict
+        """Convert the presentation to a dict.
 
         Returns:
             dict: the presentation as a dict
@@ -156,8 +168,7 @@ class Presentation:
 
 
 class Slide:
-    """
-    A class for slides construction
+    """A class for slides construction.
 
     Attributes:
         content (list): list of elements
@@ -178,15 +189,17 @@ class Slide:
     background_type = "color"
 
     def __init__(self, slide_id: int, background_color: str = "111111") -> None:
-        self.content = []
+        self.content = {}
         self.attributes = []
         self.background = background_color
         self.slide_id = slide_id
         self.max_id = 0
 
     def get_new_id(self) -> int:
-        """
-        Get a new id for an element
+        """Get a new id for an element.
+
+        Returns:
+            int: the new id
         """
         self.max_id += 1
         return self.max_id - 1
@@ -194,10 +207,9 @@ class Slide:
     def set_background(
         self, bg_type: str, bg_color: str | None = None, path: str | None = None
     ) -> None:
-        """
-        Set the background of the slide
+        """Set the background of the slide.
 
-        Parameters:
+        Args:
             bg_type (str): type of the background(color, image, video, iframe)
             bg_color (str): color of the background
             path (str): path to the background(image or video or iframe)
@@ -208,21 +220,20 @@ class Slide:
             self.background = path
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
-        """
-        Add an attribute to the slide
+        """Add an attribute to the slide.
 
-        Parameters:
+        Args:
             attribute (str): name of the attribute
+            value (str): value of the attribute
         """
         if value is None:
             self.attributes.append(attribute)
         self.attributes.append((attribute, value))
 
     def add_object(self, obj_type: str, value: str | None = None) -> int:
-        """
-        Add an object to the slide
+        """Add an object to the slide.
 
-        Parameters:
+        Args:
             obj_type (str): type of the object(text, image, video, iframe)
             value (str): value of the object
                 (for text - text, for image, video, iframe - path)
@@ -231,55 +242,43 @@ class Slide:
             int: id of the new object
         """
         new_id = self.get_new_id()
-        self.content.append(Object(new_id, obj_type, value))
+        self.content[new_id] = Object(new_id, obj_type, value)
         return new_id
 
     def update_object(self, updated_values: dict) -> None:
-        """
-        Update an object
+        """Update an object.
 
-        Parameters:
+        Args:
             updated_values (dict): dict with the updated values
         """
         obj_id = updated_values["object_id"]
-        for obj in self.content:
-            if obj.object_id == obj_id:
-                obj.update(updated_values)
-                break
+        self.content[obj_id].update(updated_values)
 
     def remove_object(self, obj_id: int) -> None:
-        """
-        Remove an object from the slide
+        """Remove an object from the slide.
 
-        Parameters:
+        Args:
             obj_id (int): id of the object
         """
-        ind = 0
-        for key, objects in enumerate(self.content):
-            if objects.object_id == obj_id:
-                ind = key
-                break
-        del self.content[ind]
+        del self.content[obj_id]
 
     def to_dict(self) -> dict:
-        """
-        Convert the slide to a dict
+        """Convert the slide to a dict.
 
         Returns:
             dict: a dict representation of the slide
         """
-        slide_dict = {}
-        slide_dict["content"] = self.content
-        slide_dict["attributes"] = self.attributes
-        slide_dict["background"] = self.background
-        slide_dict["slide_id"] = self.slide_id
-        slide_dict["max_id"] = self.max_id
-        return slide_dict
+        return {
+            "content": self.content,
+            "attributes": self.attributes,
+            "background": self.background,
+            "slide_id": self.slide_id,
+            "max_id": self.max_id,
+        }
 
 
 class Object:
-    """
-    An object of a slide
+    """An object of a slide.
 
     Attributes:
         object_id (int): id of the object
@@ -302,10 +301,9 @@ class Object:
         self.object_id = object_id
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
-        """
-        Add an attribute to the object
+        """Add an attribute to the object.
 
-        Parameters:
+        Args:
             attribute (str): name of the attribute
             value (str): value of the attribute
         """
@@ -314,44 +312,41 @@ class Object:
         self.attributes.append((attribute, value))
 
     def set_value(self, value: str) -> None:
-        """
-        Set the value of the object
+        """Set the value of the object.
+
         For text, code - text
         For image, video, iframe - path
 
-        Parameters:
+        Args:
             value (str): value of the object
         """
         self.value = value
 
     def set_data_id(self, data_id: int) -> None:
-        """
-        Set the auto animate id of the object
+        """Set the auto animate id of the object.
 
-        Parameters:
-            id (int): id of the object
+        Args:
+            data_id (int): id of the object
         """
         self.add_attribute("data-auto-animate-id", str(data_id))
 
     def to_dict(self) -> dict:
-        """
-        Convert the object to dict
+        """Convert the object to dict.
 
         Returns:
             dict: a dict representation of the object
         """
-        object_dict = {}
-        object_dict["obj_type"] = self.obj_type
-        object_dict["object_id"] = self.object_id
-        object_dict["attributes"] = self.attributes
-        object_dict["value"] = self.value
-        return object_dict
+        return {
+            "obj_type": self.obj_type,
+            "object_id": self.object_id,
+            "attributes": self.attributes,
+            "value": self.value,
+        }
 
     def update(self, updated_values: dict) -> None:
-        """
-        Update the object
+        """Update the object.
 
-        Parameters:
+        Args:
             updated_values (dict): dict with the updated values
         """
         for key, value in updated_values.items():
