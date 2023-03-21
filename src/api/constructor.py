@@ -15,7 +15,6 @@ class Presentation:
     Methods:
         get_new_id: get an id for a new slide
         add_slide: add a slide to the presentation
-        add_subslide: add a subslide beneath a slide
         swap_slides: swap two slides
         delete_slide: delete a slide
         save: save the presentation to a html file
@@ -29,7 +28,6 @@ class Presentation:
     ) -> None:
         self.name = name
         self.slides = {}
-        self.subslides = {}
         self.style = style
         if plugins is None:
             plugins = set()
@@ -69,23 +67,6 @@ class Presentation:
             return None
         return self.slides[slide_id]
 
-    def add_subslide(self, slide_id: int) -> None:
-        """Add a subslide beneath a slide.
-
-        Args:
-            slide_id (int): id of the slide
-
-        Returns:
-            None: if the slide does not exist
-        """
-        if slide_id not in self.slides:
-            return
-        new_id = self.get_new_id()
-        if slide_id not in self.subslides:
-            self.subslides[slide_id] = {}
-        self.subslides[slide_id][new_id] = Slide(new_id)
-        self.slides[new_id] = self.subslides[slide_id][new_id]
-
     def swap_slides(self, slide1: int, slide2: int) -> None:
         """Swap two slides.
 
@@ -101,17 +82,6 @@ class Presentation:
             self.slides[slide2],
             self.slides[slide1],
         )
-        subslide1 = None
-        subslide2 = None
-        for i, subslide in enumerate(self.subslides[slide1].values()):
-            if subslide.slide_id == slide2:
-                subslide1 = i
-            if subslide.slide_id == slide1:
-                subslide2 = i
-        if subslide1 is not None:
-            self.subslides[slide1][subslide1] = self.slides[slide1]
-        if subslide2 is not None:
-            self.subslides[slide1][subslide2] = self.slides[slide2]
 
     def delete_slide(self, slide_id: int) -> None:
         """Delete a slide.
@@ -121,9 +91,6 @@ class Presentation:
         """
         if slide_id in self.slides:
             del self.slides[slide_id]
-        for subslide in self.subslides.values():
-            if slide_id in subslide:
-                del subslide[slide_id]
 
     def save(self) -> None:
         """Save the presentation to a html file."""

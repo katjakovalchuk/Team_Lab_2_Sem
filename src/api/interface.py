@@ -140,22 +140,6 @@ class PresentationAPI:
         slide_id = self.presentation.add_slide()
         return {"slide_id": slide_id}
 
-    @router.post("/{username}/{presentation_name}/add_subslide")
-    def add_subslide(self, slide_id: int):
-        """Add a new subslide to the slide with the given id.
-
-        Args:
-            slide_id (int): The id of the slide, beneath which the subslide is added
-
-        Returns:
-            Response: If the subslide was added successfully
-            HTTPException: If the slide does not exist
-        """
-        if isinstance(self.presentation, HTTPException):
-            return self.presentation
-        self.presentation.add_subslide(slide_id)
-        return Response(status_code=status.HTTP_200_OK)
-
     @router.delete("/{username}/{presentation_name}/remove_slide")
     def remove_slide(self, slide_id: int):
         """Remove the slide with the given id.
