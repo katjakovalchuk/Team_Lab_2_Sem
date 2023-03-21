@@ -128,7 +128,7 @@ class Presentation:
         """
         return {
             "name": self.name,
-            "slides": {k: v.to_dict() for k, v in self.slides.items()},
+            "slides": [v.to_dict() for _, v in self.slides.items()],
             "style": self.style,
             "plugins": list(self.plugins),
         }
@@ -155,8 +155,10 @@ class Slide:
 
     background_type = "color"
 
-    def __init__(self, slide_id: int, background_color: str = "#111111") -> None:
-        self.content = {}
+    def __init__(
+        self, slide_id: int, background_color: str = "#111111"
+    ) -> None:
+        self.content = []
         self.attributes = ""
         self.background = background_color
         self.slide_id = slide_id
@@ -226,7 +228,7 @@ class Slide:
             int: id of the new object
         """
         new_id = self.get_new_id()
-        self.content[new_id] = Object(new_id, obj_type, value)
+        self.content += [Object(new_id, obj_type, value)]
         return new_id
 
     def update_object(self, updated_values: dict) -> None:
