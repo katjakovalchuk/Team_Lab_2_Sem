@@ -43,11 +43,13 @@ function ToSection(obj) {
 }
 
 function ToPresentation(obj) {
-    return obj.map((slide) => {
+    return Object.entries(obj).map((slideObject) => {
+        const slide = slideObject[1];
+        console.log(slide);
         // This is not pretty. Too bad!
         if (slide.content.some((x) => x.type === "other")) {
             return <section
-                key={slide.name}
+                key={slide.slide_id}
                 data-background-color={
                     slide.background ?
                         slide.background :
@@ -60,35 +62,21 @@ function ToPresentation(obj) {
     })
 }
 
-export default function Editor(props) {
+export default function Editor() {
     const port = process.env.NEXT_PUBLIC_API_PORT || "80";
-    const [presentationName, updatePresentationName] = useState("Presentation");
-    const [slides, setSlides] = useState(
-        [
-            {
-                name: "Slide 1",
-                background: "#2e3440",
-                content: [{
-                    name: "example_text",
-                    type: "text",
-                    attributes: "",
-                    content: "This is an example slide"
-                }]
-            },
-            {
-                name: "Slide 2",
-                background: "#2e3440",
-                content: [
-                    {
-                        name: "image",
-                        type: "img",
-                        attributes: "",
-                        content: "https://picsum.photos/1920/1080",
-                    }
-                ],
-            }
-        ]
-    );
+    const [presentationName, updatePresentationName] = useState("presentation1");
+    const [slides, setSlides] = useState([
+        {
+            name: "Slide 1",
+            background: "#2e3440",
+            content: [{
+                name: "example_text",
+                type: "text",
+                attributes: "",
+                content: "This is an example slide"
+            }]
+        }
+    ]);
     const [slideIdx, setSlideIdx] = useState(0);
 
     const SanitizeSlides = () => {
@@ -106,7 +94,7 @@ export default function Editor(props) {
     const updateElementContent = async (element) => {
         let curSlides = slides;
         const updateFn = async (val) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
             curSlides[slideIdx].content[element].content = val;
             setSlides([...curSlides]);
             SanitizeSlides();
@@ -139,7 +127,7 @@ export default function Editor(props) {
     const updateElementType = async (element) => {
         let curSlides = slides;
         const updateFn = async (val) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
             curSlides[slideIdx].content[element].type = val;
             setSlides([...curSlides]);
             SanitizeSlides();
@@ -169,38 +157,10 @@ export default function Editor(props) {
         return updateFn;
     }
 
-    const updateElementName = async (element) => {
-        let curSlides = slides;
-        const updateFn = async (val) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
-            curSlides[slideIdx].content[element].name = val;
-            setSlides([...curSlides]);
-            SanitizeSlides();
-            const response = await fetch(`${baseURL}/${presentationName}/${slideIdx}/${element}/update_name`,
-                {
-                    mode: "cors",
-                    cache: "default",
-                    method: "PUT",
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        "Accept": "application/json",
-                        "Content-type": "application/json"
-                    },
-                    body: { name: val }
-                }
-            );
-
-            if (response.status !== 200) {
-                alert("Sorry, something went wrong.\nCould not save your presentation.")
-            }
-        }
-        return updateFn;
-    }
-
     const updateElementAttributes = async (element) => {
         let curSlides = slides;
         const updateFn = async (val) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
             curSlides[slideIdx].content[element].attributes = val;
             setSlides([...curSlides]);
             SanitizeSlides();
@@ -233,7 +193,7 @@ export default function Editor(props) {
     const removeComponent = (index) => {
         let curSlides = slides;
         const updateFn = async (_) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
             delete curSlides[slideIdx].content[index];
             setSlides([...curSlides]);
             SanitizeSlides();
@@ -264,12 +224,13 @@ export default function Editor(props) {
     }
 
     const removeSlide = async () => {
-        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         let curSlides = slides;
         if (curSlides.length > 1) {
             curSlides.splice(slideIdx, 1);
             if (slideIdx + 1 > curSlides.length)
                 setSlideIdx(slideIdx - 1);
+
         }
         setSlides([...curSlides]);
         SanitizeSlides();
@@ -296,7 +257,7 @@ export default function Editor(props) {
     }
 
     const updateColor = async (val) => {
-        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         let curSlides = slides;
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
@@ -326,7 +287,7 @@ export default function Editor(props) {
     }
 
     const savePresentation = async () => {
-        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         let presentationObject = {
             "name": presentationName,
             "slides": slides
@@ -357,11 +318,15 @@ export default function Editor(props) {
     }
 
     useEffect(() => {
+        let splitPath = window.location.href.split("/");
+        const pname = splitPath[splitPath.length - 2];
+        updatePresentationName(pname);
+        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         try {
             const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-            fetch(`${baseURL}/${props.presentationId}`, { headers: headers, mode: 'cors' })
+            fetch(`${baseURL}/${presentationName}`, { headers: headers, mode: 'cors' })
                 .then(resp => resp.json())
-                .then(data => setSlides(data["slides"]))
+                .then(data => setSlides(Object.values(data["slides"])))
         } catch {
             alert("Sorry, could not fetch the presentation data")
         }
@@ -381,7 +346,7 @@ export default function Editor(props) {
                 deck.sync();
             }, 500)
         }
-        clientSideInitialization();
+        document.onload = clientSideInitialization;
     }, [])
 
     return (
@@ -416,8 +381,9 @@ export default function Editor(props) {
                     }
                     } />
                     <FaPlus onClick={async () => {
-                        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/user1`;
+                        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
                         let curSlides = slides;
+                        console.log(curSlides);
                         curSlides[slideIdx].content.push(
                             {
                                 name: `New component`,
@@ -455,13 +421,7 @@ export default function Editor(props) {
                     <FaSave onClick={savePresentation} />
                 </div>
                 <div className={styles.editorBox}>
-                    <TextInput
-                        id={`presentation_name`}
-                        placeholder={"Presentation Name"}
-                        required={false}
-                        value={presentationName}
-                        name={presentationName}
-                        updateval={updatePresentationName} />
+                    <h2>{presentationName}</h2>
                     <TextInput
                         id={`background_color`}
                         placeholder={"Slide Background"}
@@ -472,7 +432,7 @@ export default function Editor(props) {
                 </div>
                 <h2>{slides[slideIdx].name}</h2>
                 {
-                    Object.entries(slides[slideIdx].content).map(
+                    slides.length > 0 && Object.entries(slides[slideIdx].content).map(
                         v => <ElementEditor
                             key={`${v[1].name}_${v[0]}`}
                             type={v[1].type}
@@ -482,7 +442,6 @@ export default function Editor(props) {
                             value={v[1].content}
                             attrs={`${v[1].name}_attrs`}
                             updateContent={updateElementContent(v[0])}
-                            updateName={updateElementName(v[0])}
                             updateType={updateElementType(v[0])}
                             removeElement={removeComponent(v[0])}
                             updateAttrs={updateElementAttributes(v[0])} />
