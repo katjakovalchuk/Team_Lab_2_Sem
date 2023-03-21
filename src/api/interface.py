@@ -23,9 +23,7 @@ if presentation is not None:
     print(f"{U1P1S1_ID = }")
 
 
-def get_presentation_by_name(
-    username: str, presentation_name: str
-) -> Presentation | HTTPException:
+def get_presentation_by_name(username: str, presentation_name: str) -> Presentation:
     """Get the presentation with the given name.
 
     Args:
@@ -45,9 +43,7 @@ def get_presentation_by_name(
     return presentation
 
 
-def get_slide_by_id(
-    username: str, presentation_name: str, slide_id: int
-) -> Slide | HTTPException:
+def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Slide:
     """Get the slide with the given id.
 
     Args:
@@ -69,9 +65,7 @@ def get_slide_by_id(
 
 
 @router.post("/{username}/{presentation_name}")
-def create_presentation(
-    username: str, presentation_name: str
-) -> HTTPException | Response:
+def create_presentation(username: str, presentation_name: str) -> None:
     """Create a new presentation.
 
     Args:
@@ -110,7 +104,7 @@ class PresentationAPI:
         return {"exists": not isinstance(self.presentation, HTTPException)}
 
     @router.get("/{username}/{presentation_name}")
-    def get_presentation(self) -> dict[str, str] | HTTPException:
+    def get_presentation(self) -> dict[str, str]:
         """Get the presentation with the given id.
 
         Returns:
@@ -121,7 +115,7 @@ class PresentationAPI:
         return self.presentation.to_dict()
 
     @router.post("/{username}/{presentation_name}/add_slide")
-    def add_slide(self) -> dict[str, int] | HTTPException:
+    def add_slide(self) -> dict[str, int]:
         """Add a new slide to the presentation.
 
         Returns:
@@ -134,7 +128,7 @@ class PresentationAPI:
         return {"slide_id": slide_id}
 
     @router.post("/{username}/{presentation_name}/add_subslide")
-    def add_subslide(self, slide_id: int) -> HTTPException | Response:
+    def add_subslide(self, slide_id: int):
         """Add a new subslide to the slide with the given id.
 
         Args:
@@ -150,7 +144,7 @@ class PresentationAPI:
         return Response(status_code=status.HTTP_201_CREATED)
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
-    def remove_slide(self, slide_id: int) -> HTTPException | Response:
+    def remove_slide(self, slide_id: int):
         """Remove the slide with the given id.
 
         Args:
@@ -188,7 +182,7 @@ class SlideAPI:
         return {"exists": not isinstance(self.slide, HTTPException)}
 
     @router.get("/{username}/{presentation_name}/{slide_id}")
-    def get_slide(self) -> dict[str, str] | HTTPException:
+    def get_slide(self) -> dict[str, str]:
         """Get the slide with the given id in json format.
 
         Returns:
@@ -200,9 +194,7 @@ class SlideAPI:
         return self.slide.to_dict()
 
     @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
-    def add_object(
-        self, object_type: str, value: str | None = None
-    ) -> dict[str, int] | HTTPException:
+    def add_object(self, object_type: str, value: str | None = None) -> dict[str, int]:
         """Add a new object to the slide with the given id.
 
         Args:
@@ -219,7 +211,7 @@ class SlideAPI:
         return {"object_id": object_id}
 
     @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
-    def remove_object(self, object_id: int) -> HTTPException | Response:
+    def remove_object(self, object_id: int):
         """Remove the object with the given id.
 
         Args:
@@ -235,7 +227,7 @@ class SlideAPI:
         return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/{slide_id}/update_object")
-    def update_object(self, updated_values: dict) -> HTTPException | Response:
+    def update_object(self, updated_values: dict):
         """Update the object with the given id.
 
         Args:
