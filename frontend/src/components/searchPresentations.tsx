@@ -1,7 +1,6 @@
 import styles from "../scss/editor.module.scss";
 import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import Link from "next/link";
 
 function TextInput(props: any) {
     const updateVal = () => {
@@ -28,7 +27,7 @@ export default function SearchPresentations() {
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
-        const response = await fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/api/presentations/search/by_name/${name}`,
+        const response = await fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1/presentations`,
             {
                 method: "GET",
                 headers: {
@@ -42,7 +41,7 @@ export default function SearchPresentations() {
             return;
         }
         const result = await response.json();
-        setPresentationNames(result["names"]);
+        setPresentationNames(result);
     }
 
     return (
@@ -57,12 +56,12 @@ export default function SearchPresentations() {
                 </form>
                 <div className={styles.vertical}>
                     {presentationNames.map(name =>
-                        <Link href={`/presentations/${name}/edit`} className={styles.presentationLink}>
+                        <a href={`/presentations/${name}/edit`} className={styles.presentationLink}>
                             <FaEdit />
                             <span>
                                 {name}
                             </span>
-                        </Link>)}
+                        </a>)}
                 </div>
             </div>
         </>

@@ -46,7 +46,7 @@ function ToPresentation(obj) {
     return Object.entries(obj).map((slideObject) => {
         const slide = slideObject[1];
         // This is not pretty. Too bad!
-        if (slide.content.some((x) => x.type === "other")) {
+        if (slide.content.some((x) => x !== null && x.type === "other")) {
             return <section
                 key={slide.slide_id}
                 data-background-color={
@@ -66,7 +66,7 @@ export default function Editor() {
     const [presentationName, updatePresentationName] = useState("");
     const [slides, setSlides] = useState([
         {
-            name: "Slide 1",
+            slide_id: 0,
             background: "#2e3440",
             content: [{
                 name: "example_text",
@@ -80,29 +80,24 @@ export default function Editor() {
 
     const updateSlide = () => {
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-        console.log(`${baseURL}/${presentationName}`)
-        try {
-            fetch(`${baseURL}/${presentationName}/update_slide`,
-                {
-                    mode: "cors",
-                    cache: "default",
-                    method: "PUT",
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        "Accept": "application/json",
-                        "Content-type": "application/json"
-                    },
-                    body: JSON.stringify({ slide_id: `${slideIdx}`, ...slides[slideIdx] })
+        fetch(`${baseURL}/${presentationName}/update_slide`,
+            {
+                mode: "cors",
+                cache: "default",
+                method: "PUT",
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    "Accept": "application/json",
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({ slide_id: slideIdx, ...slides[slideIdx] })
+            }
+        )
+            .then(response => {
+                if (response.status !== 200) {
+                    alert("Sorry, something went wrong.\nCould not save your presentation.")
                 }
-            )
-                .then(response => {
-                    if (response.status !== 200) {
-                        alert("Sorry, something went wrong.\nCould not save your presentation.")
-                    }
-                });
-        } catch {
-            alert("Sorry, something went wrong.\nCould not save your presentation.")
-        }
+            });
 
     }
 
@@ -169,7 +164,7 @@ export default function Editor() {
                             "Accept": "application/json",
                             "Content-type": "application/json"
                         },
-                        body: JSON.stringify({ name: val })
+                        body: JSON.stringify({ name: `${val}` })
                     }
                 )
                     .then(response => {
@@ -187,18 +182,11 @@ export default function Editor() {
     }
 
     const removeSlide = () => {
+        if (slides.length == 1)
+            return;
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-        let curSlides = slides;
-        if (curSlides.length > 1) {
-            curSlides.splice(slideIdx, 1);
-            if (slideIdx + 1 > curSlides.length)
-                setSlideIdx(slideIdx - 1);
-
-        }
-        setSlides([...curSlides]);
-        SanitizeSlides();
         try {
-            fetch(`${baseURL}/${presentationName}/remove_slide`,
+            fetch(`${baseURL}/${presentationName}/remove_slide?slide_id=${slides[slideIdx].slide_id}`,
                 {
                     mode: "cors",
                     cache: "default",
@@ -208,7 +196,6 @@ export default function Editor() {
                         "Accept": "application/json",
                         "Content-type": "application/json"
                     },
-                    body: JSON.stringify({ slide_id: slideIdx })
                 }
             )
                 .then(response => {
@@ -216,6 +203,17 @@ export default function Editor() {
                         alert("Sorry, something went wrong.\nCould not save your presentation.")
                         return;
                     }
+                    let curSlides = slides;
+                    curSlides.splice(slideIdx, 1);
+                    if (slideIdx + 1 > curSlides.length) {
+                        setSlideIdx(slideIdx - 1);
+                    }
+                    for (let i = 0; i < slides.length; i++) {
+                        curSlides[i].slide_id = i;
+                    }
+                    console.log(curSlides);
+                    setSlides([...curSlides]);
+                    SanitizeSlides();
                 });
         } catch {
             alert("Sorry, something went wrong.\nCould not save your presentation.")
@@ -265,7 +263,7 @@ export default function Editor() {
     useEffect(() => {
         setSlides([
             {
-                slide_id: slideIdx + 1,
+                slide_id: slideIdx,
                 background: "#2e3440",
                 content: [{
                     name: "example_text",
@@ -278,50 +276,33 @@ export default function Editor() {
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
         updatePresentationName(pname);
-        console.log(pname);
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-        try {
-            const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-            fetch(`${baseURL}/${pname}`, { headers: headers, mode: 'cors' })
-                .then(resp => {
-                    if (resp.status === 404) {
-                        fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
-                        setSlides([
-                            {
-                                slide_id: slideIdx + 1,
-                                background: "#2e3440",
-                                content: [{
-                                    name: "example_text",
-                                    type: "text",
-                                    attributes: "",
-                                    content: "This is an example slide"
-                                }]
-                            }
-                        ]);
-                    }
-                    else {
-                        setSlides(Object.values(resp.json()["slides"]))
-                    }
-                })
-                .catch(
-                    () => alert("Sorry, could not fetch the presentation data")
-                );
-        } catch {
-            fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
-            setSlides([
-                {
-                    slide_id: slideIdx + 1,
-                    background: "#2e3440",
-                    content: [{
-                        name: "example_text",
-                        type: "text",
-                        attributes: "",
-                        content: "This is an example slide"
-                    }]
+        const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
+        fetch(`${baseURL}/${pname}`, { headers: headers, mode: 'cors', method: "GET" })
+            .then(resp => {
+                if (resp.status === 404) {
+                    fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
+                    setSlides([
+                        {
+                            slide_id: slideIdx,
+                            background: "#2e3440",
+                            content: []
+                        }
+                    ]);
+                    return null;
                 }
-            ]);
-            alert("Sorry, could not fetch the presentation data")
-        }
+                else {
+                    return resp.json()
+                }
+            }).then(data => {
+                if (data && data.slides.length > 0) {
+                    console.log(data);
+                    setSlides(data.slides)
+                }
+            })
+            .catch(
+                () => alert("Sorry, could not fetch the presentation data")
+            );
         // load modules in browser
         const clientSideInitialization = async () => {
             // load modules in browser
@@ -346,44 +327,39 @@ export default function Editor() {
             <div className={styles.vertical}>
                 <div className={styles.arrows}>
                     <FaArrowLeft onClick={() => {
+                        updateSlide();
                         if (slideIdx - 1 >= 0)
                             setSlideIdx(slideIdx - 1);
                     }
                     } />
                     <FaArrowRight onClick={() => {
+                        updateSlide();
                         if ((slideIdx + 1) == slides.length) {
                             let curSlides = slides;
                             curSlides.push(
                                 {
-                                    name: `Slide ${curSlides.length + 1}`,
+                                    slide_id: slideIdx + 1,
                                     background: "#2e3440",
-                                    content: [
-                                        {
-                                            name: `example_text${curSlides.length + 1}`,
-                                            type: "text",
-                                            attributes: "",
-                                            content: "This is an example slide",
-                                        },
-                                    ],
+                                    content: [],
                                 }
                             )
                             setSlides(curSlides);
                         }
-                        setSlideIdx((slideIdx + 1) % slides.length)
+                        setSlideIdx(slideIdx + 1)
                         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
                         try {
                             const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-                            fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors' })
+                            fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors', method: "POST" })
                                 .catch(
                                     () => alert("Sorry, could not fetch the presentation data")
                                 );
+                            updateSlide();
                         } catch {
                             alert("Could not add slide. Sorry")
                         }
                     }
                     } />
                     <FaPlus onClick={async () => {
-                        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
                         let curSlides = slides;
                         curSlides[slideIdx].content.push(
                             {
@@ -401,6 +377,7 @@ export default function Editor() {
                     <FaSave onClick={savePresentation} />
                 </div>
                 <div className={styles.editorBox}>
+                    <h2>Slide {slideIdx + 1}</h2>
                     <TextInput
                         id={`background_color`}
                         placeholder={"Slide Background"}
