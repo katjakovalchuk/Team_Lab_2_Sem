@@ -261,18 +261,6 @@ export default function Editor() {
     }
 
     useEffect(() => {
-        setSlides([
-            {
-                slide_id: slideIdx,
-                background: "#2e3440",
-                content: [{
-                    name: "example_text",
-                    type: "text",
-                    attributes: "",
-                    content: "This is an example slide"
-                }]
-            }
-        ]);
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
         updatePresentationName(pname);
@@ -317,7 +305,8 @@ export default function Editor() {
             deck.initialize()
             setInterval(() => {
                 deck.sync();
-            }, 500)
+            }, 500);
+            deck.addEventListener('ready', () => deck.slide(0))
         }
         clientSideInitialization();
     }, [])
