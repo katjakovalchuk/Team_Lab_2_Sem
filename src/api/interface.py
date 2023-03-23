@@ -46,11 +46,11 @@ def get_presentation_by_name(username: str, presentation_name: str):
         HTTPException: If the presentation does not exist
     """
     if username not in USERS:
-        return HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
     user = USERS[username]
     presentation = user.get_presentation(presentation_name)
     if presentation is None:
-        return HTTPException(status_code=404, detail="Presentation not found")
+        raise HTTPException(status_code=404, detail="Presentation not found")
     return presentation
 
 
@@ -71,7 +71,7 @@ def get_slide_by_id(username: str, presentation_name: str, slide_id: int):
         return presentation
     slide = presentation.get_slide(slide_id)
     if slide is None:
-        return HTTPException(status_code=404, detail="Slide not found")
+        raise HTTPException(status_code=404, detail="Slide not found")
     return slide
 
 
@@ -88,7 +88,7 @@ def create_presentation(username: str, presentation_name: str):
         HTTPException: If the presentation already exists
     """
     if username not in USERS:
-        return HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
     presentation = Presentation(presentation_name)
     USERS[username].add_presentation(presentation)
     return Response(status_code=status.HTTP_200_OK)
@@ -184,7 +184,7 @@ class PresentationAPI:
         slide_id = slide["slide_id"]
         slide_obj = self.presentation.get_slide(slide_id)
         if slide_obj is None:
-            return HTTPException(status_code=404, detail="Slide not found")
+            raise HTTPException(status_code=404, detail="Slide not found")
         slide_obj.update_slide(slide)
         return Response(status_code=status.HTTP_200_OK)
 
