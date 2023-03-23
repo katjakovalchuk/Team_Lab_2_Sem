@@ -63,7 +63,7 @@ function ToPresentation(obj) {
 
 export default function Editor() {
     const port = process.env.NEXT_PUBLIC_API_PORT || "80";
-    const [presentationName, updatePresentationName] = useState("presentation1");
+    const [presentationName, updatePresentationName] = useState("");
     const [slides, setSlides] = useState([
         {
             name: "Slide 1",
@@ -80,6 +80,7 @@ export default function Editor() {
 
     const updateSlide = () => {
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+        console.log(`${baseURL}/${presentationName}`)
         try {
             fetch(`${baseURL}/${presentationName}/update_slide`,
                 {
@@ -277,17 +278,36 @@ export default function Editor() {
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
         updatePresentationName(pname);
+        console.log(pname);
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         try {
             const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-            fetch(`${baseURL}/${presentationName}`, { headers: headers, mode: 'cors' })
-                .then(resp => resp.json())
-                .then(data => setSlides(Object.values(data["slides"])))
+            fetch(`${baseURL}/${pname}`, { headers: headers, mode: 'cors' })
+                .then(resp => {
+                    if (resp.status === 404) {
+                        fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
+                        setSlides([
+                            {
+                                slide_id: slideIdx + 1,
+                                background: "#2e3440",
+                                content: [{
+                                    name: "example_text",
+                                    type: "text",
+                                    attributes: "",
+                                    content: "This is an example slide"
+                                }]
+                            }
+                        ]);
+                    }
+                    else {
+                        setSlides(Object.values(resp.json()["slides"]))
+                    }
+                })
                 .catch(
                     () => alert("Sorry, could not fetch the presentation data")
                 );
         } catch {
-            fetch(`${baseURL}/${presentationName}`, { method: "POST", headers: headers, mode: 'cors' })
+            fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
             setSlides([
                 {
                     slide_id: slideIdx + 1,

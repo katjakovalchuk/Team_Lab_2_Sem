@@ -1,6 +1,5 @@
 import styles from "../scss/editor.module.scss";
 import { useState } from "react";
-import { useRouter } from 'next/navigation';
 
 function TextInput(props: any) {
     const updateVal = () => {
@@ -21,11 +20,10 @@ function TextInput(props: any) {
 
 export default function NewPresentation(props: any) {
     const [name, setName] = useState("");
-    const { push } = useRouter();
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
-        push(`/presentations/${name}/edit`);
+        window.location.href = `/presentations/${name}/edit`;
     }
 
     return (
