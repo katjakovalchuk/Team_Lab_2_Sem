@@ -34,6 +34,13 @@ class Presentation:
         self.plugins = plugins
         self.unused_id_max = 0
 
+    def sanitize_indexes(self):
+        """
+        Sanitize the indexes
+        """
+        self.slides = dict(enumerate(self.slides.values()))
+        self.unused_id_max = len(self.slides.values())
+
     def get_new_id(self) -> int:
         """Get a new id for a slide.
 
@@ -50,6 +57,7 @@ class Presentation:
             slide_id (int): id of the new slide
         """
         new_id = self.get_new_id()
+        self.sanitize_indexes()
         self.slides[new_id] = Slide(new_id)
         return new_id
 
@@ -89,8 +97,12 @@ class Presentation:
         Args:
             slide_id (int): id of the slide
         """
-        if slide_id in self.slides:
-            del self.slides[slide_id]
+        new_slides = []
+        for slide_idx, slide in self.slides.items():
+            if slide_idx != slide_id:
+                new_slides.append(slide)
+        self.unused_id_max = len(new_slides)
+        self.slides = dict(enumerate(new_slides))
 
     def save(self) -> None:
         """Save the presentation to a html file."""
@@ -126,6 +138,7 @@ class Presentation:
         Returns:
             dict: the presentation as a dict
         """
+        self.sanitize_indexes()
         return {
             "name": self.name,
             "slides": [v.to_dict() for _, v in self.slides.items()],

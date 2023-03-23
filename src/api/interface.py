@@ -90,6 +90,7 @@ def create_presentation(username: str, presentation_name: str):
     if username not in USERS:
         raise HTTPException(status_code=404, detail="User not found")
     presentation = Presentation(presentation_name)
+    presentation.add_slide()
     USERS[username].add_presentation(presentation)
     return Response(status_code=status.HTTP_200_OK)
 
