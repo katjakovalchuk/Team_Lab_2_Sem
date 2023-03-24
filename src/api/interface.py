@@ -6,6 +6,7 @@ from fastapi_restful.inferring_router import InferringRouter
 
 from api.constructor import Presentation, Slide
 from api.users import User
+from db.database import SessionLocal, SlideObject
 
 app = FastAPI()
 router = InferringRouter()
@@ -33,6 +34,7 @@ if presentation is not None:
     U1P1S1_ID = presentation.add_slide()
     print(f"{U1P1S1_ID = }")
 
+db = SessionLocal()
 
 def get_presentation_by_name(username: str, presentation_name: str):
     """Get the presentation with the given name.
