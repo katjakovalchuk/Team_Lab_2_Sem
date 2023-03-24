@@ -3,10 +3,12 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_restful.cbv import cbv
 from fastapi_restful.inferring_router import InferringRouter
+from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import NoResultFound
 
 from api.constructor import Presentation, Slide
 from api.users import User
-from db.database import SessionLocal, SlideObject
+from db.database import SessionLocal, Presentation
 
 app = FastAPI()
 router = InferringRouter()
@@ -35,6 +37,21 @@ if presentation is not None:
     print(f"{U1P1S1_ID = }")
 
 db = SessionLocal()
+
+"""
+#ikok- possible solution, not sure
+def get_presentation_by_name(db: Session, presentation_name: str) -> Presentation:
+    try:
+        return db.query(Presentation).filter(Presentation.presentation_name == presentation_name).first()
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+
+def get_slide_by_id(db: Session, slide_id: int) -> Slide:
+    try:
+        return db.query(Slide).filter(Slide.slide_id == slide_id).first()
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="Slide not found")
+"""
 
 def get_presentation_by_name(username: str, presentation_name: str):
     """Get the presentation with the given name.

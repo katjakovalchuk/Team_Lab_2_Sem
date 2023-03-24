@@ -8,7 +8,7 @@ uname = os.getenv("POSTGRESS_DB_USERNAME")
 passwd = os.getenv("POSTGRESS_DB_PASSWORD")
 
 engine = create_engine(
-    f"postgresql:/{uname}:{passwd}@localhost:5432/photoshare"
+    f"postgresql:/{uname}:{passwd}@localhost:5432/userdatabase"
 )
 
 Base = declarative_base()
