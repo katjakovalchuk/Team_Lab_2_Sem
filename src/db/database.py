@@ -14,7 +14,7 @@ engine = create_engine(
 Base = declarative_base()
 
 
-class SlideObject(Base):
+class SlideObject_db(Base):
     """
     The slide object ORM
     """
@@ -27,7 +27,7 @@ class SlideObject(Base):
     slide_name = sa.Column(sa.String, nullable=False)
 
 
-class Slide(Base):
+class Slide_db(Base):
     """
     The slide ORM
     """
@@ -42,7 +42,7 @@ class Slide(Base):
     max_id = sa.Column(Integer, nullable=True)
 
 
-class Presentation(Base):
+class Presentation_db(Base):
     """
     The presentation ORM
     """
@@ -50,7 +50,6 @@ class Presentation(Base):
     __tablename__ = 'presentation'
 
     presentation_name= sa.Column(sa.String, nullable=False)
-    name = sa.Column(String, nullable=False)
     style = sa.Column(String, nullable=False)
 
 

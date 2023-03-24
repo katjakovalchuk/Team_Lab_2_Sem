@@ -8,7 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from api.constructor import Presentation, Slide
 from api.users import User
-from db.database import SessionLocal, Presentation
+from db.database import SessionLocal, Presentation_db, Slide_db
 
 app = FastAPI()
 router = InferringRouter()
@@ -42,15 +42,26 @@ db = SessionLocal()
 #ikok- possible solution, not sure
 def get_presentation_by_name(db: Session, presentation_name: str) -> Presentation:
     try:
-        return db.query(Presentation).filter(Presentation.presentation_name == presentation_name).first()
+        return db.query(Presentation_db).filter(Presentation_db.presentation_name == presentation_name).first()
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Presentation not found")
 
 def get_slide_by_id(db: Session, slide_id: int) -> Slide:
+    presentation = get_presentation_by_name(username, presentation_name)
+    if isinstance(presentation, HTTPException):
+        return presentation
     try:
-        return db.query(Slide).filter(Slide.slide_id == slide_id).first()
+        return db.query(Slide_db).filter(Slide_db.slide_id == slide_id).first()
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Slide not found")
+
+def create_presentation(db: Session, presentation_name: str):
+    presentation = Presentation(presentation_name)
+    presentation.add_slide()
+    new_presentation = Presentation_db(presentation_name=presentation, style=presentation.style)
+    db.add(new_presentation)
+    db.flush()  #synchronize the state of the Session
+    return Response(status_code=status.HTTP_200_OK)
 """
 
 def get_presentation_by_name(username: str, presentation_name: str):
