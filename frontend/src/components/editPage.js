@@ -316,9 +316,10 @@ export default function Editor() {
             <div className={styles.vertical}>
                 <div className={styles.arrows}>
                     <FaArrowLeft onClick={() => {
-                        updateSlide();
-                        if (slideIdx - 1 >= 0)
+                        if (slideIdx - 1 >= 0) {
                             setSlideIdx(slideIdx - 1);
+                        }
+                        updateSlide();
                     }
                     } />
                     <FaArrowRight onClick={() => {
@@ -333,19 +334,19 @@ export default function Editor() {
                                 }
                             )
                             setSlides(curSlides);
+                            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+                            try {
+                                const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
+                                fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors', method: "POST" })
+                                    .catch(
+                                        () => alert("Sorry, could not fetch the presentation data")
+                                    );
+                                updateSlide();
+                            } catch {
+                                alert("Could not add slide. Sorry")
+                            }
                         }
                         setSlideIdx(slideIdx + 1)
-                        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-                        try {
-                            const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-                            fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors', method: "POST" })
-                                .catch(
-                                    () => alert("Sorry, could not fetch the presentation data")
-                                );
-                            updateSlide();
-                        } catch {
-                            alert("Could not add slide. Sorry")
-                        }
                     }
                     } />
                     <FaPlus onClick={async () => {

@@ -1,6 +1,15 @@
 version: "3.9"
 
 services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5423
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
   app:
     build:
       dockerfile: Dockerfile
@@ -14,15 +23,15 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_SERVER=db
       - POSTGRES_PORT=5432
-  db:
-    image: postgres
-    restart: always
+  frontend:
+    build:
+      dockerfile: ./frontend/Dockerfile
     ports:
-      - 5432:5423
+      - 80:3000
+    depends_on:
+      - app
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      - NEXT_PUBLIC_API_PORT=8000
 
 volumes:
   pgdata:

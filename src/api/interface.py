@@ -305,6 +305,3 @@ class SlideAPI:
 
 
 app.include_router(router)
-import os
-
-print(os.environ)
