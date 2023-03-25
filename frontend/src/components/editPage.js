@@ -2,7 +2,7 @@ import styles from "../scss/editor.module.scss";
 import ElementEditor from "./editElement";
 import { TextInput, } from "./textInput";
 import { useEffect, useState } from "react";
-import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaSave } from "react-icons/fa"
+import { FaArrowRight, FaArrowLeft, FaPlus, FaMinus, FaRedo } from "react-icons/fa"
 import 'reveal.js/dist/reset.css';
 import 'reveal.js/dist/reveal.css';
 import "reveal.js/plugin/highlight/monokai.css";
@@ -11,7 +11,7 @@ function ToSection(obj) {
     switch (obj.type) {
         case "markdown":
         case "text":
-            return `<span key=${obj.obejct_id} ${obj.attributes}>${obj.content}</span>`
+            return `<span key=${obj.object_id} ${obj.attributes}>${obj.content}</span>`
 
         case "code":
             return (
@@ -260,9 +260,10 @@ export default function Editor() {
         }
     }
 
-    useEffect(() => {
+    const fetchPresentation = () => {
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
+        console.log(pname);
         updatePresentationName(pname);
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
@@ -291,6 +292,13 @@ export default function Editor() {
             .catch(
                 () => alert("Sorry, could not fetch the presentation data")
             );
+    }
+
+    useEffect(() => {
+        let splitPath = window.location.href.split("/");
+        const pname = splitPath[4];
+        updatePresentationName(pname);
+        fetchPresentation();
         // load modules in browser
         const clientSideInitialization = async () => {
             // load modules in browser
@@ -364,7 +372,7 @@ export default function Editor() {
                         updateSlide();
                     }} />
                     <FaMinus onClick={removeSlide} />
-                    <FaSave onClick={savePresentation} />
+                    <FaRedo onClick={fetchPresentation} />
                 </div>
                 <div className={styles.editorBox}>
                     <h2>Slide {slideIdx + 1}</h2>
