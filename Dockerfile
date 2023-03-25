@@ -10,7 +10,6 @@ COPY ./README.md README.md
 RUN pip install pdm
 RUN pdm install
 
-EXPOSE 80
 EXPOSE 8000
 
 CMD ["pdm", "run", "uvicorn", "api.interface:app", "--host=0.0.0.0", "--reload"]

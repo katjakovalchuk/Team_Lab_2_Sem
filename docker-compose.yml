@@ -1,7 +1,28 @@
-version: "3.8"
+version: "3.9"
+
 services:
   app:
-    build: .
-    ports: [8000:8000, 80:80]
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
   db:
-    build: ./src/db/
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5423
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+volumes:
+  pgdata:

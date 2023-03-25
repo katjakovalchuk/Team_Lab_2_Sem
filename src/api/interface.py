@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 
 from api.constructor import Presentation, Slide
+from api.database import Presentation_db, SessionLocal, Slide_db
 from api.users import User
-from db.database import SessionLocal, Presentation_db, Slide_db
 
 app = FastAPI()
 router = InferringRouter()
@@ -63,6 +63,7 @@ def create_presentation(db: Session, presentation_name: str):
     db.flush()  #synchronize the state of the Session
     return Response(status_code=status.HTTP_200_OK)
 """
+
 
 def get_presentation_by_name(username: str, presentation_name: str):
     """Get the presentation with the given name.
@@ -304,3 +305,6 @@ class SlideAPI:
 
 
 app.include_router(router)
+import os
+
+print(os.environ)
