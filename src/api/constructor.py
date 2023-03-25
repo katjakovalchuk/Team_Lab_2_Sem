@@ -105,8 +105,29 @@ class Presentation:
         self.slides = dict(enumerate(new_slides))
 
     def save(self) -> None:
-        """Save the presentation to a html file."""
-        # TODO: for now just use the generic style(copy from the existing presentation)
+        """
+        Save the presentation to a html file
+        """
+        with open(f"{self.name}.html", "w") as f:
+            html = "<!DOCTYPE html>\n" \
+                "<html>\n" \
+                "<head>\n" \
+                f"<link rel='stylesheet' href='dist/theme/{self.style}.css'>\n" \
+                "</head>\n" \
+                "<body>\n" \
+                "<div class='reveal'>\n" \
+                "<div class='slides'>\n"
+            for slide in self.slides.values():
+                html += "<section>\n" \
+                        f"{slide.to_html()}" \
+                        "</section>\n"
+            html += "</div>\n" \
+                    "</div>\n" \
+                    "<script src='dist/reveal.js'></script>\n"
+            html += "</body>\n" \
+                    "</html>\n"
+        with open("output.html", "w") as f:
+            f.write(html)
 
     def add_plugin(self, plugin: str) -> None:
         """Add a plugin to the presentation.
@@ -260,7 +281,22 @@ class Slide:
             obj_id (int): id of the object
         """
         del self.content[obj_id]
-
+        
+    def to_html(self):
+        """
+        Convert each slide to html
+        """
+        attrs = ""
+        if self.background_type == "color":
+            attrs += f" data-background-color='{self.background}'"
+        else:
+            attrs += f" data-background-path='{self.background}'"
+        if self.attributes:
+            attrs += f" {self.attributes}"
+        content_html = "\n".join(str(item) for item in self.content)
+        html = f"<section{attrs}>\n{content_html}\n</section>"
+        return html
+    
     def to_dict(self) -> dict:
         """Convert the slide to a dict.
 
