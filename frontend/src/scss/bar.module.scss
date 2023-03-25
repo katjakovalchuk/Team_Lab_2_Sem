@@ -1,0 +1,59 @@
+.icon {
+    margin-top: auto;
+    margin-bottom: auto;
+    display: block;
+    color: var(--fg-color);
+    font-size: 1.2em;
+    transition: 300ms;
+    padding: 0 0.8em 0 0.8em;
+    z-index: 10;
+}
+
+.icon:hover {
+    transform: scale(1.2);
+}
+
+.home {
+    position: absolute !important;
+    left: 2em;
+    font-size: 1.6em !important;
+}
+
+.navbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    position: absolute;
+    padding: 0 1.6em 0.4em 1.6em;
+    max-width: calc(100vw - 3.2em);
+    width: calc(100vw - 3.2em);
+    max-height: 3.4em;
+    height: 3.2em;
+
+    top: 0;
+    left: 0;
+
+    background-color: var(--nav-color);
+    box-shadow: 0 0.08em 0.16em var(--border-color);
+}
+
+.navbar .utils {
+    height: auto;
+    margin-bottom: 0.4em;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    width: auto;
+    margin-right: 2em;
+}
+
+.navbar .utils * {
+    transition: 200ms;
+    color: var(--fg-color);
+}
+
+@media only screen and (max-width: 800px) {
+    .navbar {
+        max-width: calc(100vw - 0.8em);
+    }
+}

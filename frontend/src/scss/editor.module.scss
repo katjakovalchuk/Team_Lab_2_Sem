@@ -1,0 +1,324 @@
+.vertical {
+    margin-top: 2em;
+    height: auto;
+    width: calc(100% - 4em);
+    padding-left: 1em;
+    padding-right: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding-bottom: 2em;
+
+    * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+     .arrows {
+         font-size: 2em;
+         margin: 0.8em 0;
+
+         * {
+            transition: all 200ms;
+            margin: 0 0.6em;
+         }
+
+         *:hover {
+             color: var(--highlight-color);
+         }
+     }
+     
+     .presentation {
+         margin-top: 2em;
+         height: 100vh;
+         width: 100%;
+         font-size: 1em;
+
+         section {
+             display: flex !important;
+             flex-direction: column !important;
+             align-items: center !important;
+             justify-content: center !important;
+
+              * {
+                  margin: 0.8em 0 !important;
+              }
+
+              img {
+                  border-radius: 0.4em;
+              }
+
+              code {
+                  font-size: 1em;
+              }
+         }
+     }
+
+     .presentationLink {
+         border-radius: 0.4em;
+         width: 6em;
+         margin: 0.2em;
+         background-color: var(--nav-color);
+         display: flex;
+         align-items: flex-start;
+         font-size: 2em;
+         padding: 0.1em 1em;
+
+         * {
+            transition: 200ms all;
+            margin: 0 0.16em;
+         }
+
+         span {
+             font-size:0.8em;
+             top: 0;
+         }
+     }
+
+     .presentationLink:hover * {
+         color: var(--highlight-color);
+     }
+}
+
+ .editorBox {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     min-width: 100%;
+     height: 100%;
+     margin-bottom: 1em;
+ 
+     h1 {
+         font-size: 2.4rem;
+     }
+ 
+     .inputBox {
+         position: relative;
+         padding: 1em 0 0;
+         margin-top: 0.8em;
+         width: 16em;
+     }
+
+     .textInput {
+         outline: none;
+         font-family: inherit;
+         width: 100%;
+         border: 0;
+         border-bottom: 2px solid var(--fg-color);
+         color: var(--fg-color);
+         padding: 0.5em 0;
+         background: transparent;
+         transition: border-color 200ms;
+     
+         &::placeholder {
+             color: transparent;
+         }
+     
+         .label {
+             font-size: 1.3rem;
+             cursor: text;
+             top: 20px;
+         }
+     }
+     
+     .label {
+         position: absolute;
+         top: 0.8em;
+         display: block;
+         transition: 0.2s;
+         font-size: 1rem;
+         color: var(--fg-color);
+     }
+
+     .textInput:focus {
+       ~ .label {
+         position: absolute;
+         top: 0;
+         display: block;
+         transition: 0.2s;
+         font-size: 0.9rem;
+         color: var(--highlight-color);
+         font-weight:700;    
+       }
+       padding-bottom: 0.3em;  
+       font-weight: 700;
+       border-width: 0.16em;
+       border-color: var(--highlight-color);
+       border-image-slice: 1;
+     }
+ 
+     .textInput:not(:invalid):not(:focus) {
+       ~ .label {
+         position: absolute;
+         top: 0 !important;
+         display: block;
+         transition: 0.2s;
+         font-size: 0.9rem;
+         color: var(--fg-color);
+         font-weight:700;    
+       }
+       padding-bottom: 0.3em !important;
+       font-weight: 700;
+       border-width: 0.16em;
+       border-color: var(--fg-color);
+       border-image-slice: 1;
+     }
+ 
+     /* reset input */
+     .textInput{
+       &:required,&:invalid { box-shadow:none; }
+     }
+
+     .textBox {
+        ~ .label {
+            position: absolute;
+            top: -0.3em !important;
+            display: block;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            color: var(--fg-color);
+            font-weight:700;    
+        }
+         outline: none;
+         border-radius: 0.4em;
+         font-family: inherit;
+         max-width: 50vw;
+         width: 100%;
+         border: 1px solid var(--border-color) !important;
+         color: var(--fg-color);
+         padding: 1em;
+         background: transparent;
+         transition: border-color 200ms;
+     
+         &::placeholder {
+             color: transparent;
+         }
+     
+         .label {
+             font-size: 1.3rem;
+             cursor: text;
+             top: 20px;
+         }
+     }
+
+     .textBox:focus {
+        ~ .label {
+            color: var(--highlight-color);
+        }
+        border-color: var(--highlight-color);
+     }
+ 
+
+     .selectInput {
+        ~ .label {
+            position: absolute;
+            top: -0.3em !important;
+            display: block;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            color: var(--fg-color);
+            font-weight:700;    
+        }
+         outline: none;
+         border-radius: 0.4em;
+         font-family: inherit;
+         max-width: 50vw;
+         width: 100%;
+         padding: 0.8em;
+         border: 1px solid var(--border-color) !important;
+         color: var(--fg-color);
+         background: transparent;
+         transition: border-color 200ms;
+     
+         &::placeholder {
+             color: transparent;
+         }
+     
+         .label {
+             font-size: 1.3rem;
+             cursor: text;
+             top: 20px;
+         }
+     }
+
+     .selectInput:focus {
+        ~ .label {
+            color: var(--highlight-color);
+        }
+        border-color: var(--highlight-color);
+     }
+
+     .selectInput::-ms-expand {
+         display: none;
+     }
+ 
+    .accordion {
+        margin: 2.4rem auto;
+    }
+    
+    .accordionTitle {
+        font-size: 0.9em;
+        min-width: 15em;
+        padding: 1em;
+        border-radius: 1em 0 1em 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        cursor: pointer;
+        background-color: var(--nav-color);
+        border-bottom: 1px solid var(--fg-color);
+        border-right: 1px solid var(--fg-color);
+        transition: all 200ms;
+
+        * {
+            transition: all 200ms;
+        }
+    }
+
+    .accordionTitle * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    .accordionTitle:hover {
+      color: var(--highlight-color);
+    }
+
+    .accordionTitle:hover * {
+        transform: scale(1.03);
+    }
+
+    .accordion-content {
+        padding: 0.1em 2em 0.1em 2em;
+    }
+    
+    .accordionContent {
+        background-color: var(--background-color);
+        max-width: calc(50% - 4em);
+     }
+
+    .accordionContent * {
+        margin-top: 1em;
+    }
+
+    .deleteIcon {
+        margin-left: 0.5em;
+        font-size: 2em;
+        transition: 200ms all;
+        position: relative;
+    }
+
+    .deleteIcon:hover {
+        color: var(--highlight-color);
+    }
+}
