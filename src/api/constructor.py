@@ -104,30 +104,25 @@ class Presentation:
         self.unused_id_max = len(new_slides)
         self.slides = dict(enumerate(new_slides))
 
-    def save(self) -> None:
+    def save(self) -> str:
         """
         Save the presentation to a html file
         """
-        with open(f"{self.name}.html", "w") as f:
-            html = "<!DOCTYPE html>\n" \
-                "<html>\n" \
-                "<head>\n" \
-                f"<link rel='stylesheet' href='dist/theme/{self.style}.css'>\n" \
-                "</head>\n" \
-                "<body>\n" \
-                "<div class='reveal'>\n" \
-                "<div class='slides'>\n"
-            for slide in self.slides.values():
-                html += "<section>\n" \
-                        f"{slide.to_html()}" \
-                        "</section>\n"
-            html += "</div>\n" \
-                    "</div>\n" \
-                    "<script src='dist/reveal.js'></script>\n"
-            html += "</body>\n" \
-                    "</html>\n"
-        with open("output.html", "w") as f:
-            f.write(html)
+        html = (
+            "<!DOCTYPE html>\n"
+            "<html>\n"
+            "<head>\n"
+            f"<link rel='stylesheet' href='dist/theme/{self.style}.css'>\n"
+            "</head>\n"
+            "<body>\n"
+            "<div class='reveal'>\n"
+            "<div class='slides'>\n"
+        )
+        for slide in self.slides.values():
+            html += f"\n{slide.to_html()}\n"
+        html += "</div>\n" "</div>\n" "<script src='dist/reveal.js'></script>\n"
+        html += "</body>\n" "</html>\n"
+        return html
 
     def add_plugin(self, plugin: str) -> None:
         """Add a plugin to the presentation.
@@ -281,7 +276,7 @@ class Slide:
             obj_id (int): id of the object
         """
         del self.content[obj_id]
-        
+
     def to_html(self):
         """
         Convert each slide to html
@@ -293,10 +288,17 @@ class Slide:
             attrs += f" data-background-path='{self.background}'"
         if self.attributes:
             attrs += f" {self.attributes}"
-        content_html = "\n".join(str(item) for item in self.content)
-        html = f"<section{attrs}>\n{content_html}\n</section>"
+        content_html = "\n".join(item.to_html() for item in self.content)
+        html = f"""
+        <section 
+        {attrs} 
+        {'data-markdown' if self.content[0].obj_type == 'markdown' else ''}
+        >
+        {content_html}
+        </section>
+        """
         return html
-    
+
     def to_dict(self) -> dict:
         """Convert the slide to a dict.
 
@@ -394,3 +396,33 @@ class Object:
                 self.attributes = value
             elif key == "value":
                 self.value = value
+
+    def to_html(self) -> str:
+        """
+        Render object into html
+        """
+        if self.obj_type == "text":
+            return f"<span {self.attributes}>{self.value}</span>"
+
+        if self.obj_type == "code":
+            return f"""<pre key={self.object_id}>
+                    <code
+                        data-line-numbers="1"
+                        data-trim
+                        {self.attributes}
+                        data-noescape>
+                        {self.value}
+                    </code>
+                </pre>"""
+
+        if self.obj_type == "img":
+            return f"""<img
+                {self.attributes}
+                src={self.value} />"""
+
+        if self.obj_type == "iframe":
+            return f"""<iframe
+                {self.attributes}
+                allowFullScreen
+                src={self.value} />"""
+        return self.value
