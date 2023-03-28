@@ -184,9 +184,6 @@ export default function Editor() {
                     if (slideIdx + 1 > curSlides.length) {
                         setSlideIdx(slideIdx - 1);
                     }
-                    for (let i = 0; i < slides.length; i++) {
-                        curSlides[i].slide_id = i;
-                    }
                     console.log(curSlides);
                     setSlides([...curSlides]);
                     SanitizeSlides();
