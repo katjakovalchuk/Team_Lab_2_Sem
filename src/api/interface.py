@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 
 from api.constructor import Presentation, Slide
-from api.database import Presentation_db, SessionLocal, Slide_db
+# from api.database import Presentation_db, SessionLocal, Slide_db
 from api.users import User
 
 app = FastAPI()
@@ -36,7 +36,7 @@ if presentation is not None:
     U1P1S1_ID = presentation.add_slide()
     print(f"{U1P1S1_ID = }")
 
-db = SessionLocal()
+# db = SessionLocal()
 
 """
 #ikok- possible solution, not sure

@@ -8,7 +8,7 @@ import 'reveal.js/dist/reveal.css';
 import "reveal.js/plugin/highlight/monokai.css";
 
 function ToSection(obj) {
-    switch (obj.type) {
+    switch (obj.object_type) {
         case "markdown":
         case "text":
             return `<span key=${obj.object_id} ${obj.attributes}>${obj.content}</span>`
@@ -46,7 +46,7 @@ function ToPresentation(obj) {
     return Object.entries(obj).map((slideObject) => {
         const slide = slideObject[1];
         // This is not pretty. Too bad!
-        if (slide.content.some((x) => x !== null && x.type === "other")) {
+        if (slide.content.some((x) => x !== null && x.object_type === "other")) {
             return <section
                 key={slide.slide_id}
                 data-background-color={
@@ -69,8 +69,8 @@ export default function Editor() {
             slide_id: 0,
             background: "#2e3440",
             content: [{
-                name: "example_text",
-                type: "text",
+                object_id: 0,
+                object_type: "text",
                 attributes: "",
                 content: "This is an example slide"
             }]
@@ -105,7 +105,7 @@ export default function Editor() {
         let curSlides = slides;
         curSlides.forEach((slide, idx) => {
             slide.content.forEach((slideItem, slideItemIdx) => {
-                if (slideItem.type === "markdown" || slideItem.type === "other") {
+                if (slideItem.object_type === "markdown" || slideItem.object_type === "other") {
                     curSlides[idx].content = [curSlides[idx].content[slideItemIdx]];
                 }
             })
@@ -127,7 +127,7 @@ export default function Editor() {
     const updateElementType = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            curSlides[slideIdx].content[element].type = val;
+            curSlides[slideIdx].content[element].object_type = val;
             setSlides([...curSlides]);
             SanitizeSlides();
             updateSlide();
@@ -149,34 +149,10 @@ export default function Editor() {
     const removeComponent = (index) => {
         let curSlides = slides;
         const updateFn = (_) => {
-            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-            delete curSlides[slideIdx].content[index];
+            curSlides[slideIdx].content.splice(index, 1);
             setSlides([...curSlides]);
             SanitizeSlides();
-            try {
-                fetch(`${baseURL}/${presentationName}/${slideIdx}/${index}/remove`,
-                    {
-                        mode: "cors",
-                        cache: "default",
-                        method: "DELETE",
-                        headers: {
-                            'Access-Control-Allow-Origin': '*',
-                            "Accept": "application/json",
-                            "Content-type": "application/json"
-                        },
-                        body: JSON.stringify({ name: `${val}` })
-                    }
-                )
-                    .then(response => {
-                        if (response.status !== 200) {
-                            alert("Sorry, something went wrong.\nCould not save your presentation.")
-                            return;
-                        }
-                    });
-            } catch {
-                alert("Sorry, something went wrong.\nCould not save your presentation.")
-
-            }
+            updateSlide();
         }
         return updateFn;
     }
@@ -234,30 +210,25 @@ export default function Editor() {
             "name": presentationName,
             "slides": slides
         };
-        try {
-            fetch(`${baseURL}/${presentationName}/save`,
-                {
-                    mode: "cors",
-                    cache: "default",
-                    method: "POST",
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        "Accept": "application/json",
-                        "Content-type": "application/json"
-                    },
-                    body: JSON.stringify(presentationObject)
+        fetch(`${baseURL}/${presentationName}/save`,
+            {
+                mode: "cors",
+                cache: "default",
+                method: "POST",
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    "Accept": "application/json",
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(presentationObject)
+            }
+        )
+            .then(response => {
+                if (response.status !== 200) {
+                    alert("Sorry, something went wrong.\nCould not save your presentation.")
+                    return;
                 }
-            )
-                .then(response => {
-                    if (response.status !== 200) {
-                        alert("Sorry, something went wrong.\nCould not save your presentation.")
-                        return;
-                    }
-                });
-        } catch {
-            alert("Sorry, something went wrong.\nCould not save your presentation.")
-
-        }
+            });
     }
 
     const fetchPresentation = () => {
@@ -361,8 +332,8 @@ export default function Editor() {
                         let curSlides = slides;
                         curSlides[slideIdx].content.push(
                             {
-                                name: `New component`,
-                                type: "img",
+                                object_id: curSlides[slideIdx].content.length,
+                                object_type: "img",
                                 content: "https://picsum.photos/1920/1080",
                             }
                         )
@@ -387,9 +358,9 @@ export default function Editor() {
                 {
                     slides.length > 0 && Object.entries(slides[slideIdx].content).map(
                         v => <ElementEditor
-                            key={`slide_component_${v[0]}`}
-                            type={v[1].type}
-                            id={v[1].type}
+                            key={`slide_component_${v[1].object_id}`}
+                            type={v[1].object_type}
+                            id={v[1].object_type}
                             name={v[1].slide_id}
                             required={true}
                             value={v[1].content}
