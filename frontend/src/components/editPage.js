@@ -262,28 +262,28 @@ export default function Editor() {
             );
     }
 
+    const clientSideInitialization = async () => {
+        // load modules in browser
+        const Reveal = await (await import("reveal.js")).default;
+        const Markdown = await (await import("reveal.js/plugin/markdown/markdown.esm.js")).default;
+        const Highlight = await (await import("reveal.js/plugin/highlight/highlight.esm.js")).default;
+        let deck = new Reveal({
+            plugins: [Markdown, Highlight],
+            embedded: true,
+            hash: true
+        })
+        deck.initialize()
+        setInterval(() => {
+            deck.sync();
+        }, 500);
+        deck.addEventListener('ready', () => deck.slide(0))
+    }
     useEffect(() => {
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
         updatePresentationName(pname);
         fetchPresentation();
         // load modules in browser
-        const clientSideInitialization = async () => {
-            // load modules in browser
-            const Reveal = await (await import("reveal.js")).default;
-            const Markdown = await (await import("reveal.js/plugin/markdown/markdown.esm.js")).default;
-            const Highlight = await (await import("reveal.js/plugin/highlight/highlight.esm.js")).default;
-            let deck = new Reveal({
-                plugins: [Markdown, Highlight],
-                embedded: true,
-                hash: true
-            })
-            deck.initialize()
-            setInterval(() => {
-                deck.sync();
-            }, 500);
-            deck.addEventListener('ready', () => deck.slide(0))
-        }
         clientSideInitialization();
     }, [])
 
@@ -325,25 +325,27 @@ export default function Editor() {
                         setSlideIdx(slideIdx + 1)
                     }
                     } />
-                    <FaPlus onClick={async () => {
-                        let curSlides = slides;
-                        curSlides[slideIdx].content.push(
-                            {
-                                object_id: curSlides[slideIdx].content.length,
-                                object_type: "img",
-                                content: "https://picsum.photos/1920/1080",
-                            }
-                        )
-                        setSlides([...curSlides]);
-                        setSlideIdx(slideIdx);
-                        SanitizeSlides();
-                        updateSlide();
-                    }} />
                     <FaMinus onClick={removeSlide} />
                     <FaRedo onClick={fetchPresentation} />
                 </div>
                 <div className={styles.editorBox}>
-                    <h2>Slide {slideIdx + 1}</h2>
+                    <h2>
+                        Slide {slideIdx + 1}
+                        <FaPlus onClick={async () => {
+                            let curSlides = slides;
+                            curSlides[slideIdx].content.push(
+                                {
+                                    object_id: curSlides[slideIdx].content.length,
+                                    object_type: "img",
+                                    content: "https://picsum.photos/1920/1080",
+                                }
+                            )
+                            setSlides([...curSlides]);
+                            setSlideIdx(slideIdx);
+                            SanitizeSlides();
+                            updateSlide();
+                        }} />
+                    </h2>
                     <TextInput
                         id={`background_color`}
                         placeholder={"Slide Background"}

@@ -24,13 +24,6 @@ export default function ElementEditor(props: any) {
                     !collapsed && (
                         <>
                             <TextInput
-                                id={`${props.id}_name`}
-                                placeholder={"Name"}
-                                required={props.required}
-                                value={props.name}
-                                name={props.name}
-                                updateval={props.updateName} />
-                            <TextInput
                                 id={`${props.id}_attrs`}
                                 placeholder={"Additional Attributes"}
                                 required={props.required}

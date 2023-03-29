@@ -2,13 +2,12 @@ FROM node:latest
 
 
 ENV NEXT_PUBLIC_API_PORT=8000
-RUN mkdir -p /home/app/ && chown -R node:node /home/app
-WORKDIR /home/app
-COPY --chown=node:node . .
-
-USER node
-
+WORKDIR /var/app
+COPY ./package.json /var/app/package.json
 RUN yarn install
+
+COPY . /var/app/
+
 RUN yarn build
 
 EXPOSE 3000
