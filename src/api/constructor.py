@@ -221,6 +221,8 @@ class Slide:
                 self.background = value
             elif key == "attributes":
                 self.attributes = value
+            elif key == "slide_id":
+                self.slide_id = value
             elif key == "content":
                 self.content = value
 

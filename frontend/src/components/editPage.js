@@ -79,6 +79,7 @@ export default function Editor() {
     const [slideIdx, setSlideIdx] = useState(0);
 
     const updateSlide = () => {
+        SanitizeSlides();
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         fetch(`${baseURL}/${presentationName}/update_slide`,
             {
@@ -104,6 +105,7 @@ export default function Editor() {
     const SanitizeSlides = () => {
         let curSlides = slides;
         curSlides.forEach((slide, idx) => {
+            slide.slide_id = idx;
             slide.content.forEach((slideItem, slideItemIdx) => {
                 if (slideItem.object_type === "markdown" || slideItem.object_type === "other") {
                     curSlides[idx].content = [curSlides[idx].content[slideItemIdx]];
