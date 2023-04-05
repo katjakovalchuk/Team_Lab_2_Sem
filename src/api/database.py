@@ -2,7 +2,7 @@ import os
 
 import sqlalchemy as sa
 from sqlalchemy import Integer, String, create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from contextlib import contextmanager
 
 from api.constructor import Object, Presentation, Slide
@@ -54,7 +54,7 @@ class Slide_db(Base):
     attributes = sa.Column(String, nullable=True)
     background = sa.Column(String, nullable=False)
     max_id = sa.Column(Integer, nullable=True)
-    content = sa.relationship("SlideObject_db")
+    content = relationship("SlideObject_db")
 
     @property
     @contextmanager
@@ -78,7 +78,7 @@ class Presentation_db(Base):
     presentation_name = sa.Column(sa.String, primary_key=True)
     style = sa.Column(String, nullable=False)
     plugins = sa.Column(sa.Set, nullable=None)
-    slides = sa.relationship("Slide_db")
+    slides = relationship("Slide_db")
     unused_id_max = sa.Column(Integer, nullable=False)
 
     @property
