@@ -1,9 +1,9 @@
 import os
+from contextlib import contextmanager
 
 import sqlalchemy as sa
 from sqlalchemy import Integer, String, create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
-from contextlib import contextmanager
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 from api.constructor import Object, Presentation, Slide
 
@@ -13,9 +13,7 @@ database = os.getenv("POSTGRES_DB")
 server = os.getenv("POSTGRES_SERVER")
 port = os.getenv("POSTGRES_PORT")
 
-engine = create_engine(
-    f"postgresql://{uname}:{passwd}@{server}:{port}/{database}"
-)
+engine = create_engine(f"postgresql://{uname}:{passwd}@{server}:{port}/{database}")
 
 Base = declarative_base()
 
@@ -68,6 +66,7 @@ class Slide_db(Base):
         self.background = slide.background
         self.content = slide.content
 
+
 class Presentation_db(Base):
     """
     The presentation ORM
@@ -77,7 +76,7 @@ class Presentation_db(Base):
 
     presentation_name = sa.Column(sa.String, primary_key=True)
     style = sa.Column(String, nullable=False)
-    plugins = sa.Column(sa.Set, nullable=None)
+    plugins = sa.Column(sa.ARRAY(String), nullable=False)
     slides = relationship("Slide_db")
     unused_id_max = sa.Column(Integer, nullable=False)
 

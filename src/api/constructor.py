@@ -9,7 +9,7 @@ class Presentation:
         name (str): name of the presentation
         slides (dict): dict of slides
         style (str): style of the presentation
-        plugins (set): set of plugins
+        plugins (set): list of plugins
         unused_id_max (int): the maximum id that has not been used
 
     Methods:
@@ -24,13 +24,13 @@ class Presentation:
     """
 
     def __init__(
-        self, name: str, style: str = "moon", plugins: set | None = None
+        self, name: str, style: str = "moon", plugins: list | None = None
     ) -> None:
         self.name = name
         self.slides = {}
         self.style = style
         if plugins is None:
-            plugins = set()
+            plugins = []
         self.plugins = plugins
         self.unused_id_max = 0
 
@@ -122,7 +122,8 @@ class Presentation:
         Args:
             plugin (str): name of the plugin
         """
-        self.plugins.add(plugin)
+        if plugin not in self.plugins:
+            self.plugins.append(plugin)
 
     def remove_plugin(self, plugin: str) -> None:
         """Remove a plugin from the presentation.
@@ -130,7 +131,8 @@ class Presentation:
         Args:
             plugin (str): name of the plugin
         """
-        self.plugins.discard(plugin)
+        if plugin in self.plugins:
+            self.plugins.remove(plugin)
 
     def set_style(self, style: str) -> None:
         """Set the style of the presentation.
@@ -150,7 +152,7 @@ class Presentation:
             "name": self.name,
             "slides": [v.to_dict() for _, v in self.slides.items()],
             "style": self.style,
-            "plugins": list(self.plugins),
+            "plugins": self.plugins,
         }
 
 
@@ -175,9 +177,7 @@ class Slide:
 
     background_type = "color"
 
-    def __init__(
-        self, slide_id: int, background_color: str = "#2e3440"
-    ) -> None:
+    def __init__(self, slide_id: int, background_color: str = "#2e3440") -> None:
         self.content = []
         self.attributes = ""
         self.background = background_color
@@ -283,8 +283,8 @@ class Slide:
             attrs += f" {self.attributes}"
         content_html = "\n".join(item.to_html() for item in self.content)
         html = f"""
-        <section 
-        {attrs} 
+        <section
+        {attrs}
         {'data-markdown' if self.content[0].obj_type == 'markdown' else ''}
         >
         {content_html}
