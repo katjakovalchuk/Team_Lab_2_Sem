@@ -50,7 +50,7 @@ class Slide_db(Base):
 
     __tablename__ = "slide"
 
-    slide_id = sa.Column(Integer, nullable=False)
+    slide_id = sa.Column(Integer, primary_key=True)
     attributes = sa.Column(String, nullable=True)
     background = sa.Column(String, nullable=False)
     max_id = sa.Column(Integer, nullable=True)
