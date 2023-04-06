@@ -80,7 +80,7 @@ def create_presentation(username: str, presentation_name: str):
     Returns:
         Response: If the presentation was created successfully
     """
-    presentation = Presentation(presentation_name)
+    presentation = Presentation(f"{username}-{presentation_name}", username)
     presentation.add_slide()
     new_presentation = presentation_to_db(presentation)
     db.add(new_presentation)

@@ -24,7 +24,7 @@ class Presentation:
     """
 
     def __init__(
-        self, name: str, style: str = "moon", plugins: list | None = None
+            self, name: str, owner: str, style: str = "moon", plugins: list | None = None
     ) -> None:
         self.name = name
         self.slides: dict[str, Slide] = {}
