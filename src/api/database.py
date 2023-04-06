@@ -105,20 +105,31 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
     Returns:
         Presentation_db: the presentation as a database object
     """
-    return Presentation_db(
-        presentation_name=presentation.name,
-        slides=[
-            Slide_db(
-                slide_id=slide.slide_id,
-                background=slide.background,
-                content=slide.content,
-                attributes=slide.attributes,
-                max_id=slide.max_id,
-                owner=presentation.name,
-            )
-            for slide in presentation.slides.values()
-        ],
-    )
+    presentation_db = Presentation_db()
+    presentation_db.presentation_name = presentation.name
+    presentation_db.style = presentation.style
+    presentation_db.plugins = presentation.plugins
+    for slide in presentation.slides.values():
+        slide_db = slide_to_db(slide)
+        presentation_db.slides.append(slide_db)
+    presentation_db.unused_id_max = presentation.unused_id_max
+    return presentation_db
+
+
+def slide_to_db(slide: Slide) -> Slide_db:
+    slide_db = Slide_db()
+    slide_db.slide_id = slide.slide_id
+    slide_db.background = slide.background
+    slide_db.attributes = slide.attributes
+    slide_db.max_id = slide.max_id
+    for object in slide.content:
+        object_db = SlideObject_db()
+        object_db.object_name = object.name
+        object_db.type = object.type
+        object_db.content = object.content
+        object_db.attributes = object.attributes
+        slide_db.content.append(object_db)
+    return slide_db
 
 
 SessionLocal = sessionmaker(bind=engine)
