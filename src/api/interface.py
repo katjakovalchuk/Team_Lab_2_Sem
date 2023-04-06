@@ -3,14 +3,13 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_restful.cbv import cbv
 from fastapi_restful.inferring_router import InferringRouter
-from sqlalchemy.orm import Session
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
-from api.constructor import Presentation, Slide
+from api.constructor import Presentation
 from api.database import (Presentation_db, SessionLocal, Slide_db,
-                          SlideObject_db, presentation_to_db)
+                          presentation_to_db)
 
-# from api.users import User
+# TODO: user
 
 app = FastAPI()
 db = SessionLocal()
@@ -27,10 +26,11 @@ app.add_middleware(
 )
 
 
-def get_presentation_by_name(presentation_name: str) -> Presentation_db:
+def get_presentation_by_name(username: str, presentation_name: str) -> Presentation_db:
     """Get the presentation with the given name.
 
     Args:
+        username (str): The username of a user
         presentation_name (str): The name of the presentation
 
     Returns:
@@ -45,10 +45,11 @@ def get_presentation_by_name(presentation_name: str) -> Presentation_db:
     return presentation_db
 
 
-def get_slide_by_id(slide_id: str, presentation_name: str) -> Slide_db:
+def get_slide_by_id(username: str, presentation_name: str, slide_id: str) -> Slide_db:
     """Get the slide with the given id.
 
     Args:
+        username (str): The username of a user
         slide_id (str): The id of the slide
         presentation_name (str): The name of the presentation
 
@@ -58,7 +59,7 @@ def get_slide_by_id(slide_id: str, presentation_name: str) -> Slide_db:
     Raises:
         HTTPException: If the slide does not exist
     """
-    presentation = get_presentation_by_name(presentation_name)
+    presentation = get_presentation_by_name(username, presentation_name)
     try:
         slide = next(
             slide for slide in presentation.slides if slide.slide_id == slide_id
@@ -73,6 +74,7 @@ def create_presentation(username: str, presentation_name: str):
     """Create a new presentation.
 
     Args:
+        username (str): The username of a user
         presentation_name (str): The name of the presentation
 
     Returns:
@@ -96,8 +98,6 @@ def get_presentations(username: str) -> list[str]:
     Returns:
         list[str]: a list of presentation names
     """
-    # Temporarily ignore the existence of users. All presentations are
-    # accessible for all users.
     presentations = db.query(Presentation_db).all()
     return [presentation.presentation_name for presentation in presentations]
 
