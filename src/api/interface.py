@@ -100,12 +100,8 @@ def get_presentations(username: str) -> list[str]:
     Returns:
         list[str]: a list of presentation names
     """
-    presentations = db.query(Presentation_db).all()
-    return [
-        presentation.presentation_name.split("/")[-1]
-        for presentation in presentations
-        if presentation.owner == username
-    ]
+    presentations = db.query(Presentation_db).filter_by(owner=username).all()
+    return [presentation.name.split("/")[-1] for presentation in presentations]
 
 
 @cbv(router)
