@@ -89,7 +89,9 @@ class Presentation_db(Base):
     @contextmanager
     def presentation(self):
         presentation = Presentation(self.presentation_name, self.style, self.plugins)
-        presentation.slides = self.slides
+        presentation.slides = {}
+        for slide in self.slides:
+            presentation.slides[slide.slide_id] = slide.slide
         presentation.unused_id_max = self.unused_id_max
         yield presentation
         self.presentation_name = presentation.name
