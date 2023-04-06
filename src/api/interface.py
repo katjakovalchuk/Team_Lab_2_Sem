@@ -39,11 +39,7 @@ def get_presentation_by_name(username: str, presentation_name: str) -> Presentat
     Raises:
         HTTPException: If the presentation does not exist
     """
-    presentation_db = (
-        db.query(Presentation_db)
-        .filter(Presentation_db.presentation_name == f"{username}/{presentation_name}")
-        .first()
-    )
+    presentation_db = db.query(Presentation_db).get(f"{username}/{presentation_name}")
     if presentation_db is None:
         raise HTTPException(status_code=404, detail="Presentation not found")
     return presentation_db
