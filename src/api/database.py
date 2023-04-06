@@ -67,12 +67,7 @@ class Slide_db(Base):
         slide.attributes = self.attributes
         slide.max_id = self.max_id
         yield slide
-        self.slide_id = slide.slide_id
-        self.background = slide.background
-        self.content = slide.content
-        self.attributes = slide.attributes
-        self.max_id = slide.max_id
-        self.owner = slide.owner
+        slide_to_db(self, slide)
 
 
 class Presentation_db(Base):
@@ -103,7 +98,7 @@ class Presentation_db(Base):
         self.plugins = presentation.plugins
         self.slides = []
         for slide in presentation.slides.values():
-            slide_db = slide_to_db(slide)
+            slide_db = create_slide_db_from_slide(slide)
             self.slides.append(slide_db)
         self.unused_id_max = presentation.unused_id_max
 
@@ -122,14 +117,13 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
     presentation_db.style = presentation.style
     presentation_db.plugins = presentation.plugins
     for slide in presentation.slides.values():
-        slide_db = slide_to_db(slide)
+        slide_db = create_slide_db_from_slide(slide)
         presentation_db.slides.append(slide_db)
     presentation_db.unused_id_max = presentation.unused_id_max
     return presentation_db
 
 
-def slide_to_db(slide: Slide) -> Slide_db:
-    slide_db = Slide_db()
+def slide_to_db(slide_db: Slide_db, slide: Slide) -> Slide_db:
     slide_db.slide_id = slide.slide_id
     slide_db.background = slide.background
     slide_db.attributes = slide.attributes
@@ -143,6 +137,10 @@ def slide_to_db(slide: Slide) -> Slide_db:
         object_db.attributes = object.attributes
         slide_db.content.append(object_db)
     return slide_db
+
+
+def create_slide_db_from_slide(slide: Slide) -> Slide_db:
+    return slide_to_db(Slide_db(), slide)
 
 
 SessionLocal = sessionmaker(bind=engine)
