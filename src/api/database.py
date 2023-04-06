@@ -121,7 +121,7 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
                     for object in slide.content
                 ],
             )
-            for slide in presentation.slides
+            for slide in presentation.slides.values()
         ],
     )
 
