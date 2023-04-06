@@ -27,6 +27,7 @@ class Presentation:
             self, name: str, owner: str, style: str = "moon", plugins: list | None = None
     ) -> None:
         self.name = name
+        self.owner = owner
         self.slides: dict[str, Slide] = {}
         self.style = style
         if plugins is None:

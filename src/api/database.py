@@ -82,11 +82,12 @@ class Presentation_db(Base):
     plugins = sa.Column(sa.ARRAY(String), nullable=False)
     slides = relationship(Slide_db, backref="presentation")
     unused_id_max = sa.Column(Integer, nullable=False)
+    owner = sa.Column(sa.String, nullable=False)
 
     @property
     @contextmanager
     def presentation(self):
-        presentation = Presentation(self.presentation_name, self.style, self.plugins)
+        presentation = Presentation(self.presentation_name, self.owner, self.style, self.plugins)
         presentation.slides = {}
         for slide in self.slides:
             with slide.slide as i:
@@ -97,6 +98,7 @@ class Presentation_db(Base):
         self.style = presentation.style
         self.plugins = presentation.plugins
         self.slides = []
+        self.owner = presentation.owner
         for slide in presentation.slides.values():
             slide_db = create_slide_db_from_slide(slide)
             self.slides.append(slide_db)
@@ -116,6 +118,7 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
     presentation_db.presentation_name = presentation.name
     presentation_db.style = presentation.style
     presentation_db.plugins = presentation.plugins
+    presentation_db.owner = presentation.owner
     for slide in presentation.slides.values():
         slide_db = create_slide_db_from_slide(slide)
         presentation_db.slides.append(slide_db)
