@@ -42,7 +42,7 @@ class Presentation:
             id (str): the new id. Consists of the presentation name and the int id
         """
         self.unused_id_max += 1
-        return f"{self.name}-{self.unused_id_max}"
+        return f"{self.name}/{self.unused_id_max}"
 
     def add_slide(self) -> str:
         """Add a slide to the presentation.
@@ -194,7 +194,7 @@ class Slide:
             str: the new id. Consists of the slide id and the int id
         """
         self.max_id += 1
-        return f"{self.slide_id}-{self.max_id}"
+        return f"{self.slide_id}/{self.max_id}"
 
     def set_background(
         self, bg_type: str, bg_color: str | None = None, path: str | None = None

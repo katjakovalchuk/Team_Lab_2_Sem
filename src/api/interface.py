@@ -41,7 +41,7 @@ def get_presentation_by_name(username: str, presentation_name: str) -> Presentat
     """
     presentation_db = (
         db.query(Presentation_db)
-        .filter(Presentation_db.presentation_name == f"{username}-{presentation_name}")
+        .filter(Presentation_db.presentation_name == f"{username}/{presentation_name}")
         .first()
     )
     if presentation_db is None:
@@ -84,7 +84,7 @@ def create_presentation(username: str, presentation_name: str):
     Returns:
         Response: If the presentation was created successfully
     """
-    presentation = Presentation(f"{username}-{presentation_name}", username)
+    presentation = Presentation(f"{username}/{presentation_name}", username)
     presentation.add_slide()
     new_presentation = presentation_to_db(presentation)
     db.add(new_presentation)
