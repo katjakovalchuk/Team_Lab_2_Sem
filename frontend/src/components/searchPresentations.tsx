@@ -1,5 +1,5 @@
 import styles from "../scss/editor.module.scss";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaEdit } from "react-icons/fa";
 
 function TextInput(props: any) {
@@ -22,12 +22,11 @@ function TextInput(props: any) {
 export default function SearchPresentations() {
     const [name, setName] = useState("");
     const [presentationNames, setPresentationNames] = useState([]);
+    const [presentations, setPresentations] = useState([]);
     const port = process.env.NEXT_PUBLIC_API_PORT || "80";
     console.log(presentationNames);
-
-    const handleSubmit = async (event: any) => {
-        event.preventDefault();
-        const response = await fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1/presentations`,
+    useEffect(() => {
+        fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1/presentations`,
             {
                 method: "GET",
                 headers: {
@@ -35,13 +34,27 @@ export default function SearchPresentations() {
                     "Content-type": "application/json"
                 },
             }
-        );
-        if (response.status === 404) {
-            alert("Sorry, something went wrong.\nCould not look up the presentations from the server.")
-            return;
-        }
-        const result = await response.json();
-        setPresentationNames(result);
+        )
+            .then(resp => resp.json())
+            .then(response => {
+                if (response.status === 404) {
+                    alert("Sorry, something went wrong.\nCould not look up the presentations from the server.")
+                    return;
+                }
+                setPresentations(response);
+            }
+            ).catch(() => {
+                alert("Sorry, something went wrong.\nCould not look up the presentations from the server.")
+
+            })
+    })
+
+    const handleSubmit = async (event: any) => {
+        event.preventDefault();
+        setPresentationNames(
+            presentations.filter((word: string) => word.includes(name))
+        )
+
     }
 
     return (

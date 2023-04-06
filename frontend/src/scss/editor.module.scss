@@ -62,7 +62,7 @@
 
      .presentationLink {
          border-radius: 0.4em;
-         width: 6em;
+         width: 12;
          margin: 0.2em;
          background-color: var(--nav-color);
          display: flex;
@@ -76,7 +76,8 @@
          }
 
          span {
-             font-size:0.8em;
+             font-size: 0.8em;
+             overflow: hidden;
              top: 0;
          }
      }
