@@ -102,7 +102,7 @@ def get_presentations(username: str) -> list[str]:
     """
     presentations = db.query(Presentation_db).all()
     return [
-        presentation.presentation_name
+        presentation.presentation_name.split("/")[-1]
         for presentation in presentations
         if presentation.owner == username
     ]
