@@ -148,9 +148,10 @@ class Presentation:
         Returns:
             dict: the presentation as a dict
         """
+        print(self.slides)
         return {
             "name": self.name,
-            "slides": [v.to_dict() for _, v in self.slides.items()],
+            "slides": [v.to_dict() for v in self.slides.values()],
             "style": self.style,
             "plugins": self.plugins,
         }

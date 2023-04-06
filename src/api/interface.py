@@ -169,8 +169,7 @@ class PresentationAPI:
             HTTPException: If the slide does not exist
         """
         with self.presentation.presentation as presentation:
-            slide_id = slide["slide_id"]
-            slide_obj = presentation.get_slide(slide_id)
+            slide_obj = presentation.slides[slide["slide_id"]]
             if slide_obj is None:
                 raise HTTPException(status_code=404, detail="Slide not found")
             slide_obj.update_slide(slide)
