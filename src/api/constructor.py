@@ -27,37 +27,38 @@ class Presentation:
         self, name: str, style: str = "moon", plugins: list | None = None
     ) -> None:
         self.name = name
-        self.slides = {}
+        self.slides: dict[str, Slide] = {}
         self.style = style
         if plugins is None:
             plugins = []
         self.plugins = plugins
         self.unused_id_max = 0
 
-    def get_new_id(self) -> int:
+    def get_new_id(self) -> str:
         """Get a new id for a slide.
 
         Returns:
-            id (int): the new id
+            id (str): the new id. Consists of the presentation name and the int id
         """
         self.unused_id_max += 1
-        return self.unused_id_max - 1
+        return f"{self.name}-{self.unused_id_max}"
 
-    def add_slide(self) -> int:
+    def add_slide(self) -> str:
         """Add a slide to the presentation.
 
         Returns:
-            slide_id (int): id of the new slide
+            slide_id (str): id of the new slide
+                Consists of the presentation name and the int id
         """
         new_id = self.get_new_id()
         self.slides[new_id] = Slide(new_id, self.name)
         return new_id
 
-    def get_slide(self, slide_id: int) -> Slide | None:
+    def get_slide(self, slide_id: str) -> Slide | None:
         """Get the slide with the given id.
 
         Args:
-            slide_id (int): id of the slide
+            slide_id (str): id of the slide
 
         Returns:
             Slide: the slide with the given id
@@ -67,12 +68,12 @@ class Presentation:
             return None
         return self.slides[slide_id]
 
-    def swap_slides(self, slide1: int, slide2: int) -> None:
+    def swap_slides(self, slide1: str, slide2: str) -> None:
         """Swap two slides.
 
         Args:
-            slide1 (int): id of the first slide
-            slide2 (int): id of the second slide
+            slide1 (str): id of the first slide
+            slide2 (str): id of the second slide
         """
         if slide1 not in self.slides:
             return
@@ -83,18 +84,15 @@ class Presentation:
             self.slides[slide1],
         )
 
-    def delete_slide(self, slide_id: int) -> None:
+    def delete_slide(self, slide_id: str) -> None:
         """Delete a slide.
 
         Args:
-            slide_id (int): id of the slide
+            slide_id (str): id of the slide
         """
-        new_slides = []
-        for slide_idx, slide in self.slides.items():
-            if slide_idx != slide_id:
-                new_slides.append(slide)
-        self.unused_id_max = len(new_slides)
-        self.slides = dict(enumerate(new_slides))
+        if slide_id not in self.slides:
+            return
+        del self.slides[slide_id]
 
     def save(self) -> str:
         """
@@ -163,7 +161,7 @@ class Slide:
         content (dict): list of elements
         attributes (str): str of slide attributes
         background (str): background color or path of the slide
-        slide_id (int): id of the slide
+        slide_id (str): id of the slide. Consists of owner name and int id
         max_id (int): the maximum element id that has not been used
         owner (str): owner of the slide
 
@@ -179,23 +177,23 @@ class Slide:
     background_type = "color"
 
     def __init__(
-        self, slide_id: int, owner: str, background_color: str = "#2e3440"
+        self, slide_id: str, owner: str, background_color: str = "#2e3440"
     ) -> None:
-        self.content = []
+        self.content: list[Object] = []
         self.attributes = ""
         self.background = background_color
-        self.slide_id = slide_id
         self.max_id = 0
         self.owner = owner
+        self.slide_id = slide_id
 
-    def get_new_id(self) -> int:
+    def get_new_id(self) -> str:
         """Get a new id for an element.
 
         Returns:
-            int: the new id
+            str: the new id. Consists of the slide id and the int id
         """
         self.max_id += 1
-        return self.max_id - 1
+        return f"{self.slide_id}-{self.max_id}"
 
     def set_background(
         self, bg_type: str, bg_color: str | None = None, path: str | None = None
@@ -242,7 +240,7 @@ class Slide:
         else:
             self.attributes += f' {attribute}="{value}"'
 
-    def add_object(self, obj_type: str, value: str | None = None) -> int:
+    def add_object(self, obj_type: str, value: str = "") -> str:
         """Add an object to the slide.
 
         Args:
@@ -251,10 +249,10 @@ class Slide:
                 (for text - text, for image, video, iframe - path)
 
         Returns:
-            int: id of the new object
+            str: id of the new object. Consists of the slide id and the int id
         """
         new_id = self.get_new_id()
-        self.content += [Object(new_id, obj_type, value)]
+        self.content += [Object(new_id, obj_type, self.slide_id, value)]
         return new_id
 
     def update_object(self, updated_values: dict) -> None:
@@ -266,13 +264,13 @@ class Slide:
         obj_id = updated_values["object_id"]
         self.content[obj_id].update(updated_values)
 
-    def remove_object(self, obj_id: int) -> None:
+    def remove_object(self, obj_id: str) -> None:
         """Remove an object from the slide.
 
         Args:
-            obj_id (int): id of the object
+            obj_id (str): id of the object
         """
-        del self.content[obj_id]
+        self.content = [obj for obj in self.content if obj.object_id != obj_id]
 
     def to_html(self):
         """
@@ -315,8 +313,9 @@ class Object:
     """An object of a slide.
 
     Attributes:
-        object_id (int): id of the object
+        object_id (str): id of the object. Consists of owner name and int id
         obj_type (str): type of the object(text, code, image, video, iframe)
+        owner (str): owner of the object
         attributes (str): str of attributes
         value (str): value of the object
             (for text, code - text, for image, video, iframe - path)
@@ -328,10 +327,13 @@ class Object:
         to_dict: convert the object to a dict
     """
 
-    def __init__(self, object_id: int, obj_type: str, value: str = "") -> None:
+    def __init__(
+        self, object_id: str, obj_type: str, owner: str, value: str = ""
+    ) -> None:
         self.obj_type = obj_type
         self.attributes = ""
         self.value = value
+        self.owner = owner
         self.object_id = object_id
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:

@@ -25,19 +25,19 @@ class SlideObject_db(Base):
 
     __tablename__ = "slide_object"
 
-    type = sa.Column(String, nullable=False)
+    obj_type = sa.Column(String, nullable=False)
     content = sa.Column(String, nullable=True)
     attributes = sa.Column(String, nullable=True)
     object_name = sa.Column(sa.String, primary_key=True)
-    owner = sa.Column(Integer, sa.ForeignKey("slide.slide_id"))
+    owner = sa.Column(String, sa.ForeignKey("slide.slide_id"))
 
     @property
     @contextmanager
     def object(self):
-        object = Object(self.object_name, self.type, self.content)
+        object = Object(self.object_name, self.obj_type, self.owner)
         object.attributes = self.attributes
         yield object
-        self.type = object.type
+        self.obj_type = object.obj_type
         self.content = object.content
         self.attributes = object.attributes
 
@@ -49,7 +49,7 @@ class Slide_db(Base):
 
     __tablename__ = "slide"
 
-    slide_id = sa.Column(Integer, primary_key=True)
+    slide_id = sa.Column(String, primary_key=True)
     attributes = sa.Column(String, nullable=True)
     background = sa.Column(String, nullable=False)
     max_id = sa.Column(Integer, nullable=True)
@@ -59,7 +59,7 @@ class Slide_db(Base):
     @property
     @contextmanager
     def slide(self):
-        slide = Slide(self.slide_id, self.owner, self.background)
+        slide = Slide(self.slide_id, self.background, self.owner)
         slide.content = {}
         for object in self.content:
             with object.object as i:
@@ -132,7 +132,7 @@ def slide_to_db(slide_db: Slide_db, slide: Slide) -> Slide_db:
     for object in slide.content:
         object_db = SlideObject_db()
         object_db.object_name = object.name
-        object_db.type = object.type
+        object_db.obj_type = object.obj_type
         object_db.content = object.content
         object_db.attributes = object.attributes
         slide_db.content.append(object_db)

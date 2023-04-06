@@ -45,11 +45,11 @@ def get_presentation_by_name(presentation_name: str) -> Presentation_db:
     return presentation_db
 
 
-def get_slide_by_id(slide_id: int, presentation_name: str) -> Slide_db:
+def get_slide_by_id(slide_id: str, presentation_name: str) -> Slide_db:
     """Get the slide with the given id.
 
     Args:
-        slide_id (int): The id of the slide
+        slide_id (str): The id of the slide
         presentation_name (str): The name of the presentation
 
     Returns:
@@ -60,7 +60,9 @@ def get_slide_by_id(slide_id: int, presentation_name: str) -> Slide_db:
     """
     presentation = get_presentation_by_name(presentation_name)
     try:
-        slide = presentation.slides[slide_id]
+        slide = next(
+            slide for slide in presentation.slides if slide.slide_id == slide_id
+        )
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Slide not found")
     return slide
@@ -131,22 +133,22 @@ class PresentationAPI:
             return presentation.to_dict()
 
     @router.post("/{username}/{presentation_name}/add_slide")
-    def add_slide(self) -> dict[str, int]:
+    def add_slide(self) -> dict[str, str]:
         """Add a new slide to the presentation.
 
         Returns:
-            dict[str, int]: A dictionary with the key "slide_id" and the value
+            dict[str, str]: A dictionary with the key "slide_id" and the value
         """
         with self.presentation.presentation as presentation:
             slide_id = presentation.add_slide()
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
-    def remove_slide(self, slide_id: int):
+    def remove_slide(self, slide_id: str):
         """Remove the slide with the given id.
 
         Args:
-            slide_id (int): The id of the slide
+            slide_id (str): The id of the slide
 
         Returns:
             Response: If the slide was removed successfully
@@ -223,11 +225,11 @@ class SlideAPI:
         return {"object_id": object_id}
 
     @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
-    def remove_object(self, object_id: int):
+    def remove_object(self, object_id: str):
         """Remove the object with the given id.
 
         Args:
-            object_id (int): The id of the object
+            object_id (str): The id of the object
 
         Returns:
             Response: If the object was removed successfully
