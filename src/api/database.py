@@ -105,7 +105,7 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
     Returns:
         Presentation_db: the presentation as a database object
     """
-    return Presentation_db(
+    db_presentation = Presentation_db(
         presentation_name=presentation.name,
         slides=[
             Slide_db(
@@ -124,6 +124,10 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
             for slide in presentation.slides.values()
         ],
     )
+    db_presentation.unused_id_max = presentation.unused_id_max
+    db_presentation.plugins = presentation.plugins
+    db_presentation.style = presentation.style
+    return db_presentation
 
 
 SessionLocal = sessionmaker(bind=engine)
