@@ -91,7 +91,8 @@ class Presentation_db(Base):
         presentation = Presentation(self.presentation_name, self.style, self.plugins)
         presentation.slides = {}
         for slide in self.slides:
-            presentation.slides[slide.slide_id] = slide.slide
+            with slide.slide as i:
+                presentation.slides[slide.slide_id] = i
         presentation.unused_id_max = self.unused_id_max
         yield presentation
         self.presentation_name = presentation.name
