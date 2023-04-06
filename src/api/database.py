@@ -89,11 +89,41 @@ class Presentation_db(Base):
         presentation.slides = self.slides
         presentation.unused_id_max = self.unused_id_max
         yield presentation
-        self.presentation_name = presentation.presentation_name
+        self.presentation_name = presentation.name
         self.style = presentation.style
         self.plugins = presentation.plugins
         self.slides = presentation.slides
         self.unused_id_max = presentation.unused_id_max
+
+
+def presentation_to_db(presentation: Presentation) -> Presentation_db:
+    """Convert the presentation to a database object.
+
+    Args:
+        presentation (Presentation): the presentation to convert
+
+    Returns:
+        Presentation_db: the presentation as a database object
+    """
+    return Presentation_db(
+        presentation_name=presentation.name,
+        slides=[
+            Slide_db(
+                slide_id=0,
+                background=slide.background,
+                content=[
+                    SlideObject_db(
+                        object_name=object.object_name,
+                        type=object.type,
+                        content=object.content,
+                        attributes=object.attributes,
+                    )
+                    for object in slide.content
+                ],
+            )
+            for slide in presentation.slides
+        ],
+    )
 
 
 SessionLocal = sessionmaker(bind=engine)

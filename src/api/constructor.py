@@ -1,8 +1,6 @@
 """A constructor of presentations."""
 from __future__ import annotations
 
-from api.database import Presentation_db, Slide_db, SlideObject_db
-
 
 class Presentation:
     """A class for presentations construction.
@@ -156,32 +154,6 @@ class Presentation:
             "style": self.style,
             "plugins": self.plugins,
         }
-
-    def to_db(self) -> Presentation_db:
-        """Convert the presentation to a database object.
-
-        Returns:
-            Presentation_db: the presentation as a database object
-        """
-        return Presentation_db(
-            presentation_name=self.name,
-            slides=[
-                Slide_db(
-                    slide_id=0,
-                    background=slide.background,
-                    content=[
-                        SlideObject_db(
-                            object_name=object.object_name,
-                            type=object.type,
-                            content=object.content,
-                            attributes=object.attributes,
-                        )
-                        for object in slide.content
-                    ],
-                )
-                for slide in self.slides
-            ],
-        )
 
 
 class Slide:
