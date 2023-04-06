@@ -60,7 +60,10 @@ class Slide_db(Base):
     @contextmanager
     def slide(self):
         slide = Slide(self.slide_id, self.owner, self.background)
-        slide.content = self.content
+        slide.content = {}
+        for object in self.content:
+            with object.object as i:
+                slide.content[object.object_name] = i
         slide.attributes = self.attributes
         slide.max_id = self.max_id
         yield slide
