@@ -69,7 +69,7 @@ def get_slide_by_id(slide_id: str, presentation_name: str) -> Slide_db:
 
 
 @router.post("/{username}/{presentation_name}")
-def create_presentation(presentation_name: str):
+def create_presentation(username: str, presentation_name: str):
     """Create a new presentation.
 
     Args:
@@ -99,7 +99,7 @@ def get_presentations(username: str) -> list[str]:
     # Temporarily ignore the existence of users. All presentations are
     # accessible for all users.
     presentations = db.query(Presentation_db).all()
-    return [presentation.name for presentation in presentations]
+    return [presentation.presentation_name for presentation in presentations]
 
 
 @cbv(router)
