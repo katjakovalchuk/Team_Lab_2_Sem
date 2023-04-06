@@ -99,9 +99,8 @@ def get_presentations(username: str) -> list[str]:
     """
     # Temporarily ignore the existence of users. All presentations are
     # accessible for all users.
-    return [
-        presentation.presentation_name for presentation in db.query(Presentation_db)
-    ]
+    presentations = db.query(Presentation_db).all()
+    return [presentation.name for presentation in presentations]
 
 
 @cbv(router)
