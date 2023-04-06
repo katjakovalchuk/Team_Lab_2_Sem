@@ -27,7 +27,7 @@ app.add_middleware(
 )
 
 
-def get_presentation_by_name(db: Session, presentation_name: str) -> Presentation_db:
+def get_presentation_by_name(db, presentation_name: str) -> Presentation_db:
     """Get the presentation with the given name.
 
     Args:
@@ -46,7 +46,7 @@ def get_presentation_by_name(db: Session, presentation_name: str) -> Presentatio
     return presentation_db
 
 
-def get_slide_by_id(db: Session, slide_id: int, presentation_name: str) -> Slide_db:
+def get_slide_by_id(db, slide_id: int, presentation_name: str) -> Slide_db:
     """Get the slide with the given id.
 
     Args:
@@ -69,7 +69,7 @@ def get_slide_by_id(db: Session, slide_id: int, presentation_name: str) -> Slide
 
 
 @router.post("/{username}/{presentation_name}")
-def create_presentation(db: Session, presentation_name: str):
+def create_presentation(db, presentation_name: str):
     """Create a new presentation.
 
     Args:
