@@ -130,7 +130,8 @@ class PresentationAPI:
         Returns:
             dict: The presentation in json format
         """
-        return self.presentation.to_dict()
+        with self.presentation.presentation as presentation:
+            return presentation.to_dict()
 
     @router.post("/{username}/{presentation_name}/add_slide")
     def add_slide(self) -> dict[str, int]:
