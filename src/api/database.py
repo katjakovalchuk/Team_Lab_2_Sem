@@ -98,7 +98,10 @@ class Presentation_db(Base):
         self.presentation_name = presentation.name
         self.style = presentation.style
         self.plugins = presentation.plugins
-        self.slides = presentation.slides
+        self.slides = []
+        for slide in presentation.slides.values():
+            slide_db = slide_to_db(slide)
+            self.slides.append(slide_db)
         self.unused_id_max = presentation.unused_id_max
 
 
