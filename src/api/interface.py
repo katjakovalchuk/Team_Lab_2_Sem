@@ -69,7 +69,7 @@ def get_slide_by_id(db: Session, slide_id: int, presentation_name: str) -> Slide
 
 
 @router.post("/{username}/{presentation_name}")
-def create_presentation(db: Session, presentation_name: str) -> "Response":
+def create_presentation(db: Session, presentation_name: str):
     """Create a new presentation.
 
     Args:
@@ -147,7 +147,7 @@ class PresentationAPI:
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
-    def remove_slide(self, slide_id: int) -> "Response":
+    def remove_slide(self, slide_id: int):
         """Remove the slide with the given id.
 
         Args:
@@ -161,7 +161,7 @@ class PresentationAPI:
         return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/update_slide")
-    def update_slide(self, slide: dict) -> "Response":
+    def update_slide(self, slide: dict):
         """Update the slide with the given id.
 
         Args:
@@ -229,7 +229,7 @@ class SlideAPI:
         return {"object_id": object_id}
 
     @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
-    def remove_object(self, object_id: int) -> "Response":
+    def remove_object(self, object_id: int):
         """Remove the object with the given id.
 
         Args:
@@ -243,7 +243,7 @@ class SlideAPI:
         return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/{slide_id}/update_object")
-    def update_object(self, updated_values: dict) -> "Response":
+    def update_object(self, updated_values: dict):
         """Update the object with the given id.
 
         Args:
