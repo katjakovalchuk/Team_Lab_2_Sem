@@ -81,9 +81,7 @@ def create_presentation(presentation_name: str):
     """
     presentation = Presentation(presentation_name)
     presentation.add_slide()
-    new_presentation = Presentation_db(
-        presentation_name=presentation, style=presentation.style
-    )
+    new_presentation = presentation.to_db()
     db.add(new_presentation)
     db.flush()  # synchronize the state of the Session
     return Response(status_code=status.HTTP_200_OK)
