@@ -29,6 +29,7 @@ class SlideObject_db(Base):
     content = sa.Column(String, nullable=True)
     attributes = sa.Column(String, nullable=True)
     object_name = sa.Column(sa.String, primary_key=True)
+    owner = sa.Column(Integer, sa.ForeignKey("slide.slide_id"))
 
     @property
     @contextmanager
@@ -53,6 +54,7 @@ class Slide_db(Base):
     background = sa.Column(String, nullable=False)
     max_id = sa.Column(Integer, nullable=True)
     content = relationship(SlideObject_db)
+    owner = sa.Column(sa.String, sa.ForeignKey("presentation.presentation_name"))
 
     @property
     @contextmanager
