@@ -50,7 +50,7 @@ class Presentation:
             slide_id (int): id of the new slide
         """
         new_id = self.get_new_id()
-        self.slides[new_id] = Slide(new_id)
+        self.slides[new_id] = Slide(new_id, self.name)
         return new_id
 
     def get_slide(self, slide_id: int) -> Slide | None:
@@ -165,6 +165,7 @@ class Slide:
         background (str): background color or path of the slide
         slide_id (int): id of the slide
         max_id (int): the maximum element id that has not been used
+        owner (str): owner of the slide
 
     Methods:
         get_new_id: get an id for a new element
@@ -177,12 +178,15 @@ class Slide:
 
     background_type = "color"
 
-    def __init__(self, slide_id: int, background_color: str = "#2e3440") -> None:
+    def __init__(
+        self, slide_id: int, owner: str, background_color: str = "#2e3440"
+    ) -> None:
         self.content = []
         self.attributes = ""
         self.background = background_color
         self.slide_id = slide_id
         self.max_id = 0
+        self.owner = owner
 
     def get_new_id(self) -> int:
         """Get a new id for an element.

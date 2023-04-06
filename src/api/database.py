@@ -59,7 +59,7 @@ class Slide_db(Base):
     @property
     @contextmanager
     def slide(self):
-        slide = Slide(self.slide_id, self.background)
+        slide = Slide(self.slide_id, self.owner, self.background)
         slide.content = self.content
         slide.attributes = self.attributes
         slide.max_id = self.max_id
@@ -67,6 +67,9 @@ class Slide_db(Base):
         self.slide_id = slide.slide_id
         self.background = slide.background
         self.content = slide.content
+        self.attributes = slide.attributes
+        self.max_id = slide.max_id
+        self.owner = slide.owner
 
 
 class Presentation_db(Base):
@@ -122,6 +125,7 @@ def slide_to_db(slide: Slide) -> Slide_db:
     slide_db.background = slide.background
     slide_db.attributes = slide.attributes
     slide_db.max_id = slide.max_id
+    slide_db.owner = slide.owner
     for object in slide.content:
         object_db = SlideObject_db()
         object_db.object_name = object.name
