@@ -319,7 +319,7 @@ class Slide:
             "content": self.content,
             "attributes": self.attributes,
             "background": self.background,
-            "slide_id": self.slide_id.split("/")[-1],
+            "slide_id": int(self.slide_id.split("/")[-1]),
             "max_id": self.max_id,
         }
 
