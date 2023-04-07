@@ -181,9 +181,8 @@ class PresentationAPI:
                     db.flush()
                     db.refresh(slide_db)
                 print(presentation.to_dict())
-            db.flush()
+            db.add(self.presentation)
             db.refresh(self.presentation)
-            db.commit()
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
