@@ -171,16 +171,15 @@ class PresentationAPI:
         Returns:
             dict[str, int]: A dictionary with the key "slide_id" and the value
         """
-        with SessionLocal() as db, db.begin(), self.presentation.presentation as presentation:
-            slide_id = presentation.add_slide()
-            slide = presentation.get_slide(slide_id)
-            if slide is not None:
-                slide_db = create_slide_db_from_slide(slide)
-                db.add(slide_db)
-                db.flush()
-                db.refresh(slide_db)
-            db.add(self.presentation)
-            db.flush()
+        with SessionLocal() as db, db.begin():
+            with self.presentation.presentation as presentation:
+                slide_id = presentation.add_slide()
+                slide = presentation.get_slide(slide_id)
+                if slide is not None:
+                    slide_db = create_slide_db_from_slide(slide)
+                    db.add(slide_db)
+                    db.flush()
+                    db.refresh(slide_db)
             db.refresh(self.presentation)
         return {"slide_id": slide_id}
 
