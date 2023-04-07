@@ -327,7 +327,7 @@ class SlideAPI:
         """
         with SessionLocal() as db, db.begin():
             with self.slide.slide as slide:
-                slide.delete_object(object_id)
+                slide.remove_object(object_id)
             db_object = (
                 db.query(SlideObject_db)
                 .filter(
