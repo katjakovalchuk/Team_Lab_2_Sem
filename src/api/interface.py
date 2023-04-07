@@ -234,26 +234,16 @@ class PresentationAPI:
                     raise HTTPException(status_code=404, detail="Slide not found")
                 slide_obj.update_slide(slide)
                 objects = slide_obj.content
-            if "attributes" in slide:
-                db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
-                    {
-                        "attributes": slide["attributes"],
-                    },
-                )
-            if "background_type" in slide:
-                db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
-                    {
-                        "background_type": slide["background_type"],
-                    },
-                )
-            if "background" in slide:
-                db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
-                    {
-                        "background": slide["background"],
-                    },
-                )
+            db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
+                {
+                    "max_id": slide_obj.max_id,
+                    "attributes": slide_obj.attributes,
+                    "background": slide_obj.background,
+                    "background_type": slide_obj.background_type,
+                },
+            )
             for object in objects:
-                db.query(SlideObject_db).filter_by(object_id=object.object_id).update(
+                db.query(SlideObject_db).filter_by(object_name=object.object_id).update(
                     {
                         "type": object.obj_type,
                         "attributes": object.attributes,
