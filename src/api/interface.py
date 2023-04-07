@@ -324,14 +324,8 @@ class SlideAPI:
         with SessionLocal() as db, db.begin():
             with self.slide.slide as slide:
                 slide.remove_object(object_id)
-            db_object = (
-                db.query(SlideObject_db)
-                .filter(
-                    SlideObject_db.object_id == f"{self.slide.slide_id}_{object_id}"
-                )
-                .first()
-            )
-            db.delete(db_object)
+            db.query(SlideObject_db).filter_by(object_name=object_id).delete()
+        return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/{slide_id}/update_object")
     def update_object(self, updated_values: dict):
