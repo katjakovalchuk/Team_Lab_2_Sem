@@ -245,7 +245,7 @@ class PresentationAPI:
             for object in objects:
                 db.query(SlideObject_db).filter_by(object_name=object.object_id).update(
                     {
-                        "type": object.obj_type,
+                        "obj_type": object.obj_type,
                         "attributes": object.attributes,
                         "content": object.value,
                     },
@@ -285,19 +285,15 @@ class SlideAPI:
             return slide.to_dict()
 
     @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
-    def add_object(self, object_type: str, value: str | None = None) -> dict[str, int]:
+    def add_object(self) -> dict[str, int]:
         """Add a new object to the slide with the given id.
-
-        Args:
-            object_type (str): The type of the object
-            value (str, optional): The value of the object. Defaults to None.
 
         Returns:
             dict[str, int]: A dictionary with the key "object_id" and the value
         """
         with SessionLocal() as db, db.begin():
             with self.slide.slide as slide:
-                object_id = slide.add_object(object_type, value)
+                object_id = slide.add_object("text", "")
                 object_db = SlideObject_db()
                 object = slide.get_object(object_id)
                 if object is not None:
@@ -327,15 +323,10 @@ class SlideAPI:
         """
         with SessionLocal() as db, db.begin():
             with self.slide.slide as slide:
-                slide.delete_object(object_id)
-            db_object = (
-                db.query(SlideObject_db)
-                .filter(
-                    SlideObject_db.object_id == f"{self.slide.slide_id}_{object_id}"
-                )
-                .first()
-            )
-            db.delete(db_object)
+                slide.remove_object(object_id)
+                full_id = slide.get_object_full_id(object_id)
+            db.query(SlideObject_db).filter_by(object_name=full_id).delete()
+        return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/{slide_id}/update_object")
     def update_object(self, updated_values: dict):
@@ -350,15 +341,15 @@ class SlideAPI:
         with SessionLocal() as db, db.begin():
             with self.slide.slide as slide:
                 slide.update_object(updated_values)
-            db_object = (
-                db.query(SlideObject_db)
-                .filter(
-                    SlideObject_db.object_id
-                    == f"{self.slide.slide_id}_{updated_values['object_id']}"
+                obj = slide.get_object(updated_values["object_id"])
+            if obj is not None:
+                db.query(SlideObject_db).filter_by(object_name=obj.object_id).update(
+                    {
+                        "obj_type": obj.obj_type,
+                        "attributes": obj.attributes,
+                        "content": obj.value,
+                    },
                 )
-                .first()
-            )
-            db.add(db_object)
         return Response(status_code=status.HTTP_200_OK)
 
 
