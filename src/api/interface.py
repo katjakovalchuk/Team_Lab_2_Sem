@@ -268,6 +268,7 @@ class SlideAPI:
         Returns:
             dict: The slide with the given id in json format
         """
+        print(self.slide)
         with self.slide as slide:
             return slide.to_dict()
 
@@ -285,8 +286,21 @@ class SlideAPI:
         with SessionLocal() as db, db.begin():
             with self.slide as slide:
                 object_id = slide.add_object(object_type, value)
-            new_object = self.slide.objects[-1]
-            db.add(new_object)
+                object_db = SlideObject_db()
+                object = slide.get_object(object_id)
+                if object is not None:
+                    object_db = SlideObject_db()
+                    object_db.object_name = object.object_id
+                    object_db.obj_type = object.object_type
+                    object_db.content = object.value
+                    object_db.owner = object.owner
+                    object_db.attributes = object.attributes
+                    db.add(object_db)
+            db.query(Slide_db).filter_by(slide_id=self.slide.slide_id).update(
+                {
+                    "max_id": self.slide.max_id,
+                },
+            )
         return {"object_id": object_id}
 
     @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
