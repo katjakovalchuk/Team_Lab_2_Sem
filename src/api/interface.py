@@ -222,6 +222,7 @@ class PresentationAPI:
         """
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
+                print(presentation.slides)
                 slide_obj = presentation.slides[
                     f"{self.presentation.presentation_name}_{slide['slide_id']}"
                 ]
