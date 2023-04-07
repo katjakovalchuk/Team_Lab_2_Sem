@@ -26,9 +26,7 @@ app.add_middleware(
 )
 
 
-def get_presentation_by_name(
-    username: str, presentation_name: str
-) -> Presentation_db:
+def get_presentation_by_name(username: str, presentation_name: str) -> Presentation_db:
     """Get the presentation with the given name.
 
     Args:
@@ -51,20 +49,16 @@ def get_presentation_by_name(
             .first()
         )
         if presentation_db is None:
-            raise HTTPException(
-                status_code=404, detail="Presentation not found"
-            )
+            raise HTTPException(status_code=404, detail="Presentation not found")
         return presentation_db
 
 
-def get_slide_by_id(
-    username: str, presentation_name: str, slide_id: str
-) -> Slide_db:
+def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Slide_db:
     """Get the slide with the given id.
 
     Args:
         username (str): The username of a user
-        slide_id (str): The id of the slide
+        slide_id (int): The id of the slide
         presentation_name (str): The name of the presentation
 
     Returns:
@@ -76,7 +70,9 @@ def get_slide_by_id(
     presentation = get_presentation_by_name(username, presentation_name)
     try:
         slide = next(
-            slide for slide in presentation.slides if slide.slide_id == slide_id
+            slide
+            for slide in presentation.slides
+            if slide.slide_id == f"{username}/{presentation_name}/{slide_id}"
         )
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Slide not found")
@@ -95,9 +91,7 @@ def get_presentations(username: str) -> list[str]:
     with SessionLocal() as db, db.begin():
         return [
             presentation.presentation_name.split("/")[-1]
-            for presentation in db.query(Presentation_db).filter_by(
-                owner=username
-            )
+            for presentation in db.query(Presentation_db).filter_by(owner=username)
         ]
 
 
@@ -116,10 +110,8 @@ def create_presentation(username: str, presentation_name: str):
         HTTPException: If the presentation already exists
     """
     if presentation_name in get_presentations(username):
-        raise HTTPException(
-            status_code=409, detail="Presentation already exists"
-        )
-    presentation = Presentation(f"{username}/{presentation_name}", username)
+        raise HTTPException(status_code=409, detail="Presentation already exists")
+    presentation = Presentation(presentation_name, username)
     presentation.add_slide()
     with SessionLocal() as db, db.begin():
         new_presentation = presentation_to_db(presentation)
@@ -172,22 +164,22 @@ class PresentationAPI:
             return presentation.to_dict()
 
     @router.post("/{username}/{presentation_name}/add_slide")
-    def add_slide(self) -> dict[str, str]:
+    def add_slide(self) -> dict[str, int]:
         """Add a new slide to the presentation.
 
         Returns:
-            dict[str, str]: A dictionary with the key "slide_id" and the value
+            dict[str, int]: A dictionary with the key "slide_id" and the value
         """
         with self.presentation.presentation as presentation:
             slide_id = presentation.add_slide()
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
-    def remove_slide(self, slide_id: str):
+    def remove_slide(self, slide_id: int):
         """Remove the slide with the given id.
 
         Args:
-            slide_id (str): The id of the slide
+            slide_id (int): The id of the slide
 
         Returns:
             Response: If the slide was removed successfully
@@ -210,8 +202,9 @@ class PresentationAPI:
             HTTPException: If the slide does not exist
         """
         with self.presentation.presentation as presentation:
-            print(presentation.slides)
-            slide_obj = presentation.slides[slide["slide_id"]]
+            slide_obj = presentation.slides[
+                f"{self.presentation.presentation_name}/{slide['slide_id']}"
+            ]
             if slide_obj is None:
                 raise HTTPException(status_code=404, detail="Slide not found")
             slide_obj.update_slide(slide)
@@ -250,9 +243,7 @@ class SlideAPI:
             return slide.to_dict()
 
     @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
-    def add_object(
-        self, object_type: str, value: str | None = None
-    ) -> dict[str, int]:
+    def add_object(self, object_type: str, value: str | None = None) -> dict[str, int]:
         """Add a new object to the slide with the given id.
 
         Args:
@@ -267,11 +258,11 @@ class SlideAPI:
         return {"object_id": object_id}
 
     @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
-    def remove_object(self, object_id: str):
+    def remove_object(self, object_id: int):
         """Remove the object with the given id.
 
         Args:
-            object_id (str): The id of the object
+            object_id (int): The id of the object
 
         Returns:
             Response: If the object was removed successfully
