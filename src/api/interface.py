@@ -172,6 +172,8 @@ class PresentationAPI:
         """
         with self.presentation.presentation as presentation:
             slide_id = presentation.add_slide()
+        with SessionLocal() as db, db.begin():
+            db.add(self.presentation)
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
@@ -186,6 +188,8 @@ class PresentationAPI:
         """
         with self.presentation.presentation as presentation:
             presentation.delete_slide(slide_id)
+        with SessionLocal() as db, db.begin():
+            db.add(self.presentation)
         return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/update_slide")
@@ -208,6 +212,8 @@ class PresentationAPI:
             if slide_obj is None:
                 raise HTTPException(status_code=404, detail="Slide not found")
             slide_obj.update_slide(slide)
+        with SessionLocal() as db, db.begin():
+            db.add(self.presentation)
         return Response(status_code=status.HTTP_200_OK)
 
 
@@ -255,6 +261,8 @@ class SlideAPI:
         """
         with self.slide as slide:
             object_id = slide.add_object(object_type, value)
+        with SessionLocal() as db, db.begin():
+            db.add(self.slide)
         return {"object_id": object_id}
 
     @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
@@ -269,6 +277,8 @@ class SlideAPI:
         """
         with self.slide as slide:
             slide.delete_object(object_id)
+        with SessionLocal() as db, db.begin():
+            db.add(self.slide)
         return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/{slide_id}/update_object")
@@ -283,6 +293,8 @@ class SlideAPI:
         """
         with self.slide as slide:
             slide.update_object(updated_values)
+        with SessionLocal() as db, db.begin():
+            db.add(self.slide)
         return Response(status_code=status.HTTP_200_OK)
 
 
