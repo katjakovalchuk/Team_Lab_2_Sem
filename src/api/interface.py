@@ -268,6 +268,7 @@ class SlideAPI:
         Returns:
             dict: The slide with the given id in json format
         """
+        print(self.slide)
         with self.slide as slide:
             return slide.to_dict()
 
