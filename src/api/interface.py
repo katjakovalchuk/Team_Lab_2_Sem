@@ -173,8 +173,7 @@ class PresentationAPI:
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
                 slide_id = presentation.add_slide()
-
-            db.commit()
+            db.add(self.presentation)
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
