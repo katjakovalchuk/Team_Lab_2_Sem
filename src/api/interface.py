@@ -174,8 +174,11 @@ class PresentationAPI:
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
                 slide_id = presentation.add_slide()
+                slide = presentation.get_slide(slide_id)
+                if slide is not None:
+                    slide_db = create_slide_db_from_slide(slide)
+                    db.add(slide_db)
                 print(presentation.to_dict())
-            db.commit()
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
