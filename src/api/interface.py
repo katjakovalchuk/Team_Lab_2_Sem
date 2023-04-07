@@ -288,7 +288,7 @@ class SlideAPI:
                 if object is not None:
                     object_db = SlideObject_db()
                     object_db.object_name = object.object_id
-                    object_db.obj_type = object.object_type
+                    object_db.obj_type = object.obj_type
                     object_db.content = object.value
                     object_db.owner = object.owner
                     object_db.attributes = object.attributes
