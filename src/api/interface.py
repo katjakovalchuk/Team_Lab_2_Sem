@@ -179,8 +179,7 @@ class PresentationAPI:
                     slide_db = create_slide_db_from_slide(slide)
                     db.add(slide_db)
                 print(presentation.to_dict())
-                unused_id_max = presentation.unused_id_max
-            self.presentation.unused_id_max = unused_id_max
+            print(self.presentation.unused_id_max)
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
