@@ -178,8 +178,6 @@ class PresentationAPI:
                 if slide is not None:
                     slide_db = create_slide_db_from_slide(slide)
                     db.add(slide_db)
-                print(presentation.to_dict())
-            print(self.presentation.unused_id_max)
             db.query(Presentation_db).filter_by(
                 presentation_name=self.presentation.presentation_name
             ).update(
@@ -268,8 +266,7 @@ class SlideAPI:
         Returns:
             dict: The slide with the given id in json format
         """
-        print(self.slide)
-        with self.slide as slide:
+        with self.slide.slide as slide:
             return slide.to_dict()
 
     @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
@@ -284,7 +281,7 @@ class SlideAPI:
             dict[str, int]: A dictionary with the key "object_id" and the value
         """
         with SessionLocal() as db, db.begin():
-            with self.slide as slide:
+            with self.slide.slide as slide:
                 object_id = slide.add_object(object_type, value)
                 object_db = SlideObject_db()
                 object = slide.get_object(object_id)
@@ -314,7 +311,7 @@ class SlideAPI:
             Response: If the object was removed successfully
         """
         with SessionLocal() as db, db.begin():
-            with self.slide as slide:
+            with self.slide.slide as slide:
                 slide.delete_object(object_id)
             db_object = (
                 db.query(SlideObject_db)
@@ -336,7 +333,7 @@ class SlideAPI:
             Response: If the object was updated successfully
         """
         with SessionLocal() as db, db.begin():
-            with self.slide as slide:
+            with self.slide.slide as slide:
                 slide.update_object(updated_values)
             db_object = (
                 db.query(SlideObject_db)
