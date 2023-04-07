@@ -108,7 +108,6 @@ class Presentation_db(Base):
             self.slides.append(slide_db)
         self.owner = presentation.owner
         self.presentation_name = presentation.name
-        self.commit()
 
 
 def presentation_to_db(presentation: Presentation) -> Presentation_db:
