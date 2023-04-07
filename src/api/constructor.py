@@ -229,7 +229,15 @@ class Slide:
             elif key == "attributes":
                 self.attributes = value
             elif key == "content":
-                self.content = value
+                for obj in value:
+                    if self.get_object(obj["object_id"]) is None:
+                        object = Object(obj["object_id"], obj["type"], self.slide_id)
+                        object.update(obj)
+                        self.content.append(object)
+                    else:
+                        object = self.get_object(obj["object_id"])
+                        if object is not None:
+                            object.update(obj)
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """Add an attribute to the slide.
