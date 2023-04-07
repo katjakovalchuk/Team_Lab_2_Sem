@@ -67,7 +67,10 @@ class Slide_db(Base):
         )
         slide.attributes = self.attributes
         slide.max_id = self.max_id
-        slide.content = list(self.content)
+        slide.content = []
+        for object in self.content:
+            with object.object as i:
+                slide.content.append(i)
         yield slide
         slide_to_db(self, slide)
 
