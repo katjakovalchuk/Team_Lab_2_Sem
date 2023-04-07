@@ -178,8 +178,6 @@ class PresentationAPI:
                 if slide is not None:
                     slide_db = create_slide_db_from_slide(slide)
                     db.add(slide_db)
-                    db.flush()
-                    db.refresh(slide_db)
                 print(presentation.to_dict())
             db.add(self.presentation)
         return {"slide_id": slide_id}
