@@ -5,7 +5,7 @@ from fastapi_restful.cbv import cbv
 from fastapi_restful.inferring_router import InferringRouter
 
 from api.constructor import Presentation
-from api.database import (Presentation_db, SessionLocal, Slide_db, SlideObject_db,
+from api.database import (Presentation_db, SessionLocal, Slide_db,
                           SlideObject_db, create_slide_db_from_slide,
                           presentation_to_db)
 
@@ -222,7 +222,10 @@ class PresentationAPI:
         """
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
-                if slide["slide_id"] not in presentation.slides:
+                if (
+                    presentation.get_slide_full_id(slide["slide_id"])
+                    not in presentation.slides
+                ):
                     raise HTTPException(status_code=404, detail="Slide not found")
                 slide_obj = presentation.slides[
                     f"{self.presentation.presentation_name}_{slide['slide_id']}"
