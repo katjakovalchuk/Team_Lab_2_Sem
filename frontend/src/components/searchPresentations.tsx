@@ -24,6 +24,7 @@ export default function SearchPresentations() {
     const [presentationNames, setPresentationNames] = useState([]);
     const [presentations, setPresentations] = useState([]);
     const port = process.env.NEXT_PUBLIC_API_PORT || "80";
+
     console.log(presentationNames);
     useEffect(() => {
         fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1/presentations`,
@@ -52,7 +53,8 @@ export default function SearchPresentations() {
     const handleSubmit = async (event: any) => {
         event.preventDefault();
         setPresentationNames(
-            presentations.filter((word: string) => word.includes(name))
+            presentations
+            // presentations.filter((word: string) => word.includes(name))
         )
 
     }

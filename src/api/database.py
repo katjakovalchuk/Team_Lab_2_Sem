@@ -13,7 +13,9 @@ database = os.getenv("POSTGRES_DB")
 server = os.getenv("POSTGRES_SERVER")
 port = os.getenv("POSTGRES_PORT")
 
-engine = create_engine(f"postgresql://{uname}:{passwd}@{server}:{port}/{database}")
+engine = create_engine(
+    f"postgresql://{uname}:{passwd}@{server}:{port}/{database}"
+)
 
 Base = declarative_base()
 
@@ -34,15 +36,12 @@ class SlideObject_db(Base):
     @property
     @contextmanager
     def object(self):
-        object = Object(
-            int(self.object_name.split("/")[-1]), str(self.obj_type), str(self.owner)
-        )
-        object.value = self.content
+        object = Object(self.object_name, self.obj_type, self.owner)
         object.attributes = self.attributes
         yield object
-        self.content = object.value
-        self.attributes = object.attributes
         self.obj_type = object.obj_type
+        self.content = object.content
+        self.attributes = object.attributes
 
 
 class Slide_db(Base):
@@ -57,17 +56,20 @@ class Slide_db(Base):
     background = sa.Column(String, nullable=False)
     max_id = sa.Column(Integer, nullable=True)
     content = relationship(SlideObject_db, backref="slide", lazy="joined")
-    owner = sa.Column(sa.String, sa.ForeignKey("presentation.presentation_name"))
+    owner = sa.Column(
+        sa.String, sa.ForeignKey("presentation.presentation_name")
+    )
 
     @property
     @contextmanager
     def slide(self):
-        slide = Slide(
-            int(self.slide_id.split("/")[-1]), str(self.owner), str(self.background)
-        )
+        slide = Slide(self.slide_id, self.background, self.owner)
+        slide.content = {}
+        for object in self.content:
+            with object.object as i:
+                slide.content[object.object_name] = i
         slide.attributes = self.attributes
         slide.max_id = self.max_id
-        slide.content = list(self.content)
         yield slide
         slide_to_db(self, slide)
 
@@ -90,24 +92,23 @@ class Presentation_db(Base):
     @contextmanager
     def presentation(self):
         presentation = Presentation(
-            self.presentation_name.split("/")[-1], str(self.owner), str(self.style)
+            self.presentation_name, self.owner, self.style, self.plugins
         )
-        presentation.plugins = self.plugins
         presentation.slides = {}
         for slide in self.slides:
             with slide.slide as i:
                 presentation.slides[slide.slide_id] = i
         presentation.unused_id_max = self.unused_id_max
         yield presentation
+        self.presentation_name = presentation.name
         self.style = presentation.style
         self.plugins = presentation.plugins
-        self.unused_id_max = presentation.unused_id_max
         self.slides = []
+        self.owner = presentation.owner
         for slide in presentation.slides.values():
             slide_db = create_slide_db_from_slide(slide)
             self.slides.append(slide_db)
-        self.owner = presentation.owner
-        self.presentation_name = presentation.name
+        self.unused_id_max = presentation.unused_id_max
 
 
 def presentation_to_db(presentation: Presentation) -> Presentation_db:
@@ -124,7 +125,6 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
     presentation_db.style = presentation.style
     presentation_db.plugins = presentation.plugins
     presentation_db.owner = presentation.owner
-    presentation_db.slides = []
     for slide in presentation.slides.values():
         slide_db = create_slide_db_from_slide(slide)
         presentation_db.slides.append(slide_db)
@@ -138,12 +138,11 @@ def slide_to_db(slide_db: Slide_db, slide: Slide) -> Slide_db:
     slide_db.attributes = slide.attributes
     slide_db.max_id = slide.max_id
     slide_db.owner = slide.owner
-    slide_db.content = []
     for object in slide.content:
         object_db = SlideObject_db()
-        object_db.object_name = object.object_id
+        object_db.object_name = object.name
         object_db.obj_type = object.obj_type
-        object_db.content = object.value
+        object_db.content = object.content
         object_db.attributes = object.attributes
         slide_db.content.append(object_db)
     return slide_db

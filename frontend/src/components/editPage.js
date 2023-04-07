@@ -39,24 +39,16 @@ function ToSection(obj) {
                 allowFullScreen
                 src=${obj.content} />`
     }
-    return "";
+    return obj;
 }
 
 function ToPresentation(obj) {
     return Object.entries(obj).map((slideObject) => {
-        const slide = slideObject[1];
-        // This is not pretty. Too bad!
-        if (slide.content.some((x) => x !== null && x.object_type === "other")) {
-            return <section
-                key={slide.slide_id}
-                data-background-color={
-                    slide.background ?
-                        slide.background :
-                        "var(--nav-color)"
-                }
-                dangerouslySetInnerHTML={{ __html: slide.content[0].content }} />
+        let slide = slideObject[1];
+        if (slide.content.map === undefined) {
+            slide.content = []
         }
-
+        // This is not pretty. Too bad!
         return <section key={`slide_${slide.slide_id}`} data-background-color={slide.background ? slide.background : "var(--nav-color)"} dangerouslySetInnerHTML={{ __html: slide.content.map(ToSection).join("") }} />
     })
 }
@@ -79,7 +71,6 @@ export default function Editor() {
     const [slideIdx, setSlideIdx] = useState(0);
 
     const updateSlide = () => {
-        SanitizeSlides();
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         fetch(`${baseURL}/${presentationName}/update_slide`,
             {
@@ -91,7 +82,7 @@ export default function Editor() {
                     "Accept": "application/json",
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify({ slide_id: slideIdx, ...slides[slideIdx] })
+                body: JSON.stringify({ ...slides[slideIdx] })
             }
         )
             .then(response => {
@@ -102,25 +93,11 @@ export default function Editor() {
 
     }
 
-    const SanitizeSlides = () => {
-        let curSlides = slides;
-        curSlides.forEach((slide, idx) => {
-            slide.slide_id = idx;
-            slide.content.forEach((slideItem, slideItemIdx) => {
-                if (slideItem.object_type === "markdown" || slideItem.object_type === "other") {
-                    curSlides[idx].content = [curSlides[idx].content[slideItemIdx]];
-                }
-            })
-        })
-        setSlides([...curSlides]);
-    }
-
     const updateElementContent = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].content = val;
             setSlides([...curSlides]);
-            SanitizeSlides();
             updateSlide();
         }
         return updateFn;
@@ -131,7 +108,6 @@ export default function Editor() {
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].object_type = val;
             setSlides([...curSlides]);
-            SanitizeSlides();
             updateSlide();
         }
         return updateFn;
@@ -142,7 +118,6 @@ export default function Editor() {
         const updateFn = (val) => {
             curSlides[slideIdx].content[element].attributes = val;
             setSlides([...curSlides]);
-            SanitizeSlides();
             updateSlide();
         }
         return updateFn;
@@ -153,7 +128,6 @@ export default function Editor() {
         const updateFn = (_) => {
             curSlides[slideIdx].content.splice(index, 1);
             setSlides([...curSlides]);
-            SanitizeSlides();
             updateSlide();
         }
         return updateFn;
@@ -186,9 +160,7 @@ export default function Editor() {
                     if (slideIdx + 1 > curSlides.length) {
                         setSlideIdx(slideIdx - 1);
                     }
-                    console.log(curSlides);
                     setSlides([...curSlides]);
-                    SanitizeSlides();
                 });
         } catch {
             alert("Sorry, something went wrong.\nCould not save your presentation.")
@@ -199,7 +171,6 @@ export default function Editor() {
         let curSlides = slides;
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
-        SanitizeSlides();
         updateSlide();
     }
 
@@ -233,7 +204,6 @@ export default function Editor() {
     const fetchPresentation = () => {
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
-        console.log(pname);
         updatePresentationName(pname);
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
@@ -243,7 +213,7 @@ export default function Editor() {
                     fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
                     setSlides([
                         {
-                            slide_id: slideIdx,
+                            slide_id: `user1/${pname}/${slideIdx}`,
                             background: "#2e3440",
                             content: []
                         }
@@ -254,9 +224,16 @@ export default function Editor() {
                     return resp.json()
                 }
             }).then(data => {
-                if (data && data.slides.length > 0) {
-                    console.log(data);
-                    setSlides(data.slides)
+                if (data.slides) {
+                    setSlides([...data.slides]);;
+                } else {
+                    setSlides([
+                        {
+                            slide_id: `user1/${pname}/${slideIdx}`,
+                            background: "#2e3440",
+                            content: []
+                        }
+                    ]);
                 }
             })
             .catch(
@@ -303,28 +280,22 @@ export default function Editor() {
                     <FaArrowRight onClick={() => {
                         updateSlide();
                         if ((slideIdx + 1) == slides.length) {
-                            let curSlides = slides;
-                            curSlides.push(
-                                {
-                                    slide_id: slideIdx + 1,
-                                    background: "#2e3440",
-                                    content: [],
-                                }
-                            )
-                            setSlides(curSlides);
                             const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
                             try {
                                 const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-                                fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors', method: "POST" })
+                                fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors', method: "POST" }).then(fetchPresentation)
                                     .catch(
                                         () => alert("Sorry, could not fetch the presentation data")
                                     );
-                                updateSlide();
                             } catch {
                                 alert("Could not add slide. Sorry")
                             }
                         }
-                        setSlideIdx(slideIdx + 1)
+                        fetchPresentation();
+                        console.log(slides);
+                        if (slides.length > slideIdx + 1) {
+                            setSlideIdx(slideIdx + 1);
+                        }
                     }
                     } />
                     <FaMinus onClick={removeSlide} />
@@ -334,18 +305,17 @@ export default function Editor() {
                     <h2>
                         Slide {slideIdx + 1}
                         <FaPlus onClick={async () => {
-                            let curSlides = slides;
-                            curSlides[slideIdx].content.push(
-                                {
-                                    object_id: curSlides[slideIdx].content.length,
-                                    object_type: "img",
-                                    content: "https://picsum.photos/1920/1080",
-                                }
-                            )
-                            setSlides([...curSlides]);
-                            setSlideIdx(slideIdx);
-                            SanitizeSlides();
-                            updateSlide();
+                            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+                            try {
+                                const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
+                                fetch(`${baseURL}/${presentationName}/${slides[slideIdx].slide_id}/add_object`, { headers: headers, mode: 'cors', method: "POST" }).then(fetchPresentation)
+                                    .catch(
+                                        () => alert("Sorry, could not fetch the presentation data")
+                                    );
+                            } catch {
+                                alert("Could not add slide. Sorry")
+                            }
+                            fetchPresentation();
                         }} />
                     </h2>
                     <TextInput
@@ -357,7 +327,7 @@ export default function Editor() {
                         updateval={updateColor} />
                 </div>
                 {
-                    slides.length > 0 && Object.entries(slides[slideIdx].content).map(
+                    slides.content && Object.entries(slides[slideIdx].content).map(
                         v => <ElementEditor
                             key={`slide_component_${v[1].object_id}`}
                             type={v[1].object_type}
