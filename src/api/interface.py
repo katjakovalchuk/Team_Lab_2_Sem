@@ -175,7 +175,6 @@ class PresentationAPI:
             with self.presentation.presentation as presentation:
                 slide_id = presentation.add_slide()
                 print(presentation.to_dict())
-            db.add(self.presentation)
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
