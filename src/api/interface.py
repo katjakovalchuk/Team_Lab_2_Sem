@@ -180,6 +180,13 @@ class PresentationAPI:
                     db.add(slide_db)
                 print(presentation.to_dict())
             print(self.presentation.unused_id_max)
+            db.query(Presentation_db).filter_by(
+                presentation_name=self.presentation.presentation_name
+            ).update(
+                {
+                    "unused_id_max": self.presentation.unused_id_max,
+                },
+            )
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
