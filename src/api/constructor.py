@@ -11,93 +11,91 @@ class Presentation:
         style (str): style of the presentation
         plugins (set): list of plugins
         unused_id_max (int): the maximum id that has not been used
-
-    Methods:
-        get_new_id: get an id for a new slide
-        add_slide: add a slide to the presentation
-        swap_slides: swap two slides
-        delete_slide: delete a slide
-        save: save the presentation to a html file
-        add_plugin: add a plugin to the presentation
-        remove_plugin: remove a plugin from the presentation
-        set_style: set the style of the presentation
     """
 
     def __init__(
-        self,
-        name: str,
-        owner: str,
-        style: str = "moon",
-        plugins: list | None = None,
+            self, name: str, owner: str, style: str = "moon", plugins: list | None = None
     ) -> None:
-        self.name = name
+        self.name = f"{owner}/{name}"
         self.owner = owner
         self.slides: dict[str, Slide] = {}
         self.style = style
         if plugins is None:
             plugins = []
-        self.plugins = plugins
+        self.plugins: list[str] = plugins
         self.unused_id_max = 0
 
-    def get_new_id(self) -> str:
+    def get_new_id(self) -> int:
         """Get a new id for a slide.
 
         Returns:
-            id (str): the new id. Consists of the presentation name and the int id
+            id (int): the new id
         """
         self.unused_id_max += 1
-        return f"{self.name}/{self.unused_id_max}"
+        return self.unused_id_max
 
-    def add_slide(self) -> str:
+    def add_slide(self) -> int:
         """Add a slide to the presentation.
 
         Returns:
-            slide_id (str): id of the new slide
-                Consists of the presentation name and the int id
+            slide_id (int): id of the new slide
         """
         new_id = self.get_new_id()
-        self.slides[new_id] = Slide(new_id, self.name)
+        self.slides[self.get_slide_full_id(new_id)] = Slide(new_id, self.name)
         return new_id
 
-    def get_slide(self, slide_id: str) -> Slide | None:
+    def get_slide(self, slide_id: int) -> Slide | None:
         """Get the slide with the given id.
 
         Args:
-            slide_id (str): id of the slide
+            slide_id (int): id of the slide
 
         Returns:
             Slide: the slide with the given id
             None: if the slide does not exist
         """
-        if slide_id not in self.slides:
+        full_id = self.get_slide_full_id(slide_id)
+        if full_id not in self.slides:
             return None
-        return self.slides[slide_id]
+        return self.slides[full_id]
 
-    def swap_slides(self, slide1: str, slide2: str) -> None:
+    def get_slide_full_id(self, slide_id: int) -> str:
+        """Get the full id of a slide.
+
+        Args:
+            slide_id (int): id of the slide
+
+        Returns:
+            str: the full id of the slide
+        """
+        return f"{self.name}/{slide_id}"
+
+    def swap_slides(self, slide1: int, slide2: int) -> None:
         """Swap two slides.
 
         Args:
-            slide1 (str): id of the first slide
-            slide2 (str): id of the second slide
+            slide1 (int): id of the first slide
+            slide2 (int): id of the second slide
         """
-        if slide1 not in self.slides:
+        full_id1 = self.get_slide_full_id(slide1)
+        full_id2 = self.get_slide_full_id(slide2)
+        if full_id1 not in self.slides or full_id2 not in self.slides:
             return
-        if slide2 not in self.slides:
-            return
-        self.slides[slide1], self.slides[slide2] = (
-            self.slides[slide2],
-            self.slides[slide1],
+        self.slides[full_id1], self.slides[full_id2] = (
+            self.slides[full_id2],
+            self.slides[full_id1],
         )
 
-    def delete_slide(self, slide_id: str) -> None:
+    def delete_slide(self, slide_id: int) -> None:
         """Delete a slide.
 
         Args:
-            slide_id (str): id of the slide
+            slide_id (int): id of the slide
         """
-        if slide_id not in self.slides:
+        full_id = self.get_slide_full_id(slide_id)
+        if full_id not in self.slides:
             return
-        del self.slides[slide_id]
+        del self.slides[full_id]
 
     def save(self) -> str:
         """
@@ -152,7 +150,7 @@ class Presentation:
             dict: the presentation as a dict
         """
         return {
-            "name": self.name,
+            "name": self.name.split("/")[-1],
             "slides": [v.to_dict() for v in self.slides.values()],
             "style": self.style,
             "plugins": self.plugins,
@@ -166,7 +164,7 @@ class Slide:
         content (dict): list of elements
         attributes (str): str of slide attributes
         background (str): background color or path of the slide
-        slide_id (str): id of the slide. Consists of owner name and int id
+        slide_id (int): id of the slide
         max_id (int): the maximum element id that has not been used
         owner (str): owner of the slide
 
@@ -182,23 +180,23 @@ class Slide:
     background_type = "color"
 
     def __init__(
-        self, slide_id: str, owner: str, background_color: str = "#2e3440"
+        self, slide_id: int, owner: str, background_color: str = "#2e3440"
     ) -> None:
         self.content: list[Object] = []
         self.attributes = ""
         self.background = background_color
         self.max_id = 0
         self.owner = owner
-        self.slide_id = slide_id
+        self.slide_id = f"{owner}/{slide_id}"
 
-    def get_new_id(self) -> str:
+    def get_new_id(self) -> int:
         """Get a new id for an element.
 
         Returns:
-            str: the new id. Consists of the slide id and the int id
+            id (int): the new id
         """
         self.max_id += 1
-        return f"{self.slide_id}/{self.max_id}"
+        return self.max_id
 
     def set_background(
         self, bg_type: str, bg_color: str | None = None, path: str | None = None
@@ -216,7 +214,7 @@ class Slide:
             self.background = path
 
     def update_slide(self, slide: dict) -> None:
-        """Update the slide, using the given dict with values
+        """Update the slide, using the given dict with values.
 
         Args:
             slide (dict): a dictionary with slide attributes
@@ -228,8 +226,6 @@ class Slide:
                 self.background = value
             elif key == "attributes":
                 self.attributes = value
-            elif key == "slide_id":
-                self.slide_id = value
             elif key == "content":
                 self.content = value
 
@@ -245,7 +241,7 @@ class Slide:
         else:
             self.attributes += f' {attribute}="{value}"'
 
-    def add_object(self, obj_type: str, value: str = "") -> str:
+    def add_object(self, obj_type: str, value: str = "") -> int:
         """Add an object to the slide.
 
         Args:
@@ -254,11 +250,22 @@ class Slide:
                 (for text - text, for image, video, iframe - path)
 
         Returns:
-            str: id of the new object. Consists of the slide id and the int id
+            int: id of the new object
         """
         new_id = self.get_new_id()
-        self.content += [Object(new_id, obj_type, self.slide_id, value)]
+        self.content.append(Object(new_id, obj_type, self.slide_id, value))
         return new_id
+
+    def get_object_full_id(self, obj_id: int) -> str:
+        """Get the full id of the object.
+
+        Args:
+            obj_id (int): id of the object
+
+        Returns:
+            str: full id of the object
+        """
+        return f"{self.slide_id}/{obj_id}"
 
     def update_object(self, updated_values: dict) -> None:
         """Update an object.
@@ -266,16 +273,19 @@ class Slide:
         Args:
             updated_values (dict): dict with the updated values
         """
-        obj_id = updated_values["object_id"]
-        self.content[obj_id].update(updated_values)
+        full_id = self.get_object_full_id(updated_values["object_id"])
+        for obj in self.content:
+            if obj.object_id == full_id:
+                obj.update(updated_values)
 
-    def remove_object(self, obj_id: str) -> None:
+    def remove_object(self, obj_id: int) -> None:
         """Remove an object from the slide.
 
         Args:
-            obj_id (str): id of the object
+            obj_id (int): id of the object
         """
-        self.content = [obj for obj in self.content if obj.object_id != obj_id]
+        full_id = self.get_object_full_id(obj_id)
+        self.content = [obj for obj in self.content if obj.object_id != full_id]
 
     def to_html(self):
         """
@@ -309,7 +319,7 @@ class Slide:
             "content": self.content,
             "attributes": self.attributes,
             "background": self.background,
-            "slide_id": self.slide_id,
+            "slide_id": self.slide_id.split("/")[-1],
             "max_id": self.max_id,
         }
 
@@ -333,13 +343,13 @@ class Object:
     """
 
     def __init__(
-        self, object_id: str, obj_type: str, owner: str, value: str = ""
+        self, object_id: int, obj_type: str, owner: str, value: str = ""
     ) -> None:
         self.obj_type = obj_type
         self.attributes = ""
         self.value = value
         self.owner = owner
-        self.object_id = object_id
+        self.object_id = f"{owner}/{object_id}"
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """Add an attribute to the object.
@@ -380,7 +390,7 @@ class Object:
         """
         return {
             "type": self.obj_type,
-            "object_id": self.object_id,
+            "object_id": self.object_id.split("/")[-1],
             "attributes": self.attributes,
             "value": self.value,
         }
