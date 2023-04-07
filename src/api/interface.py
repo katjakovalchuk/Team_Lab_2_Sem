@@ -85,13 +85,10 @@ def get_presentations(username: str) -> list[str]:
     Returns:
         list[str]: a list of presentation names
     """
-    presentations = (
-        db.query(Presentation_db)
-        .filter_by(owner=username)
-        .filter(Presentation_db.presentation_name.startswith(username))
-        .all()
-    )
-    return [presentation.presentation_name.split("/")[-1] for presentation in presentations]
+    return [
+        presentation.presentation_name.split("/")[-1]
+        for presentation in db.query(Presentation_db).filter_by(owner=username)
+    ]
 
 
 @router.post("/{username}/{presentation_name}")
