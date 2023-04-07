@@ -333,7 +333,7 @@ class Slide:
             dict: a dict representation of the slide
         """
         return {
-            "content": self.content,
+            "content": [obj.to_dict() for obj in self.content],
             "attributes": self.attributes,
             "background": self.background,
             "slide_id": int(self.slide_id.split("_")[-1]),
