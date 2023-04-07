@@ -91,7 +91,8 @@ def create_presentation(username: str, presentation_name: str):
     presentation.add_slide()
     new_presentation = presentation_to_db(presentation)
     db.add(new_presentation)
-    db.flush()  # synchronize the state of the Session
+    # synchronize the state of the Session
+    db.commit()
     return Response(status_code=status.HTTP_200_OK)
 
 
