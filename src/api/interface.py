@@ -353,7 +353,7 @@ class SlideAPI:
             db_object = (
                 db.query(SlideObject_db)
                 .filter(
-                    SlideObject_db.object_id
+                    SlideObject_db.object_name
                     == f"{self.slide.slide_id}_{updated_values['object_id']}"
                 )
                 .first()
