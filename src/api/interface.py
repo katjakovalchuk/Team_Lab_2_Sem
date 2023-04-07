@@ -73,7 +73,7 @@ def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Sli
         slide = next(
             slide
             for slide in presentation.slides
-            if slide.slide_id == f"{username}/{presentation_name}/{slide_id}"
+            if slide.slide_id == f"{username}_{presentation_name}_{slide_id}"
         )
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Slide not found")
@@ -219,7 +219,7 @@ class PresentationAPI:
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
                 slide_obj = presentation.slides[
-                    f"{self.presentation.presentation_name}/{slide['slide_id']}"
+                    f"{self.presentation.presentation_name}_{slide['slide_id']}"
                 ]
                 if slide_obj is None:
                     raise HTTPException(status_code=404, detail="Slide not found")
@@ -298,7 +298,7 @@ class SlideAPI:
             db_object = (
                 db.query(SlideObject_db)
                 .filter(
-                    SlideObject_db.object_id == f"{self.slide.slide_id}/{object_id}"
+                    SlideObject_db.object_id == f"{self.slide.slide_id}_{object_id}"
                 )
                 .first()
             )
@@ -321,7 +321,7 @@ class SlideAPI:
                 db.query(SlideObject_db)
                 .filter(
                     SlideObject_db.object_id
-                    == f"{self.slide.slide_id}/{updated_values['object_id']}"
+                    == f"{self.slide.slide_id}_{updated_values['object_id']}"
                 )
                 .first()
             )

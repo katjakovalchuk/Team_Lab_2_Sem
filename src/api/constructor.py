@@ -16,7 +16,7 @@ class Presentation:
     def __init__(
             self, name: str, owner: str, style: str = "moon", plugins: list | None = None
     ) -> None:
-        self.name = f"{owner}/{name}"
+        self.name = f"{owner}_{name}"
         self.owner = owner
         self.slides: dict[str, Slide] = {}
         self.style = style
@@ -68,7 +68,7 @@ class Presentation:
         Returns:
             str: the full id of the slide
         """
-        return f"{self.name}/{slide_id}"
+        return f"{self.name}_{slide_id}"
 
     def swap_slides(self, slide1: int, slide2: int) -> None:
         """Swap two slides.
@@ -189,7 +189,7 @@ class Slide:
         self.background = background_color
         self.max_id = 0
         self.owner = owner
-        self.slide_id = f"{owner}/{slide_id}"
+        self.slide_id = f"{owner}_{slide_id}"
 
     def get_new_id(self) -> int:
         """Get a new id for an element.
@@ -267,7 +267,7 @@ class Slide:
         Returns:
             str: full id of the object
         """
-        return f"{self.slide_id}/{obj_id}"
+        return f"{self.slide_id}_{obj_id}"
 
     def update_object(self, updated_values: dict) -> None:
         """Update an object.
@@ -351,7 +351,7 @@ class Object:
         self.attributes = ""
         self.value = value
         self.owner = owner
-        self.object_id = f"{owner}/{object_id}"
+        self.object_id = f"{owner}_{object_id}"
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """Add an attribute to the object.
