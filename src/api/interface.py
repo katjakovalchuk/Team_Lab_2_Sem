@@ -229,6 +229,7 @@ class PresentationAPI:
                 if slide_obj is None:
                     raise HTTPException(status_code=404, detail="Slide not found")
                 slide_obj.update_slide(slide)
+                print(slide_obj.to_dict())
             db_slide = get_slide_by_id(
                 self.presentation.owner,
                 self.presentation.presentation_name.split("_")[-1],

@@ -407,7 +407,7 @@ class Object:
         """
         return {
             "type": self.obj_type,
-            "object_id": self.object_id.split("_")[-1],
+            "object_id": int(self.object_id.split("_")[-1]),
             "attributes": self.attributes,
             "value": self.value,
         }
