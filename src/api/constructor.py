@@ -150,7 +150,7 @@ class Presentation:
             dict: the presentation as a dict
         """
         return {
-            "name": self.name.split("/")[-1],
+            "name": self.name.split("_")[-1],
             "slides": [v.to_dict() for v in self.slides.values()],
             "style": self.style,
             "plugins": self.plugins,
@@ -321,7 +321,7 @@ class Slide:
             "content": self.content,
             "attributes": self.attributes,
             "background": self.background,
-            "slide_id": int(self.slide_id.split("/")[-1]),
+            "slide_id": int(self.slide_id.split("_")[-1]),
             "max_id": self.max_id,
         }
 
@@ -392,7 +392,7 @@ class Object:
         """
         return {
             "type": self.obj_type,
-            "object_id": self.object_id.split("/")[-1],
+            "object_id": self.object_id.split("_")[-1],
             "attributes": self.attributes,
             "value": self.value,
         }

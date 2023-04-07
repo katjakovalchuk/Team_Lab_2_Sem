@@ -46,7 +46,7 @@ def get_presentation_by_name(username: str, presentation_name: str) -> Presentat
         presentation_db = (
             db.query(Presentation_db)
             .filter_by(owner=username)
-            .filter_by(presentation_name=f"{username}/{presentation_name}")
+            .filter_by(presentation_name=f"{username}_{presentation_name}")
             .first()
         )
         if presentation_db is None:
@@ -91,7 +91,7 @@ def get_presentations(username: str) -> list[str]:
     """
     with SessionLocal() as db, db.begin():
         return [
-            presentation.presentation_name.split("/")[-1]
+            presentation.presentation_name.split("_")[-1]
             for presentation in db.query(Presentation_db).filter_by(owner=username)
         ]
 
@@ -195,7 +195,7 @@ class PresentationAPI:
         with SessionLocal() as db, db.begin():
             db_slide = get_slide_by_id(
                 self.presentation.owner,
-                self.presentation.presentation_name.split("/")[-1],
+                self.presentation.presentation_name.split("_")[-1],
                 slide_id,
             )
             with self.presentation.presentation as presentation:
@@ -226,7 +226,7 @@ class PresentationAPI:
                 slide_obj.update_slide(slide)
             db_slide = get_slide_by_id(
                 self.presentation.owner,
-                self.presentation.presentation_name.split("/")[-1],
+                self.presentation.presentation_name.split("_")[-1],
                 slide["slide_id"],
             )
             db.add(db_slide)
