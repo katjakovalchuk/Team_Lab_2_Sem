@@ -180,6 +180,7 @@ class PresentationAPI:
                     db.add(slide_db)
                     db.flush()
                     db.refresh(slide_db)
+                print(presentation.to_dict())
             db.commit()
         return {"slide_id": slide_id}
 
