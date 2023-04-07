@@ -179,6 +179,8 @@ class PresentationAPI:
                 db.add(slide_db)
                 db.flush()
                 db.refresh(slide_db)
+            db.add(self.presentation)
+            db.flush()
             db.refresh(self.presentation)
         return {"slide_id": slide_id}
 
