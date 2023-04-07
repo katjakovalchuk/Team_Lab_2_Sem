@@ -350,15 +350,15 @@ class SlideAPI:
         with SessionLocal() as db, db.begin():
             with self.slide.slide as slide:
                 slide.update_object(updated_values)
-            db_object = (
-                db.query(SlideObject_db)
-                .filter(
-                    SlideObject_db.object_name
-                    == f"{self.slide.slide_id}_{updated_values['object_id']}"
+                obj = slide.get_object(updated_values["object_id"])
+            if obj is not None:
+                db.query(SlideObject_db).filter_by(object_name=obj.object_id).update(
+                    {
+                        "obj_type": obj.obj_type,
+                        "attributes": obj.attributes,
+                        "content": obj.value,
+                    },
                 )
-                .first()
-            )
-            db.add(db_object)
         return Response(status_code=status.HTTP_200_OK)
 
 
