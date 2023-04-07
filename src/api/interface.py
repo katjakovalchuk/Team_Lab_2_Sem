@@ -46,7 +46,7 @@ def get_presentation_by_name(username: str, presentation_name: str) -> Presentat
         presentation_db = (
             db.query(Presentation_db)
             .filter_by(owner=username)
-            .filter_by(presentation_name=f"{username}/{presentation_name}")
+            .filter_by(presentation_name=f"{username}_{presentation_name}")
             .first()
         )
         if presentation_db is None:
@@ -73,7 +73,7 @@ def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Sli
         slide = next(
             slide
             for slide in presentation.slides
-            if slide.slide_id == f"{username}/{presentation_name}/{slide_id}"
+            if slide.slide_id == f"{username}_{presentation_name}_{slide_id}"
         )
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Slide not found")
@@ -91,7 +91,7 @@ def get_presentations(username: str) -> list[str]:
     """
     with SessionLocal() as db, db.begin():
         return [
-            presentation.presentation_name.split("/")[-1]
+            presentation.presentation_name.split("_")[-1]
             for presentation in db.query(Presentation_db).filter_by(owner=username)
         ]
 
@@ -195,7 +195,7 @@ class PresentationAPI:
         with SessionLocal() as db, db.begin():
             db_slide = get_slide_by_id(
                 self.presentation.owner,
-                self.presentation.presentation_name.split("/")[-1],
+                self.presentation.presentation_name.split("_")[-1],
                 slide_id,
             )
             with self.presentation.presentation as presentation:
@@ -219,14 +219,14 @@ class PresentationAPI:
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
                 slide_obj = presentation.slides[
-                    f"{self.presentation.presentation_name}/{slide['slide_id']}"
+                    f"{self.presentation.presentation_name}_{slide['slide_id']}"
                 ]
                 if slide_obj is None:
                     raise HTTPException(status_code=404, detail="Slide not found")
                 slide_obj.update_slide(slide)
             db_slide = get_slide_by_id(
                 self.presentation.owner,
-                self.presentation.presentation_name.split("/")[-1],
+                self.presentation.presentation_name.split("_")[-1],
                 slide["slide_id"],
             )
             db.add(db_slide)
@@ -298,7 +298,7 @@ class SlideAPI:
             db_object = (
                 db.query(SlideObject_db)
                 .filter(
-                    SlideObject_db.object_id == f"{self.slide.slide_id}/{object_id}"
+                    SlideObject_db.object_id == f"{self.slide.slide_id}_{object_id}"
                 )
                 .first()
             )
@@ -321,7 +321,7 @@ class SlideAPI:
                 db.query(SlideObject_db)
                 .filter(
                     SlideObject_db.object_id
-                    == f"{self.slide.slide_id}/{updated_values['object_id']}"
+                    == f"{self.slide.slide_id}_{updated_values['object_id']}"
                 )
                 .first()
             )

@@ -35,7 +35,7 @@ class SlideObject_db(Base):
     @contextmanager
     def object(self):
         object = Object(
-            int(self.object_name.split("/")[-1]), str(self.obj_type), str(self.owner)
+            int(self.object_name.split("_")[-1]), str(self.obj_type), str(self.owner)
         )
         object.value = self.content
         object.attributes = self.attributes
@@ -63,7 +63,7 @@ class Slide_db(Base):
     @contextmanager
     def slide(self):
         slide = Slide(
-            int(self.slide_id.split("/")[-1]), str(self.owner), str(self.background)
+            int(self.slide_id.split("_")[-1]), str(self.owner), str(self.background)
         )
         slide.attributes = self.attributes
         slide.max_id = self.max_id
@@ -90,7 +90,7 @@ class Presentation_db(Base):
     @contextmanager
     def presentation(self):
         presentation = Presentation(
-            self.presentation_name.split("/")[-1], str(self.owner), str(self.style)
+            self.presentation_name.split("_")[-1], str(self.owner), str(self.style)
         )
         presentation.plugins = self.plugins
         presentation.slides = {}

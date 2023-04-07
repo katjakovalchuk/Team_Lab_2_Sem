@@ -16,7 +16,7 @@ class Presentation:
     def __init__(
             self, name: str, owner: str, style: str = "moon", plugins: list | None = None
     ) -> None:
-        self.name = f"{owner}/{name}"
+        self.name = f"{owner}_{name}"
         self.owner = owner
         self.slides: dict[str, Slide] = {}
         self.style = style
@@ -68,7 +68,7 @@ class Presentation:
         Returns:
             str: the full id of the slide
         """
-        return f"{self.name}/{slide_id}"
+        return f"{self.name}_{slide_id}"
 
     def swap_slides(self, slide1: int, slide2: int) -> None:
         """Swap two slides.
@@ -150,7 +150,7 @@ class Presentation:
             dict: the presentation as a dict
         """
         return {
-            "name": self.name.split("/")[-1],
+            "name": self.name.split("_")[-1],
             "slides": [v.to_dict() for v in self.slides.values()],
             "style": self.style,
             "plugins": self.plugins,
@@ -189,7 +189,7 @@ class Slide:
         self.background = background_color
         self.max_id = 0
         self.owner = owner
-        self.slide_id = f"{owner}/{slide_id}"
+        self.slide_id = f"{owner}_{slide_id}"
 
     def get_new_id(self) -> int:
         """Get a new id for an element.
@@ -267,7 +267,7 @@ class Slide:
         Returns:
             str: full id of the object
         """
-        return f"{self.slide_id}/{obj_id}"
+        return f"{self.slide_id}_{obj_id}"
 
     def update_object(self, updated_values: dict) -> None:
         """Update an object.
@@ -321,7 +321,7 @@ class Slide:
             "content": self.content,
             "attributes": self.attributes,
             "background": self.background,
-            "slide_id": int(self.slide_id.split("/")[-1]),
+            "slide_id": int(self.slide_id.split("_")[-1]),
             "max_id": self.max_id,
         }
 
@@ -351,7 +351,7 @@ class Object:
         self.attributes = ""
         self.value = value
         self.owner = owner
-        self.object_id = f"{owner}/{object_id}"
+        self.object_id = f"{owner}_{object_id}"
 
     def add_attribute(self, attribute: str, value: str | None = None) -> None:
         """Add an attribute to the object.
@@ -392,7 +392,7 @@ class Object:
         """
         return {
             "type": self.obj_type,
-            "object_id": self.object_id.split("/")[-1],
+            "object_id": self.object_id.split("_")[-1],
             "attributes": self.attributes,
             "value": self.value,
         }
