@@ -71,6 +71,21 @@ def get_slide_by_id(username: str, presentation_name: str, slide_id: str) -> Sli
     return slide
 
 
+def get_presentations(username: str) -> list[str]:
+    """Get presentation names of a user.
+
+    Args:
+        username (str): The username of a user
+
+    Returns:
+        list[str]: a list of presentation names
+    """
+    presentations = db.query(Presentation_db).filter_by(owner=username).all()
+    return [
+        presentation.presentation_name.split("/")[-1] for presentation in presentations
+    ]
+
+
 @router.post("/{username}/{presentation_name}")
 def create_presentation(username: str, presentation_name: str):
     """Create a new presentation.
@@ -97,7 +112,7 @@ def create_presentation(username: str, presentation_name: str):
 
 
 @router.get("/{username}/presentations")
-def get_presentations(username: str) -> list[str]:
+def presentations(username: str) -> list[str]:
     """Get presentation names of a user.
 
     Args:
@@ -106,10 +121,7 @@ def get_presentations(username: str) -> list[str]:
     Returns:
         list[str]: a list of presentation names
     """
-    presentations = db.query(Presentation_db).filter_by(owner=username).all()
-    return [
-        presentation.presentation_name.split("/")[-1] for presentation in presentations
-    ]
+    return get_presentations(username)
 
 
 @cbv(router)
