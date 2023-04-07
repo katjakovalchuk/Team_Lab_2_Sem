@@ -7,7 +7,7 @@ from sqlalchemy.exc import NoResultFound
 
 from api.constructor import Presentation
 from api.database import (Presentation_db, SessionLocal, Slide_db,
-                          presentation_to_db)
+                          SlideObject_db, presentation_to_db)
 
 # TODO: user
 
@@ -170,10 +170,12 @@ class PresentationAPI:
         Returns:
             dict[str, int]: A dictionary with the key "slide_id" and the value
         """
-        with self.presentation.presentation as presentation:
-            slide_id = presentation.add_slide()
         with SessionLocal() as db, db.begin():
-            db.add(self.presentation)
+            with self.presentation.presentation as presentation:
+                slide_id = presentation.add_slide()
+
+            new_slide = self.presentation.slides[-1]
+            db.add(new_slide)
         return {"slide_id": slide_id}
 
     @router.delete("/{username}/{presentation_name}/remove_slide")
@@ -186,10 +188,15 @@ class PresentationAPI:
         Returns:
             Response: If the slide was removed successfully
         """
-        with self.presentation.presentation as presentation:
-            presentation.delete_slide(slide_id)
         with SessionLocal() as db, db.begin():
-            db.add(self.presentation)
+            db_slide = get_slide_by_id(
+                self.presentation.owner,
+                self.presentation.presentation_name.split("/")[-1],
+                slide_id,
+            )
+            with self.presentation.presentation as presentation:
+                presentation.delete_slide(slide_id)
+            db.delete(db_slide)
         return Response(status_code=status.HTTP_200_OK)
 
     @router.put("/{username}/{presentation_name}/update_slide")
@@ -205,15 +212,20 @@ class PresentationAPI:
         Raises:
             HTTPException: If the slide does not exist
         """
-        with self.presentation.presentation as presentation:
-            slide_obj = presentation.slides[
-                f"{self.presentation.presentation_name}/{slide['slide_id']}"
-            ]
-            if slide_obj is None:
-                raise HTTPException(status_code=404, detail="Slide not found")
-            slide_obj.update_slide(slide)
         with SessionLocal() as db, db.begin():
-            db.add(self.presentation)
+            with self.presentation.presentation as presentation:
+                slide_obj = presentation.slides[
+                    f"{self.presentation.presentation_name}/{slide['slide_id']}"
+                ]
+                if slide_obj is None:
+                    raise HTTPException(status_code=404, detail="Slide not found")
+                slide_obj.update_slide(slide)
+            db_slide = get_slide_by_id(
+                self.presentation.owner,
+                self.presentation.presentation_name.split("/")[-1],
+                slide["slide_id"],
+            )
+            db.add(db_slide)
         return Response(status_code=status.HTTP_200_OK)
 
 
@@ -259,10 +271,11 @@ class SlideAPI:
         Returns:
             dict[str, int]: A dictionary with the key "object_id" and the value
         """
-        with self.slide as slide:
-            object_id = slide.add_object(object_type, value)
         with SessionLocal() as db, db.begin():
-            db.add(self.slide)
+            with self.slide as slide:
+                object_id = slide.add_object(object_type, value)
+            new_object = self.slide.objects[-1]
+            db.add(new_object)
         return {"object_id": object_id}
 
     @router.delete("/{username}/{presentation_name}/{slide_id}/remove_object")
@@ -275,11 +288,17 @@ class SlideAPI:
         Returns:
             Response: If the object was removed successfully
         """
-        with self.slide as slide:
-            slide.delete_object(object_id)
         with SessionLocal() as db, db.begin():
-            db.add(self.slide)
-        return Response(status_code=status.HTTP_200_OK)
+            with self.slide as slide:
+                slide.delete_object(object_id)
+            db_object = (
+                db.query(SlideObject_db)
+                .filter(
+                    SlideObject_db.object_id == f"{self.slide.slide_id}/{object_id}"
+                )
+                .first()
+            )
+            db.delete(db_object)
 
     @router.put("/{username}/{presentation_name}/{slide_id}/update_object")
     def update_object(self, updated_values: dict):
@@ -291,10 +310,18 @@ class SlideAPI:
         Returns:
             Response: If the object was updated successfully
         """
-        with self.slide as slide:
-            slide.update_object(updated_values)
         with SessionLocal() as db, db.begin():
-            db.add(self.slide)
+            with self.slide as slide:
+                slide.update_object(updated_values)
+            db_object = (
+                db.query(SlideObject_db)
+                .filter(
+                    SlideObject_db.object_id
+                    == f"{self.slide.slide_id}/{updated_values['object_id']}"
+                )
+                .first()
+            )
+            db.add(db_object)
         return Response(status_code=status.HTTP_200_OK)
 
 
