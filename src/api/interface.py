@@ -222,7 +222,8 @@ class PresentationAPI:
         """
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
-                print(presentation.slides)
+                if slide["slide_id"] not in presentation.slides:
+                    raise HTTPException(status_code=404, detail="Slide not found")
                 slide_obj = presentation.slides[
                     f"{self.presentation.presentation_name}_{slide['slide_id']}"
                 ]
@@ -230,13 +231,24 @@ class PresentationAPI:
                     raise HTTPException(status_code=404, detail="Slide not found")
                 slide_obj.update_slide(slide)
                 objects = slide_obj.content
-            db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
-                {
-                    "attributes": slide["attributes"],
-                    "background_type": slide["background_type"],
-                    "background": slide["background"],
-                },
-            )
+            if "attributes" in slide:
+                db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
+                    {
+                        "attributes": slide["attributes"],
+                    },
+                )
+            if "background_type" in slide:
+                db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
+                    {
+                        "background_type": slide["background_type"],
+                    },
+                )
+            if "background" in slide:
+                db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
+                    {
+                        "background": slide["background"],
+                    },
+                )
             for object in objects:
                 db.query(SlideObject_db).filter_by(object_id=object.object_id).update(
                     {
