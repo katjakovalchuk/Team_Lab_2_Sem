@@ -285,18 +285,15 @@ class SlideAPI:
             return slide.to_dict()
 
     @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
-    def add_object(self, object_type: str) -> dict[str, int]:
+    def add_object(self) -> dict[str, int]:
         """Add a new object to the slide with the given id.
-
-        Args:
-            object_type (str): The type of the object
 
         Returns:
             dict[str, int]: A dictionary with the key "object_id" and the value
         """
         with SessionLocal() as db, db.begin():
             with self.slide.slide as slide:
-                object_id = slide.add_object(object_type, "")
+                object_id = slide.add_object("text", "")
                 object_db = SlideObject_db()
                 object = slide.get_object(object_id)
                 if object is not None:
