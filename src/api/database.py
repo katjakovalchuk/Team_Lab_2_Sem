@@ -55,6 +55,7 @@ class Slide_db(Base):
     slide_id = sa.Column(String, primary_key=True)
     attributes = sa.Column(String, nullable=True)
     background = sa.Column(String, nullable=False)
+    background_type = sa.Column(String, nullable=False)
     max_id = sa.Column(Integer, nullable=True)
     content = relationship(SlideObject_db, backref="slide", lazy="joined")
     owner = sa.Column(sa.String, sa.ForeignKey("presentation.presentation_name"))
@@ -66,6 +67,7 @@ class Slide_db(Base):
             int(self.slide_id.split("_")[-1]), str(self.owner), str(self.background)
         )
         slide.attributes = self.attributes
+        slide.background_type = self.background_type
         slide.max_id = self.max_id
         slide.content = []
         for object in self.content:
@@ -138,6 +140,7 @@ def presentation_to_db(presentation: Presentation) -> Presentation_db:
 def slide_to_db(slide_db: Slide_db, slide: Slide) -> Slide_db:
     slide_db.slide_id = slide.slide_id
     slide_db.background = slide.background
+    slide_db.background_type = slide.background_type
     slide_db.attributes = slide.attributes
     slide_db.max_id = slide.max_id
     slide_db.owner = slide.owner

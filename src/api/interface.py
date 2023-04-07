@@ -3,10 +3,9 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_restful.cbv import cbv
 from fastapi_restful.inferring_router import InferringRouter
-from sqlalchemy.exc import NoResultFound
 
 from api.constructor import Presentation
-from api.database import (Presentation_db, SessionLocal, Slide_db,
+from api.database import (Presentation_db, SessionLocal, Slide_db, SlideObject_db,
                           SlideObject_db, create_slide_db_from_slide,
                           presentation_to_db)
 
@@ -223,19 +222,29 @@ class PresentationAPI:
         """
         with SessionLocal() as db, db.begin():
             with self.presentation.presentation as presentation:
+                print(presentation.slides)
                 slide_obj = presentation.slides[
                     f"{self.presentation.presentation_name}_{slide['slide_id']}"
                 ]
                 if slide_obj is None:
                     raise HTTPException(status_code=404, detail="Slide not found")
                 slide_obj.update_slide(slide)
-                print(slide_obj.to_dict())
-            db_slide = get_slide_by_id(
-                self.presentation.owner,
-                self.presentation.presentation_name.split("_")[-1],
-                slide["slide_id"],
+                objects = slide_obj.content
+            db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
+                {
+                    "attributes": slide["attributes"],
+                    "background_type": slide["background_type"],
+                    "background": slide["background"],
+                },
             )
-            db.add(db_slide)
+            for object in objects:
+                db.query(SlideObject_db).filter_by(object_id=object.object_id).update(
+                    {
+                        "type": object.obj_type,
+                        "attributes": object.attributes,
+                        "content": object.value,
+                    },
+                )
         return Response(status_code=status.HTTP_200_OK)
 
 
