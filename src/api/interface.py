@@ -75,7 +75,7 @@ def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Sli
             for slide in presentation.slides
             if slide.slide_id == f"{username}_{presentation_name}_{slide_id}"
         )
-    except NoResultFound:
+    except StopIteration:
         raise HTTPException(status_code=404, detail="Slide not found")
     return slide
 
