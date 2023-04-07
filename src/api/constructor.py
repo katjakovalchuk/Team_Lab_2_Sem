@@ -14,7 +14,7 @@ class Presentation:
     """
 
     def __init__(
-            self, name: str, owner: str, style: str = "moon", plugins: list | None = None
+        self, name: str, owner: str, style: str = "moon", plugins: list | None = None
     ) -> None:
         self.name = f"{owner}_{name}"
         self.owner = owner
@@ -275,10 +275,25 @@ class Slide:
         Args:
             updated_values (dict): dict with the updated values
         """
-        full_id = self.get_object_full_id(updated_values["object_id"])
+        obj_id = updated_values["object_id"]
+        obj = self.get_object(obj_id)
+        if obj is not None:
+            obj.update(updated_values)
+
+    def get_object(self, obj_id: int) -> Object | None:
+        """Get an object.
+
+        Args:
+            obj_id (int): id of the object
+
+        Returns:
+            Object: the object
+        """
+        full_id = self.get_object_full_id(obj_id)
         for obj in self.content:
             if obj.object_id == full_id:
-                obj.update(updated_values)
+                return obj
+        return None
 
     def remove_object(self, obj_id: int) -> None:
         """Remove an object from the slide.
