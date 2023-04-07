@@ -12,7 +12,7 @@ from api.database import (Presentation_db, SessionLocal, Slide_db,
 # TODO: user
 
 app = FastAPI()
-db = SessionLocal()
+# db = SessionLocal()
 router = InferringRouter()
 
 origins = ["*"]
@@ -26,7 +26,9 @@ app.add_middleware(
 )
 
 
-def get_presentation_by_name(username: str, presentation_name: str) -> Presentation_db:
+def get_presentation_by_name(
+    username: str, presentation_name: str
+) -> Presentation_db:
     """Get the presentation with the given name.
 
     Args:
@@ -41,18 +43,23 @@ def get_presentation_by_name(username: str, presentation_name: str) -> Presentat
     """
     if presentation_name not in get_presentations(username):
         raise HTTPException(status_code=404, detail="Presentation not found")
-    presentation_db = (
-        db.query(Presentation_db)
-        .filter_by(owner=username)
-        .filter_by(presentation_name=f"{username}/{presentation_name}")
-        .first()
-    )
-    if presentation_db is None:
-        raise HTTPException(status_code=404, detail="Presentation not found")
-    return presentation_db
+    with SessionLocal() as db, db.begin():
+        presentation_db = (
+            db.query(Presentation_db)
+            .filter_by(owner=username)
+            .filter_by(presentation_name=f"{username}/{presentation_name}")
+            .first()
+        )
+        if presentation_db is None:
+            raise HTTPException(
+                status_code=404, detail="Presentation not found"
+            )
+        return presentation_db
 
 
-def get_slide_by_id(username: str, presentation_name: str, slide_id: str) -> Slide_db:
+def get_slide_by_id(
+    username: str, presentation_name: str, slide_id: str
+) -> Slide_db:
     """Get the slide with the given id.
 
     Args:
@@ -85,10 +92,13 @@ def get_presentations(username: str) -> list[str]:
     Returns:
         list[str]: a list of presentation names
     """
-    return [
-        presentation.presentation_name.split("/")[-1]
-        for presentation in db.query(Presentation_db).filter_by(owner=username)
-    ]
+    with SessionLocal() as db, db.begin():
+        return [
+            presentation.presentation_name.split("/")[-1]
+            for presentation in db.query(Presentation_db).filter_by(
+                owner=username
+            )
+        ]
 
 
 @router.post("/{username}/{presentation_name}")
@@ -106,13 +116,15 @@ def create_presentation(username: str, presentation_name: str):
         HTTPException: If the presentation already exists
     """
     if presentation_name in get_presentations(username):
-        raise HTTPException(status_code=409, detail="Presentation already exists")
+        raise HTTPException(
+            status_code=409, detail="Presentation already exists"
+        )
     presentation = Presentation(f"{username}/{presentation_name}", username)
     presentation.add_slide()
-    new_presentation = presentation_to_db(presentation)
-    db.add(new_presentation)
-    # synchronize the state of the Session
-    db.commit()
+    with SessionLocal() as db, db.begin():
+        new_presentation = presentation_to_db(presentation)
+        db.add(new_presentation)
+
     return Response(status_code=status.HTTP_200_OK)
 
 
@@ -198,6 +210,7 @@ class PresentationAPI:
             HTTPException: If the slide does not exist
         """
         with self.presentation.presentation as presentation:
+            print(presentation.slides)
             slide_obj = presentation.slides[slide["slide_id"]]
             if slide_obj is None:
                 raise HTTPException(status_code=404, detail="Slide not found")
@@ -237,7 +250,9 @@ class SlideAPI:
             return slide.to_dict()
 
     @router.post("/{username}/{presentation_name}/{slide_id}/add_object")
-    def add_object(self, object_type: str, value: str | None = None) -> dict[str, int]:
+    def add_object(
+        self, object_type: str, value: str | None = None
+    ) -> dict[str, int]:
         """Add a new object to the slide with the given id.
 
         Args:

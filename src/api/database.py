@@ -13,7 +13,9 @@ database = os.getenv("POSTGRES_DB")
 server = os.getenv("POSTGRES_SERVER")
 port = os.getenv("POSTGRES_PORT")
 
-engine = create_engine(f"postgresql://{uname}:{passwd}@{server}:{port}/{database}")
+engine = create_engine(
+    f"postgresql://{uname}:{passwd}@{server}:{port}/{database}"
+)
 
 Base = declarative_base()
 
@@ -53,8 +55,10 @@ class Slide_db(Base):
     attributes = sa.Column(String, nullable=True)
     background = sa.Column(String, nullable=False)
     max_id = sa.Column(Integer, nullable=True)
-    content = relationship(SlideObject_db, backref="slide")
-    owner = sa.Column(sa.String, sa.ForeignKey("presentation.presentation_name"))
+    content = relationship(SlideObject_db, backref="slide", lazy="joined")
+    owner = sa.Column(
+        sa.String, sa.ForeignKey("presentation.presentation_name")
+    )
 
     @property
     @contextmanager
@@ -80,14 +84,16 @@ class Presentation_db(Base):
     presentation_name = sa.Column(sa.String, primary_key=True)
     style = sa.Column(String, nullable=False)
     plugins = sa.Column(sa.ARRAY(String), nullable=False)
-    slides = relationship(Slide_db, backref="presentation")
+    slides = relationship(Slide_db, backref="presentation", lazy="joined")
     unused_id_max = sa.Column(Integer, nullable=False)
     owner = sa.Column(sa.String, nullable=False)
 
     @property
     @contextmanager
     def presentation(self):
-        presentation = Presentation(self.presentation_name, self.owner, self.style, self.plugins)
+        presentation = Presentation(
+            self.presentation_name, self.owner, self.style, self.plugins
+        )
         presentation.slides = {}
         for slide in self.slides:
             with slide.slide as i:
@@ -146,6 +152,9 @@ def create_slide_db_from_slide(slide: Slide) -> Slide_db:
     return slide_to_db(Slide_db(), slide)
 
 
-SessionLocal = sessionmaker(bind=engine)
-
 Base.metadata.create_all(engine)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    expire_on_commit=False,
+)
