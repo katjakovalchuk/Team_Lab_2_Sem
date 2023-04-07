@@ -181,7 +181,8 @@ class PresentationAPI:
                     db.flush()
                     db.refresh(slide_db)
                 print(presentation.to_dict())
-            db.add(self.presentation)
+            db.flush()
+            db.refresh(self.presentation)
             db.commit()
         return {"slide_id": slide_id}
 
