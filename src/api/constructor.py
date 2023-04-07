@@ -154,6 +154,8 @@ class Presentation:
             "slides": [v.to_dict() for v in self.slides.values()],
             "style": self.style,
             "plugins": self.plugins,
+            "owner": self.owner,
+            "unused_id_max": self.unused_id_max,
         }
 
 
