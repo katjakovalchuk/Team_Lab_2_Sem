@@ -245,7 +245,7 @@ class PresentationAPI:
             for object in objects:
                 db.query(SlideObject_db).filter_by(object_name=object.object_id).update(
                     {
-                        "type": object.obj_type,
+                        "obj_type": object.obj_type,
                         "attributes": object.attributes,
                         "content": object.value,
                     },
