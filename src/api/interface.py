@@ -26,7 +26,9 @@ app.add_middleware(
 )
 
 
-def get_presentation_by_name(username: str, presentation_name: str) -> Presentation_db:
+def get_presentation_by_name(
+    username: str, presentation_name: str
+) -> Presentation_db:
     """Get the presentation with the given name.
 
     Args:
@@ -49,11 +51,15 @@ def get_presentation_by_name(username: str, presentation_name: str) -> Presentat
             .first()
         )
         if presentation_db is None:
-            raise HTTPException(status_code=404, detail="Presentation not found")
+            raise HTTPException(
+                status_code=404, detail="Presentation not found"
+            )
         return presentation_db
 
 
-def get_slide_by_id(username: str, presentation_name: str, slide_id: int) -> Slide_db:
+def get_slide_by_id(
+    username: str, presentation_name: str, slide_id: int
+) -> Slide_db:
     """Get the slide with the given id.
 
     Args:
@@ -91,7 +97,9 @@ def get_presentations(username: str) -> list[str]:
     with SessionLocal() as db, db.begin():
         return [
             presentation.presentation_name.split("_")[-1]
-            for presentation in db.query(Presentation_db).filter_by(owner=username)
+            for presentation in db.query(Presentation_db).filter_by(
+                owner=username
+            )
         ]
 
 
@@ -110,7 +118,9 @@ def create_presentation(username: str, presentation_name: str):
         HTTPException: If the presentation already exists
     """
     if presentation_name in get_presentations(username):
-        raise HTTPException(status_code=409, detail="Presentation already exists")
+        raise HTTPException(
+            status_code=409, detail="Presentation already exists"
+        )
     presentation = Presentation(presentation_name, username)
     presentation.add_slide()
     with SessionLocal() as db, db.begin():
@@ -226,12 +236,16 @@ class PresentationAPI:
                     presentation.get_slide_full_id(slide["slide_id"])
                     not in presentation.slides
                 ):
-                    raise HTTPException(status_code=404, detail="Slide not found")
+                    raise HTTPException(
+                        status_code=404, detail="Slide not found"
+                    )
                 slide_obj = presentation.slides[
                     f"{self.presentation.presentation_name}_{slide['slide_id']}"
                 ]
                 if slide_obj is None:
-                    raise HTTPException(status_code=404, detail="Slide not found")
+                    raise HTTPException(
+                        status_code=404, detail="Slide not found"
+                    )
                 slide_obj.update_slide(slide)
                 objects = slide_obj.content
             db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
@@ -243,13 +257,20 @@ class PresentationAPI:
                 },
             )
             for object in objects:
-                db.query(SlideObject_db).filter_by(object_name=object.object_id).update(
-                    {
-                        "obj_type": object.obj_type,
-                        "attributes": object.attributes,
-                        "content": object.value,
-                    },
+                obj = db.query(SlideObject_db).filter_by(
+                    object_name=object.object_id
                 )
+                if obj is not None:
+                    obj.update(
+                        {
+                            "obj_type": object.obj_type,
+                            "attributes": object.attributes,
+                            "content": object.value,
+                        },
+                    )
+                else:
+                    db.add(create_slide_db_from_slide(obj))
+
         return Response(status_code=status.HTTP_200_OK)
 
 
@@ -343,7 +364,9 @@ class SlideAPI:
                 slide.update_object(updated_values)
                 obj = slide.get_object(updated_values["object_id"])
             if obj is not None:
-                db.query(SlideObject_db).filter_by(object_name=obj.object_id).update(
+                db.query(SlideObject_db).filter_by(
+                    object_name=obj.object_id
+                ).update(
                     {
                         "obj_type": obj.obj_type,
                         "attributes": obj.attributes,
