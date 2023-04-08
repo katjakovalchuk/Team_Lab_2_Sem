@@ -72,6 +72,7 @@ export default function Editor() {
 
     const updateSlide = () => {
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+        console.log(slides[slideIdx]);
         fetch(`${baseURL}/${presentationName}/update_slide`,
             {
                 mode: "cors",
@@ -99,6 +100,7 @@ export default function Editor() {
             curSlides[slideIdx].content[element].value = val;
             setSlides([...curSlides]);
             updateSlide();
+            fetchPresentation();
         }
         return updateFn;
     }
@@ -106,9 +108,11 @@ export default function Editor() {
     const updateElementType = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            curSlides[slideIdx].content[element].type = val;
+            curSlides[slideIdx].content[element]["type"] = val;
+            console.log(val);
             setSlides([...curSlides]);
             updateSlide();
+            fetchPresentation();
         }
         return updateFn;
     }
@@ -116,19 +120,37 @@ export default function Editor() {
     const updateElementAttributes = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            curSlides[slideIdx].content[element].attributes = val;
+            curSlides[slideIdx].content[element]["attributes"] = val;
             setSlides([...curSlides]);
             updateSlide();
+            fetchPresentation();
         }
         return updateFn;
     }
 
     const removeComponent = (index) => {
-        let curSlides = slides;
         const updateFn = (_) => {
-            curSlides[slideIdx].content.splice(index, 1);
-            setSlides([...curSlides]);
-            updateSlide();
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+            fetch(`${baseURL}/${presentationName}/${slides[slideIdx].slide_id}/remove_object?object_id=${slides[slideIdx].content[index].object_id}`,
+                {
+                    mode: "cors",
+                    cache: "default",
+                    method: "DELETE",
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        "Accept": "application/json",
+                        "Content-type": "application/json"
+                    },
+                }
+            )
+                .then(response => {
+                    if (response.status !== 200) {
+                        alert("Sorry, something went wrong.\nCould not save your presentation.")
+                        return;
+                    }
+                });
+
+            fetchPresentation();
         }
         return updateFn;
     }
@@ -167,6 +189,7 @@ export default function Editor() {
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
         updateSlide();
+        fetchPresentation();
     }
 
     const fetchPresentation = () => {
@@ -301,7 +324,7 @@ export default function Editor() {
                                 key={`slide_component_${v[1].object_id}`}
                                 type={v[1].type}
                                 id={v[1].type}
-                                name={v[1].slide_id}
+                                name={v[1].object_id}
                                 required={true}
                                 value={v[1].value}
                                 attrs={`${v[1].slide_id}_attrs`}

@@ -8,7 +8,6 @@ export default function ElementEditor(props: any) {
     let textAreaPlaceholder = (props.type == "img" || props.type == "iframe") ?
         "src" :
         props.type;
-    console.log(props);
     return (
         <div className={styles.editorBox}>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
