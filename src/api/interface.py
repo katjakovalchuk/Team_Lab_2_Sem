@@ -247,6 +247,7 @@ class PresentationAPI:
                         status_code=404, detail="Slide not found"
                     )
                 slide_obj.update_slide(slide)
+                print(slide_obj.to_dict())
                 objects = slide_obj.content
             db.query(Slide_db).filter_by(slide_id=slide_obj.slide_id).update(
                 {
