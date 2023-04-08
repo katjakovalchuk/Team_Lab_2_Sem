@@ -427,13 +427,13 @@ class Object:
             updated_values (dict): dict with the updated values
         """
         for key, value in updated_values.items():
-            if key == "object_id":
+            if key == "object_id" or key == "obj_id":
                 continue
-            if key == "obj_type":
+            if key == "obj_type" or key == "type" or key == "object_type":
                 self.obj_type = value
             elif key == "attributes":
                 self.attributes = value
-            elif key == "value":
+            elif key == "value" or key == "content":
                 self.value = value
 
     def to_html(self) -> str:
