@@ -8,10 +8,10 @@ import 'reveal.js/dist/reveal.css';
 import "reveal.js/plugin/highlight/monokai.css";
 
 function ToSection(obj) {
-    switch (obj.object_type) {
+    switch (obj.type) {
         case "markdown":
         case "text":
-            return `<span key=${obj.object_id} ${obj.attributes}>${obj.content}</span>`
+            return `<span key=${obj.object_id} ${obj.attributes}>${obj.value}</span>`
 
         case "code":
             return (
@@ -21,7 +21,7 @@ function ToSection(obj) {
                         data-trim
                         ${obj.attributes}
                         data-noescape>
-                        ${obj.content}
+                        ${obj.value}
                     </code>
                 </pre>`
             )
@@ -30,16 +30,16 @@ function ToSection(obj) {
             return `<img
                 ${obj.attributes}
                 key=${obj.obejct_id}
-                src=${obj.content} />`
+                src=${obj.value} />`
 
         case "iframe":
             return `<iframe
                 ${obj.attributes}
                 key=${obj.object_id}
                 allowFullScreen
-                src=${obj.content} />`
+                src=${obj.value} />`
     }
-    return obj;
+    return obj.value;
 }
 
 function ToPresentation(obj) {
@@ -58,13 +58,13 @@ export default function Editor() {
     const [presentationName, updatePresentationName] = useState("");
     const [slides, setSlides] = useState([
         {
-            slide_id: 0,
+            slide_id: 1,
             background: "#2e3440",
             content: [{
                 object_id: 0,
-                object_type: "text",
+                type: "text",
                 attributes: "",
-                content: "This is an example slide"
+                value: "This is an example slide"
             }]
         }
     ]);
@@ -96,7 +96,7 @@ export default function Editor() {
     const updateElementContent = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            curSlides[slideIdx].content[element].content = val;
+            curSlides[slideIdx].content[element].value = val;
             setSlides([...curSlides]);
             updateSlide();
         }
@@ -106,7 +106,7 @@ export default function Editor() {
     const updateElementType = (element) => {
         let curSlides = slides;
         const updateFn = (val) => {
-            curSlides[slideIdx].content[element].object_type = val;
+            curSlides[slideIdx].content[element].type = val;
             setSlides([...curSlides]);
             updateSlide();
         }
@@ -155,12 +155,7 @@ export default function Editor() {
                         alert("Sorry, something went wrong.\nCould not save your presentation.")
                         return;
                     }
-                    let curSlides = slides;
-                    curSlides.splice(slideIdx, 1);
-                    if (slideIdx + 1 > curSlides.length) {
-                        setSlideIdx(slideIdx - 1);
-                    }
-                    setSlides([...curSlides]);
+                    fetchPresentation();
                 });
         } catch {
             alert("Sorry, something went wrong.\nCould not save your presentation.")
@@ -172,33 +167,6 @@ export default function Editor() {
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
         updateSlide();
-    }
-
-    const savePresentation = () => {
-        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-        let presentationObject = {
-            "name": presentationName,
-            "slides": slides
-        };
-        fetch(`${baseURL}/${presentationName}/save`,
-            {
-                mode: "cors",
-                cache: "default",
-                method: "POST",
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    "Accept": "application/json",
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify(presentationObject)
-            }
-        )
-            .then(response => {
-                if (response.status !== 200) {
-                    alert("Sorry, something went wrong.\nCould not save your presentation.")
-                    return;
-                }
-            });
     }
 
     const fetchPresentation = () => {
@@ -213,7 +181,7 @@ export default function Editor() {
                     fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
                     setSlides([
                         {
-                            slide_id: `user1/${pname}/${slideIdx}`,
+                            slide_id: 1,
                             background: "#2e3440",
                             content: []
                         }
@@ -229,7 +197,7 @@ export default function Editor() {
                 } else {
                     setSlides([
                         {
-                            slide_id: `user1/${pname}/${slideIdx}`,
+                            slide_id: slideIdx,
                             background: "#2e3440",
                             content: []
                         }
@@ -271,10 +239,10 @@ export default function Editor() {
             <div className={styles.vertical}>
                 <div className={styles.arrows}>
                     <FaArrowLeft onClick={() => {
+                        updateSlide();
                         if (slideIdx - 1 >= 0) {
                             setSlideIdx(slideIdx - 1);
                         }
-                        updateSlide();
                     }
                     } />
                     <FaArrowRight onClick={() => {
@@ -292,7 +260,6 @@ export default function Editor() {
                             }
                         }
                         fetchPresentation();
-                        console.log(slides);
                         if (slides.length > slideIdx + 1) {
                             setSlideIdx(slideIdx + 1);
                         }
@@ -315,6 +282,7 @@ export default function Editor() {
                             } catch {
                                 alert("Could not add slide. Sorry")
                             }
+
                             fetchPresentation();
                         }} />
                     </h2>
@@ -327,19 +295,21 @@ export default function Editor() {
                         updateval={updateColor} />
                 </div>
                 {
-                    slides.content && Object.entries(slides[slideIdx].content).map(
-                        v => <ElementEditor
-                            key={`slide_component_${v[1].object_id}`}
-                            type={v[1].object_type}
-                            id={v[1].object_type}
-                            name={v[1].slide_id}
-                            required={true}
-                            value={v[1].content}
-                            attrs={`${v[1].slide_id}_attrs`}
-                            updateContent={updateElementContent(v[0])}
-                            updateType={updateElementType(v[0])}
-                            removeElement={removeComponent(v[0])}
-                            updateAttrs={updateElementAttributes(v[0])} />
+                    Object.entries(slides[slideIdx].content).map(
+                        v => {
+                            return (<ElementEditor
+                                key={`slide_component_${v[1].object_id}`}
+                                type={v[1].type}
+                                id={v[1].type}
+                                name={v[1].slide_id}
+                                required={true}
+                                value={v[1].value}
+                                attrs={`${v[1].slide_id}_attrs`}
+                                updateContent={updateElementContent(v[0])}
+                                updateType={updateElementType(v[0])}
+                                removeElement={removeComponent(v[0])}
+                                updateAttrs={updateElementAttributes(v[0])} />)
+                        }
                     )
                 }
                 <div className={["reveal", styles.presentation].join(" ")}>
