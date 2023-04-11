@@ -198,7 +198,7 @@ class Slide:
             id (int): the new id
         """
         self.max_id += 1
-        return self.max_id
+        return self.max_id - 1
 
     def set_background(
         self, bg_type: str, bg_color: str | None = None, path: str | None = None
