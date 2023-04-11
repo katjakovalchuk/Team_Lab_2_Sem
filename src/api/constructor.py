@@ -32,7 +32,7 @@ class Presentation:
             id (int): the new id
         """
         self.unused_id_max += 1
-        return self.unused_id_max
+        return self.unused_id_max - 1
 
     def add_slide(self) -> int:
         """Add a slide to the presentation.
