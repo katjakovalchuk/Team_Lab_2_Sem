@@ -19,7 +19,15 @@ export function TextInput(props: InputProps) {
     return (
         <>
             <div className={[styles.inputBox].join(" ")}>
-                <input type="input" className={styles.textInput} placeholder={props.placeholder} name={props.name} id={props.id} required={props.required} defaultValue={props.value} onBlur={updateVal} />
+                <input
+                    type="input"
+                    className={styles.textInput}
+                    placeholder={props.placeholder}
+                    name={props.name}
+                    id={props.id}
+                    required={props.required}
+                    defaultValue={props.value}
+                    onBlur={updateVal} />
                 <label htmlFor={props.id} className={styles.label}>{props.placeholder}</label>
             </div>
         </>
@@ -35,7 +43,14 @@ export function TextArea(props: InputProps) {
     return (
         <>
             <div className={[styles.inputBox].join(" ")}>
-                <textarea className={styles.textBox} placeholder={props.placeholder} name={props.name} id={props.id} required={props.required} defaultValue={props.value} onBlur={updateVal} />
+                <textarea
+                    className={styles.textBox}
+                    placeholder={props.placeholder}
+                    name={props.name}
+                    id={props.id}
+                    required={props.required}
+                    defaultValue={props.value}
+                    onBlur={updateVal} />
                 <label htmlFor={props.id} className={styles.label}>{props.placeholder}</label>
             </div>
         </>
@@ -51,7 +66,14 @@ export function Select(props: InputProps) {
     return (
         <>
             <div className={[styles.inputBox].join(" ")}>
-                <select className={styles.selectInput} placeholder={props.placeholder} name={props.name} id={props.id} required={props.required} defaultValue={props.value} onChange={updateVal}>
+                <select
+                    className={styles.selectInput}
+                    placeholder={props.placeholder}
+                    name={props.name}
+                    id={props.id}
+                    required={props.required}
+                    defaultValue={props.value}
+                    onChange={updateVal}>
                     <option value="img">Image</option>
                     <option value="iframe">Iframe</option>
                     <option value="text">Plain Text</option>

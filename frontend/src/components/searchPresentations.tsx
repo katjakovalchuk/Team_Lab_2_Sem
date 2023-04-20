@@ -27,34 +27,35 @@ export default function SearchPresentations() {
 
     console.log(presentationNames);
     useEffect(() => {
-        fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1/presentations`,
-            {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-type": "application/json"
-                },
-            }
-        )
-            .then(resp => resp.json())
-            .then(response => {
-                if (response.status === 404) {
-                    alert("Sorry, something went wrong.\nCould not look up the presentations from the server.")
-                    return;
+        setTimeout(() => {
+            fetch(`${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1/presentations`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-type": "application/json"
+                    },
                 }
-                setPresentations(response);
-            }
-            ).catch(() => {
-                alert("Sorry, something went wrong.\nCould not look up the presentations from the server.")
+            )
+                .then(resp => resp.json())
+                .then(response => {
+                    if (response.status === 404) {
+                        alert("Sorry, something went wrong.\nCould not look up the presentations from the server.")
+                        return;
+                    }
+                    setPresentations(response);
+                }
+                ).catch(() => {
+                    alert("Sorry, something went wrong.\nCould not look up the presentations from the server.")
 
-            })
+                })
+        }, 1000)
     })
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
         setPresentationNames(
-            presentations
-            // presentations.filter((word: string) => word.includes(name))
+            presentations.filter((word: string) => word.includes(name))
         )
 
     }
@@ -69,7 +70,8 @@ export default function SearchPresentations() {
                     <TextInput placeholder="Presentation Name" id="presName" name="presName" required={true} updateval={setName} value="" />
                     <input type="submit" style={{ display: "none" }} />
                 </form>
-                <div className={styles.vertical}>
+                <div className={
+                    [styles.vertical, styles.search].join(" ")}>
                     {presentationNames.map(name =>
                         <a href={`/presentations/${name}/edit`} className={styles.presentationLink}>
                             <FaEdit />

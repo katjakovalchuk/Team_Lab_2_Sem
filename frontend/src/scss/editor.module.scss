@@ -89,6 +89,12 @@
      }
 }
 
+.search {
+    padding-top: 2.4em;
+    max-height: 24em;
+    overflow-y: scroll;
+}
+
  .editorBox {
      display: flex;
      flex-direction: column;

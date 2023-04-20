@@ -7,11 +7,11 @@ import 'reveal.js/dist/reset.css';
 import 'reveal.js/dist/reveal.css';
 import "reveal.js/plugin/highlight/monokai.css";
 
-function ToSection(obj, slideIdx) {
+function ToSection(obj) {
     switch (obj.type) {
         case "markdown":
         case "text":
-            return `<span key="slide_${slideIdx}_object_${obj.object_id}" ${obj.attributes}>${obj.value}</span>`
+            return `<span key=${obj.object_id} ${obj.attributes}>${obj.value}</span>`
 
         case "code":
             return (
@@ -49,10 +49,7 @@ function ToPresentation(obj) {
             slide.content = []
         }
         // This is not pretty. Too bad!
-        return <section
-            key={`slide_${slide.slide_id}`}
-            data-background-color={slide.background ? slide.background : "var(--nav-color)"}
-            dangerouslySetInnerHTML={{ __html: slide.content.map((v) => { return ToSection(v, slide.slide_id) }).join("") }} />
+        return <section key={`slide_${slide.slide_id}`} data-background-color={slide.background ? slide.background : "var(--nav-color)"} dangerouslySetInnerHTML={{ __html: slide.content.map(ToSection).join("") }} />
     })
 }
 
@@ -64,7 +61,7 @@ export default function Editor() {
             slide_id: 1,
             background: "#2e3440",
             content: [{
-                object_id: 1,
+                object_id: 0,
                 type: "text",
                 attributes: "",
                 value: "This is an example slide"
@@ -72,6 +69,12 @@ export default function Editor() {
         }
     ]);
     const [slideIdx, setSlideIdx] = useState(0);
+    const [curSlide, setCurSlide] = useState(slides[0]);
+
+    // This is what MDN docs told me to do. Fuck JS 
+    const deepCopy = (value) => {
+        return JSON.parse(JSON.stringify(value));
+    }
 
     const fetchPresentation = async () => {
         let splitPath = window.location.href.split("/");
@@ -87,10 +90,7 @@ export default function Editor() {
         }
         const data = await resp.json();
         if (data.slides) {
-            let presSlides = JSON.parse(JSON.stringify(data.slides));
-            console.log(presSlides);
-            presSlides.sort(v => v.slide_id);
-            setSlides(presSlides);
+            setSlides(deepCopy(data.slides).sort(v => v.slide_id));
         } else {
             setSlides([
                 {
@@ -100,6 +100,7 @@ export default function Editor() {
                 }
             ]);
         }
+        setCurSlide(deepCopy([...slides[slideIdx]]));
     }
 
     const updateSlide = async () => {
@@ -113,7 +114,7 @@ export default function Editor() {
                     "Accept": "application/json",
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(slides[slideIdx]),
+                body: JSON.stringify({ ...curSlide }),
             }
         );
         const response = await slideResponse.json();
@@ -121,42 +122,46 @@ export default function Editor() {
             alert("Sorry, something went wrong.\nCould not save your presentation.")
         }
         await fetchPresentation();
+        setCurSlide(deepCopy([...slides[slideIdx]]));
     }
 
     const updateElementContent = (element) => {
-        let cur_slides = [...slides];
+        let curSlides = deepCopy(slides);
         const updateFn = async (val) => {
-            cur_slides[slideIdx].content[element].value = val;
-            setSlides([...cur_slides]);
+            curSlides[slideIdx].content[element].value = val;
+            setSlides([...curSlides]);
             await updateSlide();
+            setCurSlide(deepCopy([...slides[slideIdx]]));
         }
         return updateFn;
     }
 
     const updateElementType = (element) => {
-        let cur_slides = [...slides];
+        let curSlides = deepCopy(slides);
         const updateFn = async (val) => {
-            cur_slides[slideIdx].content[element]["type"] = val;
-            setSlides([...cur_slides]);
+            curSlides[slideIdx].content[element]["type"] = val;
+            setSlides([...curSlides]);
             await updateSlide();
+            setCurSlide(deepCopy([...slides[slideIdx]]));
         }
         return updateFn;
     }
 
     const updateElementAttributes = (element) => {
-        let cur_slides = [...slides];
+        let curSlides = deepCopy(slides);
         const updateFn = async (val) => {
-            cur_slides[slideIdx].content[element]["attributes"] = val;
-            setSlides([...cur_slides]);
+            curSlides[slideIdx].content[element]["attributes"] = val;
+            setSlides([...curSlides]);
             await updateSlide();
+            setCurSlide(deepCopy([...slides[slideIdx]]));
         }
         return updateFn;
     }
 
     const removeComponent = (index) => {
-        const updateFn = async (_) => {
+        const updateFn = (_) => {
             const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-            fetch(`${baseURL}/${presentationName}/${slides[slideIdx].slide_id}/remove_object?object_id=${slides[slideIdx].content[index].object_id}`,
+            fetch(`${baseURL}/${presentationName}/${curSlide.slide_id}/remove_object?object_id=${curSlide.content[index].object_id}`,
                 {
                     cache: "default",
                     method: "DELETE",
@@ -174,17 +179,18 @@ export default function Editor() {
                     }
                 });
 
-            await fetchPresentation();
+            fetchPresentation();
+            setCurSlide(deepCopy([...slides[slideIdx]]));
         }
         return updateFn;
     }
 
-    const removeSlide = async () => {
+    const removeSlide = () => {
         if (slides.length == 1)
             return;
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         try {
-            fetch(`${baseURL}/${presentationName}/remove_slide?slide_id=${slides[slideIdx].slide_id}`,
+            fetch(`${baseURL}/${presentationName}/remove_slide?slide_id=${curSlide.slide_id}`,
                 {
                     cache: "default",
                     method: "DELETE",
@@ -200,19 +206,21 @@ export default function Editor() {
                         alert("Sorry, something went wrong.\nCould not save your presentation.")
                         return;
                     }
+                    fetchPresentation();
+                    setCurSlide(deepCopy([...slides[slideIdx]]));
                 });
         } catch {
             alert("Sorry, something went wrong.\nCould not save your presentation.")
         }
-        await fetchPresentation();
     }
 
     const updateColor = async (val) => {
-        let cur_slides = [...slides];
-        cur_slides[slideIdx].background = val;
-        setSlides([...cur_slides])
+        let curSlides = deepCopy(slides);
+        curSlides[slideIdx].background = val;
+        setSlides([...curSlides])
         await updateSlide();
         fetchPresentation();
+        setCurSlide(deepCopy([...slides[slideIdx]]));
     }
     const clientSideInitialization = async () => {
         // load modules in browser
@@ -227,6 +235,7 @@ export default function Editor() {
         deck.initialize()
         setInterval(() => {
             deck.sync();
+            setCurSlide(deepCopy([...slides[slideIdx]]));
         }, 500);
         deck.addEventListener('ready', () => deck.slide(0))
     }
@@ -244,10 +253,11 @@ export default function Editor() {
             <div className={styles.vertical}>
                 <div className={styles.arrows}>
                     <FaArrowLeft onClick={async () => {
-
                         if (slideIdx - 1 >= 0) {
                             setSlideIdx(slideIdx - 1);
                         }
+                        setCurSlide(deepCopy([...slides[slideIdx]]));
+                        await fetchPresentation();
                     }
                     } />
                     <FaArrowRight onClick={async () => {
@@ -265,6 +275,7 @@ export default function Editor() {
                         }
                         await fetchPresentation();
                         setSlideIdx(slideIdx + 1);
+                        setCurSlide(deepCopy([...slides[slideIdx]]));
                     }
                     } />
                     <FaMinus onClick={removeSlide} />
@@ -277,7 +288,7 @@ export default function Editor() {
                             const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
                             try {
                                 const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-                                fetch(`${baseURL}/${presentationName}/${slides[slideIdx].slide_id}/add_object`, { headers: headers, mode: 'cors', method: "POST" })
+                                fetch(`${baseURL}/${presentationName}/${curSlide.slide_id}/add_object`, { headers: headers, mode: 'cors', method: "POST" })
                                     .catch(
                                         () => alert("Sorry, could not fetch the presentation data")
                                     );
@@ -285,21 +296,22 @@ export default function Editor() {
                                 alert("Could not add slide. Sorry")
                             }
                             await updateSlide();
+                            setCurSlide(deepCopy([...slides[slideIdx]]));
                         }} />
                     </h2>
                     <TextInput
                         id={`background_color`}
                         placeholder={"Slide Background"}
                         required={false}
-                        value={slides[slideIdx].background}
+                        value={curSlide.background}
                         name={`${presentationName}_color`}
                         updateval={updateColor} />
                 </div>
                 {
-                    Object.entries([...slides[slideIdx].content]).map(
+                    Object.entries([...curSlide.content]).map(
                         v => {
                             return (<ElementEditor
-                                key={`slide_${slides[slideIdx].slide_id}_component_${v[1].object_id}`}
+                                key={`slide_component_${v[1].object_id}`}
                                 type={v[1].type}
                                 id={v[1].type}
                                 name={v[1].object_id}
@@ -316,7 +328,7 @@ export default function Editor() {
                 <div className={["reveal", styles.presentation].join(" ")}>
                     <div className="slides">
                         {
-                            ToPresentation(slides)
+                            ToPresentation(deepCopy(slides))
                         }
                     </div>
                 </div>
