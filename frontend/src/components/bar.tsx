@@ -1,6 +1,5 @@
 import { FaHome, FaPen, FaBook, FaEnvelopeOpenText } from "react-icons/fa";
 import Link from "next/link";
-import Overlay from "./overlayMenu";
 import styles from "../scss/bar.module.scss";
 
 interface BarProps {

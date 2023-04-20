@@ -70,60 +70,54 @@ export default function Editor() {
     ]);
     const [slideIdx, setSlideIdx] = useState(0);
 
-    const updateSlide = () => {
+    const updateSlide = async () => {
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-        console.log(slides[slideIdx]);
-        fetch(`${baseURL}/${presentationName}/update_slide`,
-            {
-                mode: "cors",
-                cache: "default",
-                method: "PUT",
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    "Accept": "application/json",
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({ ...slides[slideIdx] })
-            }
-        )
-            .then(response => {
-                if (response.status !== 200) {
-                    alert("Sorry, something went wrong.\nCould not save your presentation.")
-                }
-            });
-
+        const slideResponse = await fetch(`${baseURL}/${presentationName}/update_slide`, {
+            mode: "cors",
+            cache: "default",
+            method: "PUT",
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Accept": "application/json",
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({ ...slides[slideIdx] }),
+        }
+        );
+        const response = await slideResponse.json();
+        if (response.status !== 200) {
+            alert("Sorry, something went wrong.\nCould not save your presentation.")
+        }
+        await fetchPresentation();
     }
 
     const updateElementContent = (element) => {
-        let curSlides = slides;
-        const updateFn = (val) => {
+        let curSlides = [...slides];
+        const updateFn = async (val) => {
             curSlides[slideIdx].content[element].value = val;
             setSlides([...curSlides]);
-            updateSlide();
-            fetchPresentation();
+            await updateSlide();
         }
         return updateFn;
     }
 
     const updateElementType = (element) => {
-        let curSlides = slides;
-        const updateFn = (val) => {
+        let curSlides = [...slides];
+        const updateFn = async (val) => {
             curSlides[slideIdx].content[element]["type"] = val;
             console.log(val);
             setSlides([...curSlides]);
-            updateSlide();
-            fetchPresentation();
+            await updateSlide();
         }
         return updateFn;
     }
 
     const updateElementAttributes = (element) => {
-        let curSlides = slides;
-        const updateFn = (val) => {
+        let curSlides = [...slides];
+        const updateFn = async (val) => {
             curSlides[slideIdx].content[element]["attributes"] = val;
             setSlides([...curSlides]);
-            updateSlide();
-            fetchPresentation();
+            await updateSlide();
         }
         return updateFn;
     }
@@ -185,51 +179,37 @@ export default function Editor() {
     }
 
     const updateColor = (val) => {
-        let curSlides = slides;
+        let curSlides = [...slides];
         curSlides[slideIdx].background = val;
         setSlides([...curSlides])
         updateSlide();
         fetchPresentation();
     }
 
-    const fetchPresentation = () => {
+    const fetchPresentation = async () => {
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
         updatePresentationName(pname);
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-        fetch(`${baseURL}/${pname}`, { headers: headers, mode: 'cors', method: "GET" })
-            .then(resp => {
-                if (resp.status === 404) {
-                    fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' })
-                    setSlides([
-                        {
-                            slide_id: 1,
-                            background: "#2e3440",
-                            content: []
-                        }
-                    ]);
-                    return null;
+        const resp = await fetch(`${baseURL}/${pname}`, { headers: headers, mode: 'cors', method: "GET" });
+        if (resp.status === 404) {
+            fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' });
+            setSlides([]);
+            return;
+        }
+        const data = await resp.json();
+        if (data.slides) {
+            setSlides([...data.slides]);;
+        } else {
+            setSlides([
+                {
+                    slide_id: 1,
+                    background: "#2e3440",
+                    content: []
                 }
-                else {
-                    return resp.json()
-                }
-            }).then(data => {
-                if (data.slides) {
-                    setSlides([...data.slides]);;
-                } else {
-                    setSlides([
-                        {
-                            slide_id: slideIdx,
-                            background: "#2e3440",
-                            content: []
-                        }
-                    ]);
-                }
-            })
-            .catch(
-                () => alert("Sorry, could not fetch the presentation data")
-            );
+            ]);
+        }
     }
 
     const clientSideInitialization = async () => {
@@ -248,11 +228,11 @@ export default function Editor() {
         }, 500);
         deck.addEventListener('ready', () => deck.slide(0))
     }
-    useEffect(() => {
+    useEffect(async () => {
         let splitPath = window.location.href.split("/");
         const pname = splitPath[4];
         updatePresentationName(pname);
-        fetchPresentation();
+        await fetchPresentation();
         // load modules in browser
         clientSideInitialization();
     }, [])
@@ -261,15 +241,14 @@ export default function Editor() {
         <>
             <div className={styles.vertical}>
                 <div className={styles.arrows}>
-                    <FaArrowLeft onClick={() => {
-                        updateSlide();
+                    <FaArrowLeft onClick={async () => {
+                        await updateSlide();
                         if (slideIdx - 1 >= 0) {
                             setSlideIdx(slideIdx - 1);
                         }
                     }
                     } />
-                    <FaArrowRight onClick={() => {
-                        updateSlide();
+                    <FaArrowRight onClick={async () => {
                         if ((slideIdx + 1) == slides.length) {
                             const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
                             try {
@@ -282,8 +261,8 @@ export default function Editor() {
                                 alert("Could not add slide. Sorry")
                             }
                         }
-                        fetchPresentation();
-                        if (slides.length > slideIdx + 1) {
+                        await updateSlide();
+                        if (slides.length >= slideIdx + 1) {
                             setSlideIdx(slideIdx + 1);
                         }
                     }
@@ -305,8 +284,7 @@ export default function Editor() {
                             } catch {
                                 alert("Could not add slide. Sorry")
                             }
-
-                            fetchPresentation();
+                            await updateSlide();
                         }} />
                     </h2>
                     <TextInput
@@ -318,7 +296,7 @@ export default function Editor() {
                         updateval={updateColor} />
                 </div>
                 {
-                    Object.entries(slides[slideIdx].content).map(
+                    Object.entries([...slides[slideIdx].content]).map(
                         v => {
                             return (<ElementEditor
                                 key={`slide_component_${v[1].object_id}`}
@@ -338,7 +316,7 @@ export default function Editor() {
                 <div className={["reveal", styles.presentation].join(" ")}>
                     <div className="slides">
                         {
-                            ToPresentation(slides)
+                            ToPresentation([...slides])
                         }
                     </div>
                 </div>
