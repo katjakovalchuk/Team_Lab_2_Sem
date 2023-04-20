@@ -74,51 +74,58 @@ export default function Editor() {
     const [slideIdx, setSlideIdx] = useState(0);
 
     const fetchPresentation = async () => {
-        let splitPath = window.location.href.split("/");
-        const pname = splitPath[4];
-        updatePresentationName(pname);
-        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-        const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-        const resp = await fetch(`${baseURL}/${pname}`, { headers: headers, method: "GET" });
-        if (resp.status === 404) {
-            await fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers });
-            setSlides([]);
-            return;
-        }
-        const data = await resp.json();
-        if (data.slides) {
-            let presSlides = JSON.parse(JSON.stringify(data.slides));
-            console.log(presSlides);
-            presSlides.sort(v => v.slide_id);
-            setSlides(presSlides);
-        } else {
-            setSlides([
-                {
-                    slide_id: 1,
-                    background: "#2e3440",
-                    content: []
-                }
-            ]);
+        try {
+            let splitPath = window.location.href.split("/");
+            const pname = splitPath[4];
+            updatePresentationName(pname);
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+            const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
+            let resp = await fetch(`${baseURL}/${pname}`, { headers: headers, mode: 'cors', method: "GET" });
+
+            if (resp.status !== 200) {
+                await fetch(`${baseURL}/${pname}`, { method: "POST", headers: headers, mode: 'cors' });
+                resp = await fetch(`${baseURL}/${pname}`, { headers: headers, mode: 'cors', method: "GET" });
+            }
+
+            const data = await resp.json();
+            if (data.slides) {
+                let presSlides = JSON.parse(JSON.stringify(data.slides));
+                presSlides.sort(v => v.slide_id);
+                setSlides(presSlides);
+            } else {
+                setSlides([
+                    {
+                        slide_id: 1,
+                        background: "#2e3440",
+                        content: []
+                    }
+                ]);
+            }
+        } catch {
+            console.log("Wah");
         }
     }
 
     const updateSlide = async () => {
-        await fetchPresentation();
-        const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-        const slideResponse = await fetch(`${baseURL}/${presentationName}/update_slide`,
-            {
-                method: "PUT",
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    "Accept": "application/json",
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify(slides[slideIdx]),
+        try {
+            const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+            const slideResponse = await fetch(`${baseURL}/${presentationName}/update_slide`,
+                {
+                    method: "PUT",
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        "Accept": "application/json",
+                        "Content-type": "application/json"
+                    },
+                    body: JSON.stringify(slides[slideIdx]),
+                }
+            );
+            const response = await slideResponse.json();
+            if (response.status !== 200) {
+                alert("Sorry, something went wrong.\nCould not save your presentation.")
             }
-        );
-        const response = await slideResponse.json();
-        if (response.status !== 200) {
-            alert("Sorry, something went wrong.\nCould not save your presentation.")
+        } catch {
+            console.log("Sorry, could nto update slide");
         }
         await fetchPresentation();
     }
@@ -156,7 +163,7 @@ export default function Editor() {
     const removeComponent = (index) => {
         const updateFn = async (_) => {
             const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
-            fetch(`${baseURL}/${presentationName}/${slides[slideIdx].slide_id}/remove_object?object_id=${slides[slideIdx].content[index].object_id}`,
+            await fetch(`${baseURL}/${presentationName}/${slides[slideIdx].slide_id}/remove_object?object_id=${slides[slideIdx].content[index].object_id}`,
                 {
                     cache: "default",
                     method: "DELETE",
@@ -184,7 +191,7 @@ export default function Editor() {
             return;
         const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
         try {
-            fetch(`${baseURL}/${presentationName}/remove_slide?slide_id=${slides[slideIdx].slide_id}`,
+            await fetch(`${baseURL}/${presentationName}/remove_slide?slide_id=${slides[slideIdx].slide_id}`,
                 {
                     cache: "default",
                     method: "DELETE",
@@ -230,11 +237,8 @@ export default function Editor() {
         }, 500);
         deck.addEventListener('ready', () => deck.slide(0))
     }
-    useEffect(async () => {
-        let splitPath = window.location.href.split("/");
-        const pname = splitPath[4];
-        updatePresentationName(pname);
-        await fetchPresentation();
+    useEffect(() => {
+        fetchPresentation();
         // load modules in browser
         clientSideInitialization();
     }, [])
@@ -251,16 +255,18 @@ export default function Editor() {
                     }
                     } />
                     <FaArrowRight onClick={async () => {
+                        await fetchPresentation();
                         if ((slideIdx + 1) >= slides.length) {
                             const baseURL = `${window.location.protocol}//${window.location.host.split(":")[0]}:${port}/user1`;
+                            const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
                             try {
-                                const headers = { "Content-type": "application/json", 'Access-Control-Allow-Origin': '*' };
-                                fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors', method: "POST" })
-                                    .catch(
-                                        () => alert("Sorry, could not fetch the presentation data")
-                                    );
+                                const resp = await fetch(`${baseURL}/${presentationName}/add_slide`, { headers: headers, mode: 'cors', method: "POST" })
+
+                                if (resp.status !== 200) {
+                                    alert("Sorry, could not fetch the presentation data")
+                                }
                             } catch {
-                                alert("Could not add slide. Sorry")
+                                alert("Sorry, could not fetch the presentation data")
                             }
                         }
                         await fetchPresentation();
@@ -284,7 +290,7 @@ export default function Editor() {
                             } catch {
                                 alert("Could not add slide. Sorry")
                             }
-                            await updateSlide();
+                            await fetchPresentation();
                         }} />
                     </h2>
                     <TextInput
